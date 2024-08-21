@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/user/user.controller.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/user/user.controller.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Controller for handling user-related operations.
+ * @file User Controller
+ * @module User Controller
+ * @category controllers
+ * @subcategory user
+ */
+
+import db from "../../models"
+import cache from "../../utils/cache.util.js"
+import { Op } from "sequelize"
+import { logger } from "../../app.js"
+import { uniqueUsernameGenerator } from "../../utils/username.util.js"
+import * as userService from "../../services/user.service.js"
+import { generateUniqueReferralCode } from "../../utils/referral.util.js"
+const is_prod = process.env.NODE_ENV === "production" ? true : false
+
+const { User, UserSetting, UserAddress, Social, Referral, Wallet, Media } = db
+
+/**
+  * Sends an OTP (One-Time Password) to the user's phone number.
+  * @controller user
+  * @route POST /api/v1/user/otp
+  * @param {Object} request - The request object containing the user's phone number.
+  * @param {Object} reply - The reply object used to send the response.
+  * @body {string} phone.required - The user's phone number.
+  * @returns {Promise&lt;Object>} - A promise that resolves to a success message upon successful OTP generation and sending.
+  * @throws {Error} - If the OTP limit is reached, the user is banned, the OTP generation or sending fails, or there is an error during the process.
+*/
+export async function otp(request, reply) {
+  try {
+    const { phone } = request.body
+
+    const ip = request.headers["x-forwarded-for"]?.split(",")[0] || request.headers["x-forwarded-for"] || request.ip;
+
+    const cache_key = `otp_request_count_${ip}`;
+    const cache_val = (await cache.get(cache_key)) || 0;
+
+    if (cache_val &amp;&amp; cache_val >= 5 &amp;&amp; is_prod) {
+      return reply.status(429).send({
+        error: "Otp limit reached. Please try again after 30 mins",
+      });
+    }
+
+    const user = await User.findOne({ where: { phone } })
+
+    if (user &amp;&amp; user.is_banned) {
+      return reply.status(403).send({
+        error:
+          "You're banned from using our services. If you think this is a mistake, please contact us.",
+      });
+    }
+
+    const otp = await userService.generateOTP(phone)
+
+    if (is_prod) {
+      await userService.sendOtp(phone, otp) // send otp via sms
+      cache.set(cache_key, cache_val + 1, 60 * 30) // set cache for 30 mins to limit otp requests from same ip (in production)
+      reply.status(200).send({ message: "Otp sent" }) // send success response
+    } else {
+      console.log(otp)
+      reply.status(200).send({ message: otp }) // in development, send otp in response
+    }
+  } catch (error) {
+    logger.error(`users.controller.otp: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Logs in a user with a phone number and OTP.
+ * @controller user
+ * @route POST /api/v1/user/login
+ * @param {object} request - The request object.
+ * @param {object} reply - The reply object.
+ * @body {string} phone.required - The user's phone number.
+ * @body {string} otp.required - The OTP sent to the user's phone number.
+ * @body {string} referral_code - The referral code of the user who referred the new user.
+ * @returns {object} The response object containing a success message and token.
+ * @throws {Error} - If the user is banned, the OTP is invalid, or there is an error during the process.
+ */
+export async function login(request, reply) {
+  try {
+
+    if ((request.cookies.token || request.headers.authorization) &amp;&amp; request.jwtVerify()) {
+      return reply.status(406).send({
+        error: "You are already logged in"
+      })
+    }
+
+    const { phone, otp, referral_code = "" } = request.body
+
+    const ip = request.headers["x-forwarded-for"]?.split(",")[0] || request.headers["x-forwarded-for"] || request.ip
+
+    const cache_key = `login_request_count_${ip}`
+    const cache_val = (await cache.get(cache_key)) || 0;
+
+    if (cache_val &amp;&amp; cache_val >= 10) {
+      return reply.status(429).send({
+        error: "Login limit reached. Please try again after 30 mins",
+      });
+    }
+
+    cache.set(cache_key, cache_val + 1, 60 * 30)
+    const user = await userService.loginWithOTP(phone, otp, referral_code)
+
+    const token = await reply.jwtSign({
+      id: user.id,
+      role: user.role,
+      username: user.username,
+    })
+
+    reply.setCookie("token", token, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: is_prod,
+      // sameSite: is_prod ? "none" : "lax",
+      // signed: true, // dont use signed cookies with JWT
+      expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+      path: "/",
+    })
+
+    reply.status(200).send({ message: "Logged in", token })
+  } catch (error) {
+    logger.error(`user.controller.login: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Logs out a user by clearing the token cookie.
+ * @controller user
+ * @role user
+ * @route GET /api/v1/user/logout
+ * @param {object} request - The request object.
+ * @param {object} reply - The reply object.
+ * @returns {object} The response object containing a success message.
+ * @throws {Error} - If there is an error during the process.
+ */
+export async function logout(request, reply) {
+  try {
+    reply.clearCookie("token");
+    return reply.status(200).send({ message: "Logged out" })
+  } catch (error) {
+    logger.error(`users.controller.logout: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Retrieves the profile of the authenticated user.
+ * @controller user
+ * @role user
+ * @route GET /api/v1/user/profile
+ * @returns {Object} The response object containing the user profile information.
+ * @throws {Error} If an error occurs while retrieving the user profile.
+ */
+export async function getProfile(request, reply) {
+  try {
+    const user = request.user;
+    if (!user) return reply.status(401).send({ error: "Unauthorized" });
+    const following_count = await Social.count({ where: { follower_id: user.id } })
+    const follower_count = await Social.count({ where: { following_id: user.id } })
+
+    const wallet = await Wallet.findOne({ where: { user_id: user.id } }) // taking user wallet balance
+
+    const { balance = 0, bonus = 0, winning = 0 } = wallet
+
+    return reply.status(200).send({
+      id: user?.id,
+      phone: user?.phone || "",
+      first_name: user?.first_name || "",
+      last_name: user?.last_name || "",
+      username: user?.username || "",
+      avatar: user?.avatar,
+      email: user?.email || "",
+      date_of_birth: user?.date_of_birth || "",
+      gender: user?.gender || "",
+      app_language: user?.app_language || "",
+      follower_count,
+      following_count,
+      balance,
+      bonus,
+      winning,
+    })
+  } catch (error) {
+    logger.error(`user.controller.getProfile: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Updates the profile of the authenticated user.
+ * @controller user
+ * @role user
+ * @route PUT /api/v1/user/profile
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while updating the user profile.
+ */
+export async function updateProfile(request, reply) {
+  try {
+    const {
+      email,
+      first_name,
+      last_name,
+      date_of_birth,
+      gender,
+      app_language,
+      street = "",
+      city = "",
+      pin_code = "",
+      state = "",
+      country = "",
+    } = request.body
+    const user = request.user
+
+    // Check if email exists but not for current user // TODO: VERIFY EMAIL
+    if (email) {
+      const emailExists = await User.findOne({ where: { email } })
+      if (emailExists &amp;&amp; emailExists.id !== user.id) return reply.status(400).send({ error: "Email already belongs to another user" })
+    }
+
+    if (email) user.email = email
+    // if (password) user.password = await encrypt(password)
+    if (first_name) user.first_name = first_name
+    if (last_name) user.last_name = last_name
+    if (date_of_birth) user.date_of_birth = date_of_birth
+    if (gender) user.gender = gender
+    if (app_language) user.app_language = app_language
+
+    await user.save()
+
+    let address = await UserAddress.findOne({ where: { user_id: user.id } })
+
+    if (!address) {
+      address = await UserAddress.create({
+        user_id: request.user.id,
+        street: street,
+        city: city,
+        pin_code: pin_code,
+        state: state,
+        country: country,
+      })
+    } else {
+      address.street = street
+      address.city = city
+      address.pin_code = pin_code
+      address.state = state
+      address.country = country
+
+      await address.save()
+    }
+
+    reply.status(200).send({ user, address })
+  } catch (error) {
+    logger.error(`user.controller.updateProfile: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Retrieves the personal settings of the authenticated user.
+ * @controller user
+ * @role user
+ * @route GET /api/v1//user/setting
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the user settings.
+ */
+export async function getSetting(request, reply) {
+  // TODO: getting personal setting for a user
+  // here we thinking to create user setting first time by default
+  try {
+
+    const cacheKey = `user:get:setting` // Unique key for caching
+    // TODO: implement redis
+    // console.log(request)
+    // Check if the result is cached in Redis
+    // const cachedResult = await fastify.redis.get(cacheKey);
+    // if (cachedResult) {
+    //   return reply.send(cachedResult);
+    // }
+
+    const usersetting = await UserSetting.findOne({
+      where: { user_id: request.user.id },
+    })
+
+    if (!usersetting) {
+      const usersetting = await UserSetting.create({
+        user_id: request.user.id,
+      });
+      return reply.status(200).send({ usersetting })
+    }
+
+    // // Cache the result in Redis
+    // await fastify.redis.set(cacheKey, { usersetting })
+
+    return reply.status(200).send(usersetting)
+  } catch (error) {
+    logger.error(`user.controller.getSetting: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Updates the personal settings of the authenticated user.
+ * @controller user
+ * @role user
+ * @route PUT /api/v1/user/setting
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while updating the user settings.
+ */
+export async function updateSetting(request, reply) {
+  try {
+    const { allow_whatsapp_messages = true, display_full_name = false, show_my_previous_teams = true, show_which_contest_i_join = true, allow_challenges = true, } = request.body;
+    const user_id = request.user.id;
+    let usersetting = await UserSetting.findOne({
+      where: {
+        user_id,
+      },
+    });
+
+    if (!usersetting) {
+      usersetting = await UserSetting.create({
+        user_id,
+      });
+    } // create user setting if does not exist
+
+    usersetting.allow_whatsapp_messages = allow_whatsapp_messages
+    usersetting.display_full_name = display_full_name
+    usersetting.show_my_previous_teams = show_my_previous_teams
+    usersetting.show_which_contest_i_join = show_which_contest_i_join
+    usersetting.allow_challenges = allow_challenges
+
+    await usersetting.save()
+
+    reply.status(200).send({ usersetting })
+  } catch (error) {
+    logger.error(`user.controller.updateSetting: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Updates user's avatar.
+ * @controller user
+ * @role user
+ * @route PUT /api/v1/user/avatar
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while updating the avatar.
+ */
+export async function updateAvatar(request, reply) {
+  try {
+    let avatar = await userService.updateUserAvatar(request);
+    if (avatar) return reply.status(200).send({ message: 'Avatar updated successfully' })
+  } catch (error) {
+    logger.error(`user.controller.updateAvatar: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+// ************** ************** ************** *******************  //
+// ************** ADMIN ONLY CONTROLLERS BELOW  *******************  //
+// ************** ************** ************** *******************  //
+
+/**
+ * Retrieves a list of users.
+ * @controller user
+ * @role admin
+ * @auth true
+ * @route GET /api/v1/user
+ * @queryparam {String} search - The search string.
+ * @queryparam {Number} skip - The number of users to skip.
+ * @queryparam {Number} limit - The number of users to retrieve.
+ * @queryparam {String} role - The role of the users to retrieve.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the users.
+ */
+export async function getUsers(request, reply) {
+  try {
+    if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" }); // only admin can access this route
+
+    const { search, skip, limit } = request.query;
+
+    let where = {};
+
+    where = { ...where, role: { [Op.or]: ["user"] } };
+    if (search) where = {
+      ...where,
+      [Op.or]: [
+        { username: { [Op.iLike]: `%${search}%` } },
+        { first_name: { [Op.iLike]: `%${search}%` } },
+        { last_name: { [Op.iLike]: `%${search}%` } },
+        { phone: { [Op.iLike]: `%${search}%` } },
+        { email: { [Op.iLike]: `%${search}%` } },
+      ],
+    };
+
+    // get all users where role is empty or null
+    const users = await User.findAll({
+      where,
+      // attributes: { exclude: ["password"] }, // already excluded in model default scope
+      order: [["createdAt", "DESC"]],
+      offset: skip || 0,
+      limit: limit || 10,
+    });
+    reply.status(200).send({ users })
+
+  } catch (error) {
+    logger.error(`user.controller.getUsers: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Retrieves a specific user by ID.
+ * @controller user
+ * @role admin
+ * @auth true
+ * @route GET /api/v1/users/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the user.
+ */
+export async function getUser(request, reply) {
+  try {
+    if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" })
+    const user = await User.findOne({
+      where: { [Op.and]: { id: request.params.id, role: 'user' } }
+    });
+    if (!user) return reply.status(404).send({ error: "User does not exist" });
+    reply.status(200).send(user)
+  } catch (error) {
+    logger.error(`user.controller.getUser: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Deletes a user by ID.
+ * @controller user
+ * @role admin
+ * @auth true
+ * @route DELETE /api/v1/users/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while deleting the user.
+ */
+export async function deleteUser(request, reply) {
+  try {
+    if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" })
+    const user = await User.findOne({ where: { id: request.params.id } })
+    if (!user) return reply.status(404).send({ error: "User does not exist" })
+    await user.destroy()
+    reply.status(200).send({ message: "User deleted successfully" })
+  } catch (error) {
+    logger.error(`user.controller.deleteUser: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Updates a user by ID.
+ * @controller user
+ * @role admin
+ * @route PUT /api/v1/users/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while updating the user.
+ */
+export async function updateUser(request, reply) {
+  try {
+    if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" })
+
+    const user = await User.findOne({ where: { id: request.params.id } })
+    if (!user) return reply.status(404).send({ error: "User does not exist" })
+
+    let {
+      email,
+      first_name,
+      last_name,
+      date_of_birth,
+      app_language,
+      gender,
+      phone,
+      username,
+      is_banned = false,
+    } = request.body
+
+    // format username
+    if (username) username = username.toLowerCase().replace(/[^a-zA-Z0-9]/g, "")
+    if (!username) username = await uniqueUsernameGenerator()
+
+    if (email) user.email = email
+    // if (password) user.password = await encrypt(password);
+    if (first_name) user.first_name = first_name
+    if (last_name) user.last_name = last_name
+    if (phone) user.phone = phone
+    if (date_of_birth) user.date_of_birth = date_of_birth
+    if (gender) user.gender = gender
+    if (app_language) user.app_language = app_language
+    user.is_banned = is_banned // not checking for null or undefined because it can be set to false
+    if (username) user.username = username
+    await user.save()
+
+    reply.status(200).send({ user })
+  } catch (error) {
+    logger.error(`user.controller.updateUser: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * Creates a new user.
+ * @controller user
+ * @role admin
+ * @route POST /api/v1/users
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating the user.
+ */
+export async function createUser(request, reply) {
+  try {
+    if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" })
+
+    let {
+      email,
+      first_name,
+      last_name,
+      phone,
+      gender,
+      date_of_birth,
+      is_banned = false,
+      username,
+    } = request.body;
+
+    if (!phone) return reply.status(400).send({ error: "Phone number is required" });
+
+    // format username
+    if (username) username = username.toLowerCase().replace(/[^a-zA-Z0-9]/g, "");
+    if (!username) username = await uniqueUsernameGenerator(); // generate unique username
+
+    var referral_code = await generateUniqueReferralCode();
+    // if user with that email or phone already exists
+    const userExists = await User.findOne({
+      where: {
+        [Op.or]: [{ email }, { phone }, { username }],
+      },
+    });
+
+    if (userExists) return reply.status(409).send({
+      error: "User already exists with that email, phone or username",
+    });
+
+    let user = {};
+    if (email) user.email = email
+    // if (password) user.password = await encrypt(password);
+    if (first_name) user.first_name = first_name
+    if (last_name) user.last_name = last_name
+    if (phone) user.phone = phone
+    if (date_of_birth) user.date_of_birth = date_of_birth
+    if (gender) user.gender = gender
+    if (is_banned) user.is_banned = is_banned
+    if (username) user.username = username
+    user.referral_code = referral_code
+
+    user = await User.create(user)
+
+    reply.status(200).send(user)
+  } catch (error) {
+    logger.error(`user.controller.createUser: ${error}`)
+    reply.status(500).send({ error: error.message })
+  }
+}
+
+/**
+ * making a payment controller to test referral system
+ * @controller payment
+ * @role user
+ * @route POST /api/v1/users/payment
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating the user.
+ */
+// export async function paymentcontroller(request, reply) {
+//   try {
+//     const id = request.user.id
+//     const payment_amount = request.body.payment_amount
+
+//     const user = await User.findByPk(id)
+
+//     /**
+//     * TODO:payment logic
+//     * payment logic
+//     *
+//     *
+//     *
+//     *
+//     * payment logic end
+//     */
+
+//     if (!user.has_made_first_payment) {
+//       if (user.referred_by &amp;&amp; user.referred_by !== "") {
+//         // Find the referring user
+//         const referring_user = await User.findOne({
+//           where: { referral_code: user.referred_by }
+//         });
+
+//         // Check if the referring user has any pending bonus payments
+//         const pending_bonus_payments = await Referral.findOne({
+//           where: {
+//             referrer_id: referring_user.id,
+//             referred_id: id,
+//             is_paid: false
+//           }
+//         });
+
+//         if (pending_bonus_payments &amp;&amp; referring_user) {
+//           user.has_made_first_payment = true
+//           await user.save()
+//           pending_bonus_payments.is_paid = true
+//           await pending_bonus_payments.save()
+//           //TODO:adding bonus logic
+//         }
+//         return reply.send({ message: "first payment done bonus added" })
+
+//       }
+//     }
+
+//     return reply.send({ message: "payment done but no bonus added" })
+//   } catch {
+//     logger.error(`user.controller.payment: ${error}`)
+//     reply.status(500).send({ error: error.message })
+//   }
+// }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Admin%2520Validator.html">Admin Validator</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-Contest%2520Controller.html">Contest Controller</a></li><li><a href="module-Contest%2520Validator.html">Contest Validator</a></li><li><a href="module-ContestCategory%2520Controller.html">ContestCategory Controller</a></li><li><a href="module-ContestCategory%2520Validator.html">ContestCategory Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Deposit%2520Validator.html">Deposit Validator</a></li><li><a href="module-GameMode%2520Validator.html">GameMode Validator</a></li><li><a href="module-Game_mode%2520Controller.html">Game_mode Controller</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Media%2520Validator.html">Media Validator</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Offer%2520Validator.html">Offer Validator</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Page%2520Validator.html">Page Validator</a></li><li><a href="module-PaymentMethod%2520Controller.html">PaymentMethod Controller</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-PaymentMethod%2520Validator.html">PaymentMethod Validator</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-SiteSetting%2520Controller.html">SiteSetting Controller</a></li><li><a href="module-SiteSetting%2520Validator.html">SiteSetting Validator</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Social%2520Validator.html">Social Validator</a></li><li><a href="module-Sport%2520Controller.html">Sport Controller</a></li><li><a href="module-Sport%2520Validator.html">Sport Validator</a></li><li><a href="module-Tax%2520Controller.html">Tax Controller</a></li><li><a href="module-Tax%2520Validator.html">Tax Validator</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-Transaction%2520Validator.html">Transaction Validator</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-User%2520Validator.html">User Validator</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-Withdraw%2520Validator.html">Withdraw Validator</a></li><li><a href="module-app.html">app</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Classes</h3><ul><li><a href="ClaimedOffers.html">ClaimedOffers</a></li><li><a href="Contest.html">Contest</a></li><li><a href="ContestCategory.html">ContestCategory</a></li><li><a href="ContestEntry.html">ContestEntry</a></li><li><a href="ContestEntryTeam.html">ContestEntryTeam</a></li><li><a href="Deposit.html">Deposit</a></li><li><a href="Kyc.html">Kyc</a></li><li><a href="Media.html">Media</a></li><li><a href="Offer.html">Offer</a></li><li><a href="Otp.html">Otp</a></li><li><a href="Page.html">Page</a></li><li><a href="Payment.html">Payment</a></li><li><a href="PaymentMethod.html">PaymentMethod</a></li><li><a href="Referral.html">Referral</a></li><li><a href="SiteSetting.html">SiteSetting</a></li><li><a href="Social.html">Social</a></li><li><a href="Sport.html">Sport</a></li><li><a href="Tax.html">Tax</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="User.html">User</a></li><li><a href="UserAddress.html">UserAddress</a></li><li><a href="UserSetting.html">UserSetting</a></li><li><a href="Wallet.html">Wallet</a></li><li><a href="Withdraw.html">Withdraw</a></li><li><a href="WithdrawAccount.html">WithdrawAccount</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Jul 23 2023 18:53:36 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

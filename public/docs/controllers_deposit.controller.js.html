@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/deposit.controller.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/deposit.controller.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Controller for handling deposit related operations.
+ * @file depsoit Controller
+ * @module Deposit Controller
+ * @category controllers
+ * @subcategory deposit
+ */
+import db from "../db/models";
+import { logger } from "../app.js";
+
+const { Deposit, Offer } = db
+
+/**
+ * Retrieves all deposit from the database. If the user is not an admin, only the deposit associated with the user will be retrieved.
+ * @controller deposit
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/deposit
+ * @queryparam {number} limit - The maximum number of media to retrieve.
+ * @queryparam {number} skip - The number of media to skip.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the withdraw.
+ */
+export async function getAllDeposits(request, reply) {
+    try {
+        const { limit = 20, skip = 0, user_id } = request.query;
+        let where = {}
+        const is_admin = request.user.role === 'admin' ? true : false;
+
+        if (!is_admin) where = { user_id: request.user.id }; // If the user is not an admin, only the deposit associated with the user will be retrieved
+
+        // if user_id is coming in params and role is admin then give all deposit to admin associated to that user 
+        if (user_id &amp;&amp; is_admin) where = { user_id };
+        const alldeposit = await Deposit.findAll({ where, limit, skip });
+
+        reply.status(200).send(alldeposit);
+    } catch (err) {
+        logger.error(`deposit.controller.getalldeposit ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Retrieves deposit from the database. If the user is not an admin, only the deposit associated with the user will be retrieved.
+ * @controller deposit
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/deposit/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the deposits.
+ */
+export async function getDeposit(request, reply) {
+    try {
+        const id = request.params.id;
+        let where = { id }
+        if (request.user.role !== 'admin') where = { ...where, user_id: request.user.id } // if role is user then we show user deposit
+
+        const deposit = await Deposit.findOne({ where });
+        if (!deposit) return reply.status(403).send({ message: "Deposit does not found" })
+        reply.status(200).send(deposit);
+    } catch (err) {
+        logger.error(`deposit.controller.getdeposit ${err}`);
+        reply.status(500).send({ error: err.message });
+
+    }
+}
+
+/**
+ * Creates  deposit into database. Only done by user
+ * @controller deposit
+ * @role user
+ * @auth true
+ * @route POST /api/v1/deposit
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating the deposit.
+ */
+export async function createDeposit(request, reply) {
+    try {
+        if (request.user.role !== "user") return reply.status(403).send({ error: 'unauthorized' });
+
+        const { amount, payment_gateway_id, offer_id } = request.body;
+
+        let data = {}
+        data.user_id = request.user.id
+        data.amount = amount
+        if (offer_id) data.offer_id = offer_id
+        if (payment_gateway_id) data.payment_gateway_id = payment_gateway_id
+
+
+        //finding offer that will going to be applied
+        let offer = await Offer.findOne({ where: { id: offer_id } });
+        //if offer doesn't exist
+        if (!offer) return reply.status(403).send({ error: "no offer with this offer id " })
+
+        //if offer minimum amount to deposit is greater than user depositing amount
+        if (offer.min_deposit > amount) return reply.status(403).send({ error: `deposit amount is less than ${offer.min_deposit}` });
+
+
+        // TODO: CHECK FOR GAMES CUTOFF WHEN WE IMPLEMENT GAMES MODEL\
+
+        //checking if the offer is not activated by user
+        if (!offer.is_active) return reply.status(403).send({ error: "offer is not active" })
+        const currentDate = new Date().toISOString().split('T')[0];
+
+        // checking for the offer date is expired
+        if (offer.valid_till &lt; currentDate) return reply.status(403).send({ error: "offer is expired" })
+
+
+        // calculating offer_amount if the value is 
+        let offer_amount
+        if (offer.is_percentage) {
+            offer_amount = (offer.value / 100) * amount;
+        }
+
+        if (offer_amount > offer.max_credit) offer_amount = offer.max_credit
+
+        // TODO: PAYMENT GATEWAY SETUP 
+        // TODO: account settlement,USER WALLET SETTLEMENT
+        // TODO: PAYMENT GATEWAY,REPLY,redirect_id, we have to use payment_gateway_id {redirect_url, }
+
+        var deposit = await Deposit.create(data);
+        return reply.send({ message: "Deposit successful" })
+    } catch (err) {
+        logger.error(`deposit.controller.Createdeposit ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Updates deposit in the database . Only done by admin.
+ * @controller deposit
+ * @role admin
+ * @auth true
+ * @route PUT /api/v1/deposit
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while updating the deposit.
+ */
+
+//done by admin only
+export async function updateDeposit(request, reply) {
+    try {
+        if (request.user.role !== "admin") return reply.status(403).send({ error: "Unauthorized" })
+        const id = request.params.id;
+        const { status, remark = "" } = request.body;
+
+        let deposit = await Deposit.findOne({ where: { id } })
+
+        deposit.status = status;
+        deposit.remark = remark;
+        await deposit.save();
+
+        return reply.status(200).send({ message: "Updated Successfully" })
+    } catch (err) {
+        logger.error(`deposit.controller.Updatedeposit ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%2520Routes.html">Admin Routes</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-services_deposit.html">services/deposit</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Jul 11 2023 11:56:53 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

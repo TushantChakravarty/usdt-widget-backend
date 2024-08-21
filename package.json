@@ -1,0 +1,50 @@
+{
+  "name": "usdt-marketplaces",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/app.js",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "jsdoc": "./node_modules/.bin/jsdoc ./src/**/*.js -d ./public/docs",
+    "build": "node ./scripts/esbuild.js",
+    "dev": "yarn run docker:up",
+    "local": "nodemon ./build/app.js",
+    "start:prod": "NODE_ENV=production node ./build/app.js",
+    "start:dev": "NODE_ENV=development node ./scripts/esbuild.js",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down -v",
+    "notification": "node ./build/app.js"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^8.3.0",
+    "@fastify/cors": "^8.3.0",
+    "@fastify/jwt": "^7.2.1",
+    "@fastify/multipart": "^7.7.3",
+    "@fastify/redis": "^6.1.1",
+    "@fastify/static": "^6.11.0",
+    "@fastify/swagger": "^8.10.0",
+    "@fastify/swagger-ui": "^1.9.3",
+    "amqplib": "^0.10.4",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.3.1",
+    "fastify": "^4.27.0",
+    "fastify-plugin": "^4.5.1",
+    "file-stream-rotator": "^1.0.0",
+    "fs-extra": "^11.1.1",
+    "node-cache": "^5.1.2",
+    "sequelize": "^6.33.0",
+    "yarn": "^1.22.22"
+  },
+  "devDependencies": {
+    "@yarnpkg/esbuild-plugin-pnp": "^3.0.0-rc.15",
+    "autocannon": "^7.12.0",
+    "chokidar": "^3.5.3",
+    "esbuild": "^0.18.20",
+    "esbuild-plugin-alias-path": "^2.0.2",
+    "jsdoc": "^4.0.2",
+    "pino": "^8.15.1"
+  }
+}

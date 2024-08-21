@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/page.controller.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/page.controller.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Controller for handling Dynamic page (type , page heading , page content) related operations.
+ * @file page Controller
+ * @module Page Controller
+ * @category controllers
+ * @subcategory page
+ */
+import db from "../db/models";
+import { logger } from "../app.js";
+import { Op } from "sequelize";
+
+const { Page } = db
+
+
+/**
+ * Creates a Dynamic page for faq, terms&amp;Condition, community Guidelines etc.
+ * @controller page
+ * @role  admin
+ * @auth true
+ * @route POST /api/v1/page
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating the withdraw.
+ */
+export async function createPage(request, reply) {
+
+    try {
+        // Only Admin can create Page
+        if (request.user.role !== "admin") return reply.status(403).send({ error: 'unauthorized' });
+
+        const { type, heading, content } = request.body;
+
+        // // checking if page with given type already exist or not . suppose type FAQ page exist then another FAQ page can not be created
+        const page = await Page.findOne({ where: { type: type } })
+        if (page) return reply.status(403).send({ error: `Page with ${type} already exist` })
+        let data = {}
+
+        data.type = type,
+            data.heading = heading || "",
+            data.content = content || ""
+
+        await Page.create(data);
+        return reply.send({ message: "page created" })
+    } catch (err) {
+        logger.error(`page.controller.createPage ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+
+}
+
+
+/**
+ * Retrieves all Dynamic Pages from the database. If the role is user, only the show page with given type in params, admin can get all pages and pages with type in params
+ * @controller page
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/page
+ * @queryparam {number} limit - The maximum number of media to retrieve.
+ * @queryparam {number} skip - The number of media to skip.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the withdraw.
+ */
+export async function getPage(request, reply) {
+    try {
+        const { limit = 20, skip = 0, type } = request.query;
+        let where = {}
+        if (!type &amp;&amp; request.user.role === "user") return reply.status(403).send({ error: "page not exist" })
+        if (type) where.type = type;
+        const page = await Page.findAll({ where, limit, skip });
+        reply.status(200).send(page);
+    } catch (err) {
+        logger.error(`page.controller.getPage ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%2520Routes.html">Admin Routes</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-services_deposit.html">services/deposit</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Jul 11 2023 11:56:53 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

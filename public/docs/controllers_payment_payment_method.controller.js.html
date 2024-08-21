@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/payment/payment_method.controller.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/payment/payment_method.controller.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Controller for handling payment method related operations.
+ * @file payment method Controller
+ * @module PaymentMethod Controller
+ * @category controllers
+ * @subcategory payment controller
+ */
+import db from "../../models"
+import { logger } from "../../app.js"
+import { Op } from 'sequelize'
+
+const { PaymentMethod } = db;
+
+/**
+ * Retrieves all(active, inactive, deleted) payment method from the database for admin and only active and nor deleted payment method for user
+ * @controller payment method
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/payment-method
+ * @queryparam {number} limit - The maximum number of payment method to retrieve.
+ * @queryparam {string} skip - The number of payment to skip.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the payment method.
+ */
+export async function getPaymentMethods(request, reply) {
+    try {
+        const { limit, skip } = request.query;
+        let where = {}
+        if (request.user.role !== 'admin') where = { ...where, status: { [Op.eq]: "active" } }
+
+
+        //  if (request.user.role !== 'user') data = { ...data, }
+
+        const allPaymentMethods = await PaymentMethod.findAll({
+            where,
+            limit: limit ? parseInt(limit) : 8,
+            offset: skip ? parseInt(skip) : 0,
+            paranoid: request.user.role === 'admin' ? false : true
+        })
+        return reply.status(200).send(allPaymentMethods)
+    } catch (err) {
+        logger.error(`paymentmethod.controller.getPaymentMethods ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+// ************** ************** ************** *******************  //
+// ************** ADMIN ONLY CONTROLLERS BELOW  *******************  //
+// ************** ************** ************** *******************  //
+
+/**
+ * create payment method  into  the database, only admin can create it active
+ * @controller payment method
+ * @role admin
+ * @auth true
+ * @route POST /api/v1/payment-method
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating the payment method.
+ */
+export async function createPaymentMethod(request, reply) {
+    try {
+        if (request.user.role !== "admin") return reply.status(401).send({ error: 'Unauthorized' })
+
+        let { name, code, description, logo, status } = request.body;
+
+        let data = { name, code };
+
+        if (description) data.description = description
+        if (logo) data.logo = logo
+        if (status) data.status = status
+
+        await PaymentMethod.create(data);
+
+        return reply.status(200).send({ message: "Payment method created successfully" })
+    } catch (err) {
+        logger.error(`paymentmethod.controller.createpayment method ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Updates all (active, inactive) payment methods, only admin can update it
+ * @controller payment method
+ * @role admin
+ * @auth true
+ * @route PUT /api/v1/payment-method/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the payment method.
+ */
+export async function updatePaymentMethod(request, reply) {
+    try {
+        if (request.user.role !== 'admin') return reply.status(401).send({ error: 'Unauthorized' })
+
+        let { name, description, logo, status } = request.body
+
+        let paymentmethod = await PaymentMethod.findOne({ where: { id: request.params.id } })
+
+        if (!paymentmethod) return reply.status(404).send({ error: "Payment method does not exist" })
+
+        if (name) paymentmethod.name = name;
+        if (description) paymentmethod.description = description;
+        if (logo) paymentmethod.logo = logo;
+        if (status) paymentmethod.status = status
+
+        await paymentmethod.save()
+
+        return reply.status(200).send({ message: "Payment method updated successfully" })
+    } catch (err) {
+        logger.error(`paymentmethod.controller.updatePaymentMethod ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Deletes all(active, inactive) payment method from the database for admin only ,it do soft delete
+ * @controller payment method
+ * @role admin
+ * @auth true
+ * @route DELETE /api/v1/payment-method/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while deleting the payment method.
+ */
+export async function deletePaymentMethod(request, reply) {
+    try {
+        if (request.user.role !== 'admin') return reply.status(401).send({ error: "Unauthorized" })
+
+        let payment_method = await PaymentMethod.findOne({ where: { id: request.params.id } })
+
+        if (!payment_method) return reply.status(404).send({ error: "Payment method does not exist" })
+        await PaymentMethod.destroy({ where: { id: request.params.id } })
+        return reply.status(200).send({ message: "Payment method deleted successfully" })
+    } catch (err) {
+        logger.error(`paymentmethod.controller.deletePaymentMethod ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Restore deleted payment method from the database for admin only. Helps to retrieve soft deleted data 
+ * @controller payment method
+ * @role admin
+ * @auth true
+ * @route PUT /api/v1/payment-method/restore/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while restoring deleted the payment method.
+ */
+export async function restorePaymentMethod(request, reply) {
+    try {
+        if (request.user.role !== 'admin') return reply.status(401).send({ error: "Unauthorized" })
+
+        const softPaymentmethod = await PaymentMethod.findOne({ paranoid: false, where: { id: request.params.id } }) // paranoid false is used to get soft deleted offer
+
+        if (!softPaymentmethod) return reply.status(404).send({ error: "Payment method does not exist" })
+
+        await softPaymentmethod.restore()
+
+        return reply.status(200).send({ message: "Payment method restored successfully" })
+
+    } catch (err) {
+        logger.error(`paymentmethod.controller.restorePaymentmethod ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Admin%2520Validator.html">Admin Validator</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-Contest%2520Controller.html">Contest Controller</a></li><li><a href="module-Contest%2520Validator.html">Contest Validator</a></li><li><a href="module-ContestCategory%2520Controller.html">ContestCategory Controller</a></li><li><a href="module-ContestCategory%2520Validator.html">ContestCategory Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Deposit%2520Validator.html">Deposit Validator</a></li><li><a href="module-GameMode%2520Validator.html">GameMode Validator</a></li><li><a href="module-Game_mode%2520Controller.html">Game_mode Controller</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Media%2520Validator.html">Media Validator</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Offer%2520Validator.html">Offer Validator</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Page%2520Validator.html">Page Validator</a></li><li><a href="module-PaymentMethod%2520Controller.html">PaymentMethod Controller</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-PaymentMethod%2520Validator.html">PaymentMethod Validator</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-SiteSetting%2520Controller.html">SiteSetting Controller</a></li><li><a href="module-SiteSetting%2520Validator.html">SiteSetting Validator</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Social%2520Validator.html">Social Validator</a></li><li><a href="module-Sport%2520Controller.html">Sport Controller</a></li><li><a href="module-Sport%2520Validator.html">Sport Validator</a></li><li><a href="module-Tax%2520Controller.html">Tax Controller</a></li><li><a href="module-Tax%2520Validator.html">Tax Validator</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-Transaction%2520Validator.html">Transaction Validator</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-User%2520Validator.html">User Validator</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-Withdraw%2520Validator.html">Withdraw Validator</a></li><li><a href="module-app.html">app</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Classes</h3><ul><li><a href="ClaimedOffers.html">ClaimedOffers</a></li><li><a href="Contest.html">Contest</a></li><li><a href="ContestCategory.html">ContestCategory</a></li><li><a href="ContestEntry.html">ContestEntry</a></li><li><a href="ContestEntryTeam.html">ContestEntryTeam</a></li><li><a href="Deposit.html">Deposit</a></li><li><a href="Kyc.html">Kyc</a></li><li><a href="Media.html">Media</a></li><li><a href="Offer.html">Offer</a></li><li><a href="Otp.html">Otp</a></li><li><a href="Page.html">Page</a></li><li><a href="Payment.html">Payment</a></li><li><a href="PaymentMethod.html">PaymentMethod</a></li><li><a href="Referral.html">Referral</a></li><li><a href="SiteSetting.html">SiteSetting</a></li><li><a href="Social.html">Social</a></li><li><a href="Sport.html">Sport</a></li><li><a href="Tax.html">Tax</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="User.html">User</a></li><li><a href="UserAddress.html">UserAddress</a></li><li><a href="UserSetting.html">UserSetting</a></li><li><a href="Wallet.html">Wallet</a></li><li><a href="Withdraw.html">Withdraw</a></li><li><a href="WithdrawAccount.html">WithdrawAccount</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Jul 23 2023 18:53:36 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

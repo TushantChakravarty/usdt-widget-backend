@@ -1,0 +1,230 @@
+/**
+ * Main entry point for the Play999 API.
+ * It sets up the Fastify server, registers plugins,
+ * imports routes, and starts the server.
+ * 
+ * @file App.js
+ * @module app
+ * @category app
+ * @subcategory main
+ * @requires fastify
+ */
+import dotenv from 'dotenv'
+dotenv.config() // load environment variables from .env file
+
+import Fastify from 'fastify'
+import cookie from '@fastify/cookie'
+import cors from '@fastify/cors'
+import routes from './routes'
+import fastifyStatic from '@fastify/static'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
+import handleErrors from './utils/error-handler.util.js'
+import jwtAuthPlugin from "./plugins/jwt-auth.plugin.js"
+import RBAMPlugin from "./plugins/rbam.plugin.js"
+// import redisPlugin from './plugins/redis.plugin.js'
+import multipart from '@fastify/multipart'
+// import fastifyJwt from '@fastify/jwt'
+import path from 'path'
+import logger from './utils/logger.util.js'
+import migrateDb from './utils/db.util.js'
+import amqp from 'amqplib'
+import { usdtMarketPlace } from './ApiCalls/usdtapicalls.js'
+process.env.TZ = "Asia/Kolkata" // set timezone
+
+/**
+ * Fastify server instance
+ * @type {FastifyInstance}
+ */
+export const server = Fastify({
+    logger
+})
+
+
+
+/**
+ * Register custom error handler
+ */
+handleErrors(server)
+
+/**
+ * Multipart form data plugin (for file uploads)
+ */
+await server.register(multipart)
+
+/**
+ * Register cookie plugin
+ */
+
+await server.register(cookie, {
+    secret: process.env.COOKIE_SECRETS.split(","), // array of keys to be used for cookies signature
+})
+
+/**
+ * Register redis caching plugin
+ */
+// await server.register(redisPlugin)
+
+// await server.register(fastifyJwt, {
+//     secret: 'hereismysecretkey'
+// })
+
+/** 
+ * Setup static/public directory
+ */
+await server.register(fastifyStatic, {
+    root: path.join(__dirname, '../public'),
+    prefix: '/public/',
+    // constraints: { host: 'example.com' } // optional: default {}
+})
+
+/**
+ * Register rate-limit plugin
+ * Limit requests to the server by IP address. We'll also set request limit on server level. This will limit the number of requests to the server from a single IP address. This is useful to prevent brute-force/DDOS attacks.
+ * @see https://github.com/fastify/fastify-rate-limit
+ */
+// await server.register(rateLimit, {
+//     max: 100, // max requests per windowMs
+//     timeWindow: '1 minute', // windowMs: milliseconds - how long to keep records of requests in memory
+//     cache: 10000, // number of max entries in the global cache
+//     // allowList: ['127.0.0.1'], // default []
+//     nameSpace: 'play999-api-ratelimit-', // default is 'fastify-rate-limit-'
+//     // keyGenerator: function (request) { /* ... */ }, // default (request) => request.raw.ip. TODO: make sure user's ip is accessible behind nginx proxy, if not then use request.headers['x-forwarded-for'] || request.ip
+// })
+
+/**
+ * Register swagger plugin
+ */
+await server.register(swagger)
+
+await server.register(swaggerUi, {
+    routePrefix: '/docs',
+    swagger: {
+        info: {
+            title: 'Usdt market place Documentation',
+            description: 'usdt market place API Documentation',
+            version: '0.1.0',
+            termsOfService: 'https://example.com/tos',
+            contact: {
+                name: 'John Doe',
+                url: 'https://www.example.com',
+                email: 'john.doe@email.com'
+            }
+        },
+        externalDocs: {
+            url: 'https://www.example.com/api/',
+            description: 'Find more info here'
+        },
+        host: '127.0.0.1:3000',
+        basePath: '',
+        schemes: ['http', 'https'],
+    },
+    uiConfig: {
+        docExpansion: 'list', // expand/not all the documentations none|list|full
+        deepLinking: false
+    },
+    uiHooks: {
+        onRequest: function (request, reply, next) {
+            next()
+        },
+        preHandler: function (request, reply, next) {
+            next()
+        }
+    },
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
+    exposeRoute: true
+})
+
+/**
+ * Register JWT middleware
+ */
+await server.register(jwtAuthPlugin)
+
+/**
+ * Register RBAM (Role-Based Access Management) middleware
+ */
+await server.register(RBAMPlugin)
+
+
+//await migrateDb()
+
+/**
+ * Register server-cors plugin
+ */
+await server.register(cors, {
+    // TODO: Setup CORS options before deploying to production
+    // origin: 'https://example.com', // Allow requests from this origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allow specified HTTP methods
+    // allowedHeaders: ['Content-Type'], // Allow specified request headers
+    // exposedHeaders: ['Content-Length'], // Expose specified response headers
+    // credentials: true, // Enable sending credentials (cookies, HTTP authentication) in cross-origin requests
+    // preflightContinue: false, // Disable handling of preflight requests
+    // optionsSuccessStatus: 204 // Set the response status code for successful OPTIONS requests
+})
+
+/**
+ * Register routes
+ */
+await server.get('/', async (request, reply) => {
+    const state_code = request.headers['X-State-Code'] || 'Unknown';
+    // Use state code in your application logic
+    await usdtMarketPlace()
+    return reply.send({
+        message: 'Hello world.',
+        environment: process.env.NODE_ENV,
+    })
+
+}) // root route
+
+await server.register(routes, { prefix: "/api/v1" })
+
+
+await migrateDb()
+
+
+
+
+/** 
+ * Handle uncaught exceptions and unhandled promise rejections 
+ */
+process.on("uncaughtException", (err) => {
+    console.log(`Error: ${err.message}`)
+    logger.error(`Error: ${err.message}`)
+    server.close(() => process.exit(1)); // close server & exit process: mandatory (as per the Node.js docs)
+})
+
+process.on("unhandledRejection", (err) => {
+    console.log(`Error: ${err.message}`)
+    logger.error(`Error: ${err.message}`)
+    server.close(() => process.exit(1))
+})
+
+
+/** 
+ * Run the server! 
+ */
+const start = async () => {
+    try {
+        server.listen({
+            port: 3000,
+            host: "127.0.0.1",
+        })
+    } catch (err) {
+        logger.error(`server error: ${err}`)
+        process.exit(1)
+    }
+}
+
+start()
+
+/**
+ * Run swagger!
+ */
+server.ready(err => {
+    if (err) throw err
+    server.swagger()
+})
+
+
+

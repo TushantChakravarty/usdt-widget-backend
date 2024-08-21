@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/localization.service.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: services/localization.service.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Service for initialization of Localization(language).
+ * @file Localization Service
+ * @module Localization Service
+ * @category services
+ * @subcategory service
+ */
+import { logger } from "../app.js"
+import db from "../models/index.js"
+
+const { Localization } = db
+
+/**
+ * Service to initialize Localization
+ * Can be called from app.js when app runs for the first time after database connected.
+ * @throws {Error} - If Localization in not initialized.
+ */
+export async function initLocalization() {
+    try {
+        const language = [
+            {
+                lang: "en",
+                value: {
+                    splash_a: {
+                        tagline: "Play, Earn, Repeat",
+                        heading: "Assemble Your Dream Team",
+                        subtext: "Unleash the Power of Fantasy Gaming by Creating Your Perfect Squad",
+                        btnContinue: "Continue",
+                        linkSkip: "Skip"
+                    },
+                    splash_b: {
+                        tagline: "Play, Earn, Repeat",
+                        heading: "Join Thrilling Contests",
+                        subtext: "Test Your Skills and Strategy Against Others for Exciting Prizes",
+                        btnContinue: "Continue",
+                        linkSkip: "Skip"
+                    },
+                    splash_c: {
+                        tagline: "Play, Earn, Repeat",
+                        heading: "Win &amp; Earn Real Money",
+                        subtext: "Embrace the Fantasy Sports Adventure Like Never Before",
+                        btnContinue: "Continue",
+                        linkSkip: "Skip"
+                    }
+
+                    // Add more screens here
+                }
+            },
+            {
+                lang: "hi",
+                value: {
+                    splash_a: {
+                        tagline: "खेलें, कमाएँ, दोहराएँ",
+                        heading: "अपनी सपनों की टीम बनाएँ",
+                        subtext: "अपनी परफेक्ट स्क्वाड बनाकर फैंटसी गेमिंग की ताक़त को जागृत करें",
+                        btnContinue: "जारी रखें",
+                        linkSkip: "छोड़ें"
+                    },
+                    splash_b: {
+                        tagline: "खेलें, कमाएँ, दोहराएँ",
+                        heading: "रोमांचक प्रतियोगिताओं में शामिल हों",
+                        subtext: "दिलचस्प इनामों के लिए अपने कौशल और रणनीति का परीक्षण अन्य खिलाड़ियों के खिलाफ करें",
+                        btnContinue: "जारी रखें",
+                        linkSkip: "छोड़ें"
+                    },
+                    splash_c: {
+                        tagline: "खेलें, कमाएँ, दोहराएँ",
+                        heading: "पैसे जीतें",
+                        subtext: "अब तक कभी नहीं देखी गई तरह से फैंटसी स्पोर्ट्स के साहसिक सफर का स्वागत करें",
+                        btnContinue: "जारी रखें",
+                        linkSkip: "छोड़ें"
+                    }
+
+                    // Add more screens here
+                }
+            }
+            // Add more languages here
+        ]
+        let alreadyExist;
+        language.map(async (item) => {
+            alreadyExist = await Localization.findOne({ where: { lang: item.lang } })
+            if (!alreadyExist) {
+                await Localization.create(item)
+            }
+        })
+        logger.info("Localization initialized")
+
+    } catch (error) {
+        logger.error(`Localization.service.initLocalization ${error}`);
+        throw error;
+    }
+}
+
+/**
+ * Service to retrieve text according to the user's app language.
+ * The `getText` service takes three parameters:
+ * @param {string} lang - The language code (e.g., "en" for English, "hi" for Hindi).
+ * @param {string} screen - The screen name to retrieve text for (e.g., "home", "login", "contest").
+ * @param {string} key - The specific key to retrieve text for (optional).
+ * @returns {Promise&lt;Object>} - A promise that resolves to the retrieved text object.Returns a blank object if the language, screen, or key is not found.
+ * @example
+ * Inside your code, you can use the `getText` service as follows:
+ * const lang = "en";
+ * const screen = "home";
+ * const key = "heading";
+ * const text = await getText(lang, screen, key);
+ * console.log(text); // Output: { heading: "Welcome" }
+ *
+ * If you want to retrieve all pages with key-value pairs for a language, you can call the service with just the language parameter:
+ * const lang = "en";
+ * const allPagesText = await getText(lang);
+ * console.log(allPagesText); // Output: { home: {...}, login: {...}, contest: {...}, ... }
+ *
+ * If you want to retrieve all key-value pairs of a specific screen for a language, you can call the service with both the language and screen parameters:
+ * const lang = "en";
+ * const screen = "login";
+ * const loginScreenText = await getText(lang, screen);
+ * console.log(loginScreenText); // Output: { heading: "Login", btn: "Submit", ... }
+ */
+export async function getText(lang, screen, key) {
+    try {
+        const localization = await Localization.findOne({ where: { lang } });
+        if (!localization) return {}
+
+        if (screen) {
+            if (!localization.value[screen]) return {}
+
+            if (key) {
+                const text = localization.value[screen][key];
+                if (!text) return {}
+                return text;
+            } else {
+                return localization.value[screen];
+            }
+        }
+        return localization;
+    } catch (error) {
+        console.error(`Localization.service.getText ${error}`);
+        throw error;
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Analytics%2520Routes.html">Analytics Routes</a></li><li><a href="module-Challenge%2520Routes.html">Challenge Routes</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-CricketMatch%2520Routes.html">CricketMatch Routes</a></li><li><a href="module-CricketPlayer%2520Routes.html">CricketPlayer Routes</a></li><li><a href="module-CricketScorecard%2520Routes.html">CricketScorecard Routes</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-Init%2520Routes.html">Init Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Localization%2520Routes.html">Localization Routes</a></li><li><a href="module-Localization%2520Service.html">Localization Service</a></li><li><a href="module-Match%2520Routes.html">Match Routes</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Page%252520Routes.html">Page Routes</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-Player%2520Routes.html">Player Routes</a></li><li><a href="module-RBAM%2520Plugin.html">RBAM Plugin</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-contestEntryTeam%2520Routes.html">contestEntryTeam Routes</a></li><li><a href="module-contest_entry%2520Routes.html">contest_entry Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-leaderboard%2520Routes.html">leaderboard Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GENDERS">GENDERS</a></li><li><a href="global.html#SETTINGS_CONSTANTS">SETTINGS_CONSTANTS</a></li><li><a href="global.html#calPrizePool">calPrizePool</a></li><li><a href="global.html#checkTeamSvc">checkTeamSvc</a></li><li><a href="global.html#contestEntrySvc">contestEntrySvc</a></li><li><a href="global.html#createContestEntrySvc">createContestEntrySvc</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Oct 15 2023 18:37:00 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

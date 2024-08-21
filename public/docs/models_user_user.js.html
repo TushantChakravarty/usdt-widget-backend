@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/user/user.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/user/user.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * User model
+ * Represents a User entity in the database
+ * @module models/user
+ * @requires sequelize
+ * @requires sequelize/Model
+ * @exports User
+ * @class User
+ */
+
+"use strict";
+import { Model } from "sequelize";
+// import fs from "fs";
+
+export default (sequelize, DataTypes) => {
+  class User extends Model {
+    static associate(models) {
+      // associations
+
+      // 1. User has many kyc
+      User.hasMany(models.Kyc, {
+        foreignKey: "user_id",
+        as: "kyc",
+        onDelete: 'CASCADE',
+      });
+
+      // 2. User has one setting
+      User.hasOne(models.UserSetting, {
+        foreignKey: "user_id",
+        as: "setting",
+        onDelete: 'CASCADE',
+      });
+
+      // 3. User has one address
+      User.hasOne(models.UserAddress, {
+        foreignKey: "user_id",
+        as: "address",
+        onDelete: 'CASCADE',
+      });
+
+      // 4. User has many media
+      User.hasMany(models.Media, { // media uploaded by user
+        foreignKey: "user_id",
+        as: "media",
+        onDelete: 'CASCADE',
+      });
+
+      // 5. User follows many users
+      User.belongsToMany(models.User, {
+        through: "Social",
+        foreignKey: "following_id",
+        as: "followers",
+        onDelete: 'CASCADE',
+      });
+
+      // 6. User is followed by many users
+      User.belongsToMany(models.User, {
+        through: "Social",
+        foreignKey: "follower_id",
+        as: "following",
+        onDelete: 'CASCADE',
+      });
+
+      // 7. User has many referrals
+      User.hasMany(models.Referral, {
+        foreignKey: 'referrer_id',
+        as: 'referrals',
+        onDelete: 'CASCADE',
+      });
+
+      // 8. User has many referrals
+      User.hasMany(models.Referral, {
+        foreignKey: 'referred_id',
+        as: 'referrees',
+        onDelete: 'CASCADE',
+      });
+
+      // 9. User has many deposits
+      User.hasMany(models.Deposit, {
+        foreignKey: "user_id",
+        as: "deposits",
+        onDelete: 'CASCADE',
+      });
+
+      // 10. User has one wallet
+      User.hasOne(models.Wallet, {
+        foreignKey: "user_id",
+        as: "wallet",
+        onDelete: 'CASCADE',
+      });
+
+      // 11. Transactions related to a user
+      User.hasMany(models.Transaction, {
+        foreignKey: "user_id",
+        as: "transactions",
+        onDelete: 'CASCADE',
+      });
+
+
+      // User.belongsToMany(models.Offer, {
+      //   foreignKey: "user_id",
+      //   through: models.ClaimedOffers,
+      //   as: "claimed_offers",
+      //   // onDelete: 'CASCADE',
+      // });
+      // 12. Offers are claimed by a user through ClaimedOffers
+      User.hasMany(models.ClaimedOffers, { foreignKey: 'user_id' });
+    }
+  }
+  User.init(
+    {
+      // email unique. username unique. phone unique.
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: true, // phone required for customers and partners/players but not for admins, validated in controller
+        unique: true,
+        // validate: {
+        //   is: /^(\+91[\-\s]?)?[0]?(91)?[789]\d{9}$/, // &lt;-- regex for indian phone numbers
+        // },
+      },
+      email: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+        validate: {
+          isEmail: true,
+        },
+      },
+      username: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+        validate: {
+          is: /^[a-zA-Z0-9_]+$/, // &lt;-- regex for alphanumeric and underscore
+        },
+      },
+      // name: DataTypes.STRING,
+      first_name: DataTypes.STRING,
+      last_name: DataTypes.STRING,
+      date_of_birth: DataTypes.DATE,
+      gender: DataTypes.ENUM('male', 'female', 'other'),
+      app_language: { type: DataTypes.ENUM('english', 'hindi'), defaultValue: "english" },  // for languages can be --> hindi , english etc.
+      password: DataTypes.STRING, // hashed. only for admins, normal users will be logged in via otp
+      role: { type: DataTypes.ENUM("user", "admin"), defaultValue: "user" }, // role for access control
+      status: DataTypes.STRING, // active, inactive
+      last_active: { type: DataTypes.DATE, defaultValue: null },
+      avatar: { type: DataTypes.JSON },  // user's profile picture path and media id
+      ip: DataTypes.STRING,
+      user_agent: { type: DataTypes.STRING, defaultValue: null },
+      token: { type: DataTypes.STRING, defaultValue: null }, // jwt token for refresh token
+      // access, 
+      access: { // access control for admin (admin can give access to other admins for different sections)
+        type: DataTypes.JSON,
+        defaultValue: null,
+      },
+      is_banned: { type: DataTypes.BOOLEAN, defaultValue: false },
+      is_superuser: { type: DataTypes.BOOLEAN, defaultValue: false }, // for admins
+      referral_code: DataTypes.STRING,
+      referred_by: DataTypes.STRING,
+      has_made_first_payment: { type: DataTypes.BOOLEAN, defaultValue: false }
+    },
+    {
+      hooks: {
+        afterCreate: async (user, options) => {
+          if (user.role === 'user') { // hook for creating the user's wallet after user is created
+            await sequelize.models.Wallet.create({ user_id: user.id });
+          }
+        },
+        //   // Delete all user relations. this function is called after deleting user
+        //   afterDestroy: async (user, options) => {
+        //     await sequelize.models.Kyc.destroy({ where: { user_id: user.id } });
+        //     await sequelize.models.UserSetting.destroy({ where: { user_id: user.id } });
+        //     await sequelize.models.UserAddress.destroy({ where: { user_id: user.id } });
+
+        //     // delete all media uploaded by user except admin (admin media is not deleted. for ex: banner images set by admin)
+        //     if (user.role !== "admin") {
+        //       const media = await sequelize.models.Media.findAll({ where: { user_id: user.id } });
+        //       media.forEach((m) => {
+        //         const path = m.path;
+        //         fs.unlinkSync(path, (err) => {
+        //           if (err) {
+        //             console.error(err);
+        //             return;
+        //           }
+        //         });
+        //       });
+        //     }
+        //     await sequelize.models.Social.destroy({ where: { following_id: user.id } }); // delete all social relations where user is following
+        //     await sequelize.models.Social.destroy({ where: { follower_id: user.id } }); // delete all social relations where user is follower
+
+        //   },
+      },
+      sequelize,
+      modelName: "User",
+      defaultScope: {
+        attributes: { // removing password details at response times
+          exclude: ["password"],
+        },
+      },
+      indexes: [{ unique: true, fields: ["email", "phone", "username"] }],
+    }
+  );
+  User.addScope("private", {
+    attributes: {
+      include: ["password"],
+    },
+  });
+  return User;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Admin%2520Validator.html">Admin Validator</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-Contest%2520Controller.html">Contest Controller</a></li><li><a href="module-Contest%2520Validator.html">Contest Validator</a></li><li><a href="module-ContestCategory%2520Controller.html">ContestCategory Controller</a></li><li><a href="module-ContestCategory%2520Validator.html">ContestCategory Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Deposit%2520Validator.html">Deposit Validator</a></li><li><a href="module-GameMode%2520Validator.html">GameMode Validator</a></li><li><a href="module-Game_mode%2520Controller.html">Game_mode Controller</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Media%2520Validator.html">Media Validator</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Offer%2520Validator.html">Offer Validator</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Page%2520Validator.html">Page Validator</a></li><li><a href="module-PaymentMethod%2520Controller.html">PaymentMethod Controller</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-PaymentMethod%2520Validator.html">PaymentMethod Validator</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-SiteSetting%2520Controller.html">SiteSetting Controller</a></li><li><a href="module-SiteSetting%2520Validator.html">SiteSetting Validator</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Social%2520Validator.html">Social Validator</a></li><li><a href="module-Sport%2520Controller.html">Sport Controller</a></li><li><a href="module-Sport%2520Validator.html">Sport Validator</a></li><li><a href="module-Tax%2520Controller.html">Tax Controller</a></li><li><a href="module-Tax%2520Validator.html">Tax Validator</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-Transaction%2520Validator.html">Transaction Validator</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-User%2520Validator.html">User Validator</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-Withdraw%2520Validator.html">Withdraw Validator</a></li><li><a href="module-app.html">app</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Classes</h3><ul><li><a href="ClaimedOffers.html">ClaimedOffers</a></li><li><a href="Contest.html">Contest</a></li><li><a href="ContestCategory.html">ContestCategory</a></li><li><a href="ContestEntry.html">ContestEntry</a></li><li><a href="ContestEntryTeam.html">ContestEntryTeam</a></li><li><a href="Deposit.html">Deposit</a></li><li><a href="Kyc.html">Kyc</a></li><li><a href="Media.html">Media</a></li><li><a href="Offer.html">Offer</a></li><li><a href="Otp.html">Otp</a></li><li><a href="Page.html">Page</a></li><li><a href="Payment.html">Payment</a></li><li><a href="PaymentMethod.html">PaymentMethod</a></li><li><a href="Referral.html">Referral</a></li><li><a href="SiteSetting.html">SiteSetting</a></li><li><a href="Social.html">Social</a></li><li><a href="Sport.html">Sport</a></li><li><a href="Tax.html">Tax</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="User.html">User</a></li><li><a href="UserAddress.html">UserAddress</a></li><li><a href="UserSetting.html">UserSetting</a></li><li><a href="Wallet.html">Wallet</a></li><li><a href="Withdraw.html">Withdraw</a></li><li><a href="WithdrawAccount.html">WithdrawAccount</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Jul 23 2023 18:53:36 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/transaction.route.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/transaction.route.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Router for transaction-related endpoints.
+ * Handles transaction retrieval operations.
+ * @file Transaction Routes
+ * @module Transaction Routes
+ * @category routes
+ * @subcategory transaction
+ */
+
+import Controller from "../controllers"
+import Validator from "../validators";
+
+const { Transaction: transaction } = Controller;
+const { Transaction: validator } = Validator;
+
+const routes = async (route, options) => { // route = fastify instance
+    /**
+     * Route for fetching transactions.
+     * Retrieves a list of transaction.
+     * Requires authentication.
+     * Supports query parameters: search, skip, limit.
+     */
+    route.get('/', {
+        onRequest: [
+            route.authenticate, // authentication middleware
+            async function (request, reply) {
+                request.accessRoles = ["admin", "user"]; // allowed role for this route
+                request.accessFields = ["tax"]; // allowed access fields for this route (for admin) 
+            },
+            route.rbam // RBAM middleware
+        ],
+        schema: validator.getTransactions,
+        preHandler: async (request, reply) => {
+            // TODO: add validation for query parameters
+        },
+        handler: transaction.getTransactions,
+    });
+}
+
+export default routes;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Analytics%2520Routes.html">Analytics Routes</a></li><li><a href="module-Challenge%2520Routes.html">Challenge Routes</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-CricketMatch%2520Routes.html">CricketMatch Routes</a></li><li><a href="module-CricketPlayer%2520Routes.html">CricketPlayer Routes</a></li><li><a href="module-CricketScorecard%2520Routes.html">CricketScorecard Routes</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-Init%2520Routes.html">Init Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Localization%2520Routes.html">Localization Routes</a></li><li><a href="module-Localization%2520Service.html">Localization Service</a></li><li><a href="module-Match%2520Routes.html">Match Routes</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Page%252520Routes.html">Page Routes</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-Player%2520Routes.html">Player Routes</a></li><li><a href="module-RBAM%2520Plugin.html">RBAM Plugin</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-contestEntryTeam%2520Routes.html">contestEntryTeam Routes</a></li><li><a href="module-contest_entry%2520Routes.html">contest_entry Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-leaderboard%2520Routes.html">leaderboard Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GENDERS">GENDERS</a></li><li><a href="global.html#SETTINGS_CONSTANTS">SETTINGS_CONSTANTS</a></li><li><a href="global.html#calPrizePool">calPrizePool</a></li><li><a href="global.html#checkTeamSvc">checkTeamSvc</a></li><li><a href="global.html#contestEntrySvc">contestEntrySvc</a></li><li><a href="global.html#createContestEntrySvc">createContestEntrySvc</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Oct 15 2023 18:37:00 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

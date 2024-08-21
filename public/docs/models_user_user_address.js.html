@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: models/user/user_address.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: models/user/user_address.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * User address definition.
+ * Represents user's address in the database.
+ * @module models/user_address
+ * @requires sequelize
+ * @requires sequelize/Model
+ * @exports UserAddress
+ * @class UserAddress
+ */
+
+"use strict";
+import { Model } from "sequelize";
+export default (sequelize, DataTypes) => {
+    class UserAddress extends Model {
+        static associate(models) {
+            // associations
+            UserAddress.belongsTo(models.User, {
+                foreignKey: "user_id",
+                as: "user",
+            });
+        }
+    }
+    UserAddress.init(
+        {
+            user_id: { type: DataTypes.INTEGER, unique: true, allowNull: false },
+            street: DataTypes.STRING,              // street can be users UserAddress
+            city: DataTypes.STRING,                // user's city
+            pin_code: DataTypes.STRING,
+            state: DataTypes.STRING,
+            country: DataTypes.STRING
+        },
+        {
+            sequelize,
+            modelName: "UserAddress",
+            indexes: [{ unique: true, fields: ["user_id"] }],
+        }
+    );
+    return UserAddress;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Admin%2520Validator.html">Admin Validator</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-Contest%2520Controller.html">Contest Controller</a></li><li><a href="module-Contest%2520Validator.html">Contest Validator</a></li><li><a href="module-ContestCategory%2520Controller.html">ContestCategory Controller</a></li><li><a href="module-ContestCategory%2520Validator.html">ContestCategory Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Deposit%2520Validator.html">Deposit Validator</a></li><li><a href="module-GameMode%2520Validator.html">GameMode Validator</a></li><li><a href="module-Game_mode%2520Controller.html">Game_mode Controller</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Media%2520Validator.html">Media Validator</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Offer%2520Validator.html">Offer Validator</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Page%2520Validator.html">Page Validator</a></li><li><a href="module-PaymentMethod%2520Controller.html">PaymentMethod Controller</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-PaymentMethod%2520Validator.html">PaymentMethod Validator</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-SiteSetting%2520Controller.html">SiteSetting Controller</a></li><li><a href="module-SiteSetting%2520Validator.html">SiteSetting Validator</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Social%2520Validator.html">Social Validator</a></li><li><a href="module-Sport%2520Controller.html">Sport Controller</a></li><li><a href="module-Sport%2520Validator.html">Sport Validator</a></li><li><a href="module-Tax%2520Controller.html">Tax Controller</a></li><li><a href="module-Tax%2520Validator.html">Tax Validator</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-Transaction%2520Validator.html">Transaction Validator</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-User%2520Validator.html">User Validator</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-Withdraw%2520Validator.html">Withdraw Validator</a></li><li><a href="module-app.html">app</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Classes</h3><ul><li><a href="ClaimedOffers.html">ClaimedOffers</a></li><li><a href="Contest.html">Contest</a></li><li><a href="ContestCategory.html">ContestCategory</a></li><li><a href="ContestEntry.html">ContestEntry</a></li><li><a href="ContestEntryTeam.html">ContestEntryTeam</a></li><li><a href="Deposit.html">Deposit</a></li><li><a href="Kyc.html">Kyc</a></li><li><a href="Media.html">Media</a></li><li><a href="Offer.html">Offer</a></li><li><a href="Otp.html">Otp</a></li><li><a href="Page.html">Page</a></li><li><a href="Payment.html">Payment</a></li><li><a href="PaymentMethod.html">PaymentMethod</a></li><li><a href="Referral.html">Referral</a></li><li><a href="SiteSetting.html">SiteSetting</a></li><li><a href="Social.html">Social</a></li><li><a href="Sport.html">Sport</a></li><li><a href="Tax.html">Tax</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="User.html">User</a></li><li><a href="UserAddress.html">UserAddress</a></li><li><a href="UserSetting.html">UserSetting</a></li><li><a href="Wallet.html">Wallet</a></li><li><a href="Withdraw.html">Withdraw</a></li><li><a href="WithdrawAccount.html">WithdrawAccount</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Jul 23 2023 18:53:36 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

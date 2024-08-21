@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/user.service.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: services/user.service.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Service for handling user-related operations.
+ * @file User Service
+ * @module User Service
+ * @category services
+ * @subcategory user
+ */
+
+import { sendSms } from "../utils/sms.util.js"
+import { logger } from "../app.js"
+import db from "../models/index.js"
+import { Op } from "sequelize"
+import { uniqueUsernameGenerator } from "../utils/username.util.js"
+import { generateUniqueReferralCode } from "../utils/referral.util.js"
+import { saveMediaFile, deleteMediaFile } from "../services/media.service.js"
+// import { userSignupQueue } from "../utils/queue/user.queue.js"
+
+const { Otp, User, Media, Wallet } = db;
+
+/**
+ * Generates a one-time password (OTP) for the given phone number.
+ * @param {string} phone - The phone number for which to generate the OTP.
+ * @returns {Promise&lt;string>} - A promise that resolves to the generated OTP.
+ * @throws {Error} - If there is an error while generating the OTP.
+*/
+export async function generateOTP(phone) {
+  try {
+    let otp;
+
+    const last_otp = await Otp.findOne({
+      where: {
+        phone,
+        createdAt: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // created within 5 mins
+        },
+      },
+    });
+
+    // if otp is already generated (within 5 mins) then return that otp, else generate new otp
+    if (last_otp) {
+      otp = last_otp.otp;
+    } else {
+      otp = Math.floor(1000 + Math.random() * 9000).toString(); // 4 digit otp (string)
+      await Otp.create({ phone, otp });
+    }
+
+    return otp;
+  } catch (err) {
+    logger.error(`generateOTP: ${err}`);
+    throw err;
+  }
+}
+
+/**
+ * Sends an OTP (One-Time Password) to the specified phone number.
+ * @param {string} number - The phone number to send the OTP to.
+ * @param {string} otp - The OTP (One-Time Password) to be sent.
+ * @returns {Promise&lt;boolean>} - A promise that resolves to true if the OTP is successfully sent.
+ * @throws {Error} - If there is an error while sending the OTP.
+*/
+export async function sendOtp(number, otp) {
+  try {
+    const message = `Your Otp is ${otp}`;
+    const response = await sendSms([number], message);
+    return true;
+  } catch (err) {
+    logger.error(`sendOtp: ${err}`);
+    throw err;
+  }
+}
+
+/**
+ * Logs in a user with the provided phone number and OTP (One-Time Password).
+ * @param {string} phone - The phone number of the user.
+ * @param {string} otp - The OTP (One-Time Password) entered by the user.
+ * @param {string} referral_code - The referral code entered by the user.
+ * @returns {Promise&lt;Object>} - A promise that resolves to the user object upon successful login.
+ * @throws {Error} - If the provided OTP or phone number is incorrect, or an error occurs during the login process.
+*/
+export async function loginWithOTP(phone, otp, referral_code) {
+  try {
+    // 1. Check if otp is valid
+    const activeOtp = await Otp.findOne({
+      where: {
+        phone,
+        otp,
+        sent_at: {
+          [db.Sequelize.Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+
+    if (!activeOtp) {
+      throw new Error("Incorrect Otp or Phone Number");
+    }
+
+    // 2. Check referral code
+    let referring_user = null;
+    let referral_code_value = null;
+
+
+    // 3. Continue with the login process. If user exists, return user, else create new user
+    let user = await User.findOne({
+      where: { phone },
+    });
+    // 4.if existing user again using referral code of some one then we are returning error
+    if (referral_code !== "" &amp;&amp; user) throw new Error("You have already used a referral code or you already have an account");
+
+    // 5.Find the referring user from the referral code
+    if (referral_code !== "") {
+      // Find the referring user from the referral code
+      referring_user = await User.findOne({
+        where: { referral_code }
+      });
+    }
+
+    // 6.checking for invalid referral code
+    if (!referring_user &amp;&amp; referral_code !== "") {
+      throw new Error("Invalid referral code");
+    }
+
+    referral_code_value = referral_code;
+
+
+    if (!user) {
+      // throw new Error("User not found");
+      const username = await uniqueUsernameGenerator();
+      const unique_referral_code = await generateUniqueReferralCode();
+
+
+      user = await User.create({ phone, username, referral_code: unique_referral_code, referred_by: referral_code_value }); // create new user
+
+      /**
+       * Add remaining user signup tasks to the queue for faster response time.
+       * These tasks are not required urgently, so we can add them to the queue.
+       */
+      // await userSignupQueue.add('user-signup', {
+      //   user,
+      //   referral_code_value,
+      //   referring_user,
+      // });
+    }
+
+    // 4. destroy all otps for this phone number
+    await Otp.destroy({
+      where: { phone },
+    });
+
+    return user;
+  } catch (err) {
+    logger.error(`loginWithOTP: ${err}`);
+    throw err;
+  }
+}
+
+/**
+ * Updates User and Admin profile-pic/avatar.
+ * @param {Object} request - The request object.
+ * @returns {Promise&lt;Media>} - A promise that returns media
+ * @throws {Error} - If there is an error while updating changing avatar.
+*/
+export async function updateUserAvatar(request) {
+  try {
+    // 1. Taking files from request
+    const files = await request.saveRequestFiles({
+      limits: { fileSize: 1000000 * 10 } // 10MB max file(s) size
+    }); // stores files to system tmp dir and return files array
+    if (!files) throw new Error("No files were uploaded") // if files is empty, bail
+    if (files.length > 1) throw new Error("Only one avatar is allowed at a time") // if more than 1 file
+    if (!files[0].mimetype.startsWith("image")) throw new Error("Only images can be uploaded")
+    // 1. get user
+    const user = await User.findOne({ where: { id: request.user.id } })
+    if (!user) throw new Error("User not found")
+
+    // 2. Find current avatar
+    // user.avatar.id,url
+    let currentAvatar;
+    if (user.avatar?.id) currentAvatar = await Media.findOne({ where: { id: user.avatar.id } })
+
+    // 3. saving avatar file
+    const media = await saveMediaFile(files[0], request.user, "file", "media")
+    // 4. updating user avatar
+    user.avatar = {
+      id: media.id || null,
+      url: media.url || "",
+    }
+    await user.save();
+
+    // 5. Delete previous avatar from file system
+    if (currentAvatar?.id) await deleteMediaFile(currentAvatar.id)  // Deleting existing avatar if exist
+    return media;
+  } catch (err) {
+    logger.error(`updateUserAvatar: ${err}`);
+    throw err;
+  }
+}
+
+/**
+ * This service will return user's total balance (winning + balance), and bonus.
+ * @param {Object} user_id - Requested user id
+ * @returns {Promise&lt;Wallet>} - A promise that returns wallet object
+ * @throws {Error} - If there is an error while Retrieving user balance.
+*/
+
+export async function getUserBalance(user_id) {
+  try {
+    const userWallet = await Wallet.findOne({ where: { user_id } })
+    if (!userWallet) throw new Error({ error: "User wallet does not exist" })
+    const wallet = {
+      balance: userWallet?.winning + userWallet?.balance,
+      bonus: userWallet?.bonus
+    }
+    return wallet
+  } catch (error) {
+    logger.error(`getUserBalance: ${error}`);
+    throw error;
+  }
+}
+
+
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Analytics%2520Routes.html">Analytics Routes</a></li><li><a href="module-Challenge%2520Routes.html">Challenge Routes</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-CricketMatch%2520Routes.html">CricketMatch Routes</a></li><li><a href="module-CricketPlayer%2520Routes.html">CricketPlayer Routes</a></li><li><a href="module-CricketScorecard%2520Routes.html">CricketScorecard Routes</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-Init%2520Routes.html">Init Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Localization%2520Routes.html">Localization Routes</a></li><li><a href="module-Localization%2520Service.html">Localization Service</a></li><li><a href="module-Match%2520Routes.html">Match Routes</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Page%252520Routes.html">Page Routes</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-Player%2520Routes.html">Player Routes</a></li><li><a href="module-RBAM%2520Plugin.html">RBAM Plugin</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-contestEntryTeam%2520Routes.html">contestEntryTeam Routes</a></li><li><a href="module-contest_entry%2520Routes.html">contest_entry Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-leaderboard%2520Routes.html">leaderboard Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GENDERS">GENDERS</a></li><li><a href="global.html#SETTINGS_CONSTANTS">SETTINGS_CONSTANTS</a></li><li><a href="global.html#calPrizePool">calPrizePool</a></li><li><a href="global.html#checkTeamSvc">checkTeamSvc</a></li><li><a href="global.html#contestEntrySvc">contestEntrySvc</a></li><li><a href="global.html#createContestEntrySvc">createContestEntrySvc</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Oct 15 2023 18:37:00 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

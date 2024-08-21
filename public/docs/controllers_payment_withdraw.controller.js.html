@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/payment/withdraw.controller.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/payment/withdraw.controller.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Controller for handling withdraw related operations.
+ * @file withdraw Controller
+ * @module Withdraw Controller
+ * @category controllers
+ * @subcategory withdraw
+ */
+import db from "../../models";
+import { logger } from "../../app.js";
+import { Op } from "sequelize";
+import { getSettingByKey } from "../../services/site_setting.service.js";
+const { WithdrawAccount, Withdraw, Wallet } = db
+
+// ************** ************** ************** *******************  //
+// ************** WITHDRAW RELATED CONTROLLER BELOW  *******************  //
+// ************** ************** ************** *******************  //
+
+/**
+ * Retrieves all withdraw from the database. If the user is not an admin, only the withdraw associated with the user will be retrieved.
+ * @controller withdraw
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/withdraw
+ * @queryparam {number} limit - The maximum number of media to retrieve.
+ * @queryparam {number} skip - The number of media to skip.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the withdraw.
+ */
+export async function getAllWithdraws(request, reply) {
+    try {
+        const { limit = 20, skip = 0, user_id } = request.query;
+        let where = {}
+        const is_admin = request.user.role === 'admin' ? true : false;
+
+        if (!is_admin) where = { user_id: request.user.id }; // If the user is not an admin, only the withdraw associated with the user will be retrieved.
+
+        // if user_id is coming in params and role is admin then give all withdraws to admin associated to that user 
+        if (user_id &amp;&amp; is_admin) where = { user_id };
+        const withdraws = await Withdraw.findAll({ where, limit, skip });
+
+        return reply.status(200).send(withdraws);
+    } catch (err) {
+        logger.error(`withdraw.controller.getAllWithdraw ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Retrieves withdraw from the database. If the user is not an admin, only the withdraw associated with the user will be retrieved.
+ * @controller withdraw
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/withdraw/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the withdraw.
+ */
+export async function getWithdraw(request, reply) {
+    try {
+        const { id } = request.params;
+        let where = { id }
+        if (request.user.role !== 'admin') where = { ...where, user_id: request.user.id } // if role is user then we show user withdraw
+        const withdraw = await Withdraw.findOne({ where });
+        if (!withdraw) return reply.status(404).send({ error: "Withdraw request does not exist" })
+        reply.status(200).send(withdraw);
+    } catch (err) {
+        logger.error(`withdraw.controller.getWithdraw ${err}`);
+        reply.status(500).send({ error: err.message });
+
+    }
+}
+
+/**
+ * Creates withdraw request. Only winnings can be withdrawn by user. 
+ * @summary Creates withdraw request. Only winnings can be withdrawn by user. This only creates a withdraw request. The withdraw will be processed by the admin.
+ * @controller withdraw
+ * @role  user
+ * @auth true
+ * @route POST /api/v1/withdraw
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating the withdraw.
+ */
+export async function createWithdraw(request, reply) {
+    // TODO: Test with payment gateway
+    try {
+        // Only User can create withdraw
+        if (request.user.role !== "user") return reply.status(401).send({ error: 'Unauthorized' });
+
+        const { amount, account_id } = request.body;
+
+        // 1. check user wallet if winning is less than amount then insufficient Amount
+        let wallet = await Wallet.findOne({ user_id: request.user.id })
+        if (amount > wallet.winning) return reply.status(402).send({ error: "Insufficient amount" })
+
+        // 2. check withdraw account exists with user_id
+        let account = await WithdrawAccount.findOne({ id: account_id, user_id: request.user.id })
+        if (!account) return reply.status(404).send({ error: "Withdraw account does not exist" })
+
+        const max_auto_withdraw_amount = parseInt(await getSettingByKey("max_auto_withdraw_amount"))
+        // 3. create withdraw with status = pending
+        let data = {}
+        data.user_id = request.user.id
+        data.amount = amount
+        // if amount is greater than max_auto_withdraw_amount then withdraw status will be pending otherwise approved 
+        amount > max_auto_withdraw_amount ? data.status = "pending" : data.status = "approved" // default pending. admin will approve or reject it
+        data.account_id = account_id
+
+        const withdraw = await Withdraw.create(data);
+
+        // 4. Instantly deduct amount from user's walllet, so that he doesnt play from that amount until withdraw is approved
+        wallet.winning = wallet.winning - amount;
+        await wallet.save();
+
+        return reply.status(200).send({ message: "Withdraw created successfully" })
+    } catch (err) {
+        logger.error(`withdraw.controller.createWithdraw ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Updates withdraw in the database. Only done by admin.
+ * @controller withdraw
+ * @role admin
+ * @auth true
+ * @route PUT /api/v1/withdraw
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while updating the withdraw.
+ */
+//done by admin only
+export async function updateWithdraw(request, reply) {
+    try {
+        if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" })
+        const id = request.params.id;
+        const { status = "pending", remark = "", amount } = request.body;
+
+        let withdraw = await Withdraw.findOne({ where: { id } })
+        if (!withdraw) return reply.status(404).send({ error: "Withdraw does not exist" })
+        if (amount) withdraw.amount = amount;
+        withdraw.status = status;
+        withdraw.remark = remark;
+        await withdraw.save();
+
+        return reply.status(200).send({ message: "Withdraw updated successfully" })
+    } catch (err) {
+        logger.error(`withdraw.controller.updateWithdraw ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+// ************** ************** ************** *******************  //
+// ************** WITHDRAW ACCOUNT RELATED CONTROLLER BELOW  *******************  //
+// ************** ************** ************** *******************  //
+
+/**
+ * Creates  withdraw account into database. Only done by user
+ * @controller withdraw
+ * @role user
+ * @auth true
+ * @route POST /api/v1/withdraw/account
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating withdraw account.
+ */
+export async function createAccount(request, reply) {
+    try {
+        if (request.user.role !== "user") return reply.status(401).send({ error: 'Unauthorized' });
+
+        const { name, account, bank_name, ifsc, type } = request.body;
+
+        const existingAccount = await WithdrawAccount.findOne({
+            where: {
+                [Op.and]: [
+                    { user_id: request.user.id },
+                    { account: account }
+                ]
+            }
+        })
+
+        if (existingAccount) return reply.status(409).send({ error: "Withdraw account already exists" })
+
+        // maximum withdraw account check of type bank or upi
+
+        const withdrawAccounts = await WithdrawAccount.findAll({ where: { user_id: request.user.id, type } })
+        if (withdrawAccounts.length >= 3) {
+            return reply.status(400).send({ error: "Maximum withdraw account limit reached" })
+        }
+
+        let data = {}
+        data.user_id = request.user.id
+        data.name = name || ""
+        data.bank_name = bank_name || ""
+        data.ifsc = ifsc || ""
+        data.type = type || ""
+        data.account = account
+        await WithdrawAccount.create(data);
+        return reply.send({ message: "Withdraw account added successfully" })
+    } catch (err) {
+        logger.error(`withdraw.controller.createAccount ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Retrieves a list of withdraw Account.
+ * @controller withdraw
+ * @role admin and user 
+ * @auth true
+ * @route GET /api/v1/account
+ * @queryparam {string} search - The search query.
+ * @queryparam {number} skip - The number of records to skip.
+ * @queryparam {number} limit - The number of records to return.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the list of withdraw account.
+ */
+export async function getAccounts(request, reply) {
+    try {
+        const { search, skip, limit, user_id, type } = request.query;
+        const is_admin = request.user.role === 'admin' ? true : false;
+        let where = {}
+        if (!is_admin) where = { ...where, user_id: request.user.id } // if role is user then search all withdraw account of that user
+
+        // if user role is admin then search query will execute
+        if (search &amp;&amp; is_admin) where = { ...where, [Op.or]: [{ name: { [Op.iLike]: `%${search}%` } }, { bank_name: { [Op.iLike]: `%${search}%` } }, { account: { [Op.iLike]: `%${search}%` } }] };
+        if (user_id &amp;&amp; is_admin) where = { ...where, user_id }
+        if (type &amp;&amp; is_admin) where = { ...where, type }
+        const accounts = await WithdrawAccount.findAll({
+            where,
+            order: [["createdAt", "DESC"]],
+            limit: limit ? parseInt(limit) : 20,
+            offset: skip ? parseInt(skip) : 0,
+        });
+
+        return reply.status(200).send(accounts);
+    } catch (error) {
+        logger.error(`withdraw.controller.getAccounts: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+/**
+ * Updates Withdraw Account in the database . Only done by User.
+ * @controller withdraw
+ * @role user
+ * @auth true
+ * @route PUT /api/v1/withdraw/account/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while updating withdraw account.
+ */
+export async function updateAccount(request, reply) {
+    try {
+        // Admin can not update someone else's withdraw account
+        if (request.user.role === 'admin') return reply.status(401).send({ error: "Unauthorized" })
+        const { id } = request.params;
+
+        let withdrawAccount = await WithdrawAccount.findOne({
+            where: {
+                id,
+                user_id: request.user.id
+            }
+        })  // Finding account by id 
+
+        if (!withdrawAccount) return reply.status(404).send({ error: "Withdraw account does not exist" })
+
+        const { name, bank_name, ifsc, account } = request.body;
+
+        // if any withdraw account already exist for user with same account number then return error
+        const existingAccount = await WithdrawAccount.findOne({
+            where: {
+                user_id: request.user.id,
+                account: account,
+                id: {
+                    [Op.ne]: id
+                },
+            }
+        })
+
+        if (existingAccount) return reply.status(409).send({ error: "Withdraw account already exists" })
+
+        // Updating withdraw account
+        withdrawAccount.account = account
+        withdrawAccount.name = name
+        withdrawAccount.bank_name = bank_name
+        withdrawAccount.ifsc = ifsc
+
+        await withdrawAccount.save();
+        return reply.status(200).send({ message: "Updated successfully" })
+    } catch (err) {
+        logger.error(`withdraw.controller.updateAccount ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Delete Withdraw Account in the database .
+ * @controller withdraw
+ * @role user , admin
+ * @auth true
+ * @route DELETE /api/v1/withdraw/account/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while deleting withdraw account.
+ */
+
+export async function deleteAccount(request, reply) {
+    try {
+        const { id } = request.params;
+        let where = { id }
+        if (request.user.role === 'user') where = { ...where, user_id: request.user.id }  // if the role is user then delete withdraw account associated to user with with withdraw id
+        const deleteAccount = await WithdrawAccount.findOne({ where })  // Finding account by id if admin and if user then find account by id and user_id
+        if (!deleteAccount) return reply.status(404).send({ error: "Withdraw account does not exist" })
+        await deleteAccount.destroy();
+        return reply.status(200).send({ message: "Withdraw account deleted successfully" })
+    } catch (err) {
+        logger.error(`withdraw.controller.deleteAccount ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Admin%2520Validator.html">Admin Validator</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-Contest%2520Controller.html">Contest Controller</a></li><li><a href="module-Contest%2520Validator.html">Contest Validator</a></li><li><a href="module-ContestCategory%2520Controller.html">ContestCategory Controller</a></li><li><a href="module-ContestCategory%2520Validator.html">ContestCategory Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Deposit%2520Validator.html">Deposit Validator</a></li><li><a href="module-GameMode%2520Validator.html">GameMode Validator</a></li><li><a href="module-Game_mode%2520Controller.html">Game_mode Controller</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Media%2520Validator.html">Media Validator</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Offer%2520Validator.html">Offer Validator</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Page%2520Validator.html">Page Validator</a></li><li><a href="module-PaymentMethod%2520Controller.html">PaymentMethod Controller</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-PaymentMethod%2520Validator.html">PaymentMethod Validator</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-SiteSetting%2520Controller.html">SiteSetting Controller</a></li><li><a href="module-SiteSetting%2520Validator.html">SiteSetting Validator</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Social%2520Validator.html">Social Validator</a></li><li><a href="module-Sport%2520Controller.html">Sport Controller</a></li><li><a href="module-Sport%2520Validator.html">Sport Validator</a></li><li><a href="module-Tax%2520Controller.html">Tax Controller</a></li><li><a href="module-Tax%2520Validator.html">Tax Validator</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-Transaction%2520Validator.html">Transaction Validator</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-User%2520Validator.html">User Validator</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-Withdraw%2520Validator.html">Withdraw Validator</a></li><li><a href="module-app.html">app</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Classes</h3><ul><li><a href="ClaimedOffers.html">ClaimedOffers</a></li><li><a href="Contest.html">Contest</a></li><li><a href="ContestCategory.html">ContestCategory</a></li><li><a href="ContestEntry.html">ContestEntry</a></li><li><a href="ContestEntryTeam.html">ContestEntryTeam</a></li><li><a href="Deposit.html">Deposit</a></li><li><a href="Kyc.html">Kyc</a></li><li><a href="Media.html">Media</a></li><li><a href="Offer.html">Offer</a></li><li><a href="Otp.html">Otp</a></li><li><a href="Page.html">Page</a></li><li><a href="Payment.html">Payment</a></li><li><a href="PaymentMethod.html">PaymentMethod</a></li><li><a href="Referral.html">Referral</a></li><li><a href="SiteSetting.html">SiteSetting</a></li><li><a href="Social.html">Social</a></li><li><a href="Sport.html">Sport</a></li><li><a href="Tax.html">Tax</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="User.html">User</a></li><li><a href="UserAddress.html">UserAddress</a></li><li><a href="UserSetting.html">UserSetting</a></li><li><a href="Wallet.html">Wallet</a></li><li><a href="Withdraw.html">Withdraw</a></li><li><a href="WithdrawAccount.html">WithdrawAccount</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Jul 23 2023 18:53:36 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

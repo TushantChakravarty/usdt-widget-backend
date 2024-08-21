@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/admin.controller.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/admin.controller.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Controller for handling admin-related operations.
+ * @file Admin Controller
+ * @module Admin Controller
+ * @category controllers
+ * @subcategory admin
+ */
+
+import { logger } from "../app.js";
+import { compare, encrypt } from "../utils/password.util.js";
+import { Op } from "sequelize";
+import db from "../db/models";
+import cache from "../utils/cache.util.js";
+const is_prod = process.env.NODE_ENV === "production" ? true : false; // check if production
+
+const { User } = db;
+
+/**
+ * Authenticates an admin user and generates a login token.
+ * @controller admin
+ * @route POST /api/v1/admin/login
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while logging in.
+ */
+export async function login(request, reply) { // login for team members
+    try {
+
+        if ((request.cookies.token || request.headers.authorization) &amp;&amp; request.jwtVerify()) {
+            return reply.status(406).send("You are already logged in")
+        }
+        const { username, password } = request.body;
+
+        // Get user ip.
+        const ip = request.headers["x-forwarded-for"]?.split(",")[0] || request.headers["x-forwarded-for"] || request.ip;
+
+        // limit login request to 5 per 30 min
+        const cache_key = `login_request_count_${ip}`; // using ip as key to limit login requests per ip instead of per phone phone to prevent spamming/bruteforce
+        const cache_val = cache.get(cache_key) || 0;
+        if (cache_val &amp;&amp; cache_val > 5) return reply.status(429).send({ error: "Login limit reached. Please try again after 30 mins" });
+
+        // add login request count to cache for 30 mins
+        cache.set(cache_key, cache_val + 1, 60 * 30);
+
+        // find user by username where role is not empty, and compare password
+        const user = await User.scope("private").findOne({
+            where: {
+                username,
+                // is_banned: {
+                //     [Op.not]: true
+                // },
+                // role is admin
+                [Op.or]: [
+                    { role: "admin" },
+                ],
+            }
+        });
+
+        if (!user) return reply.status(404).send({ error: "Invalid username or password" }); // generic error to prevent bruteforce
+
+        if (user.is_banned) return reply.status(403).send({ error: "Your account has been banned." }) // if user is banned, return error
+
+        // compare password
+        const match = await compare(password, user.password);
+        if (!match) return reply.status(401).send({ error: "Invalid username or password" }); // generic error to prevent bruteforce
+
+        // generate token
+        const token = await reply.jwtSign({
+            id: user.id,
+            role: user.role,
+            username: user.username
+        });
+
+        // set token in cookie
+        reply.setCookie("token", token, {
+            httpOnly: true,
+            secure: is_prod,
+            sameSite: "strict",
+            // signed: true, // dont use signed cookies with JWT
+            expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 days
+            path: "/",
+        });
+
+        return reply.status(200).send({ error: "Logged in", token });
+
+    } catch (error) {
+        logger.error(`admin.controller.login: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+/**
+ * Logs out the currently authenticated admin user by clearing the login token.
+ * @controller admin
+ * @auth true
+ * @route POST /api/v1/admin/logout
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while logging out.
+ */
+export async function logout(request, reply) {
+    try {
+        reply.clearCookie("token");
+        return reply.status(200).send({ message: "Logged out" });
+    } catch (error) {
+        logger.error(`admin.controller.logout: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+/**
+ * Registers a new admin user.
+ * @controller admin
+ * @route POST /api/v1/admin/signup
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while signing up.
+ */
+export async function signup(request, reply) {
+    try {
+        const { username, password } = request.body;
+
+        // check if signup is disabled
+        // if (is_prod) return reply.status(400).send({ error: "Signup disabled" });
+
+        // if admin count is more than 0, return error
+        const adminCount = await User.count(
+            // where role is admin
+            {
+                where: {
+                    role: {
+                        [Op.eq]: "admin",
+                    },
+                },
+            }
+        );
+        if (is_prod &amp;&amp; adminCount > 0) return reply.status(400).send({ error: "Signup disabled" }); // if production, return error
+
+        // check if username exists. although we have checked above that no users exist, still this check is good for future additions to this route
+        const userExists = await User.findOne({ where: { username } });
+        if (userExists) return reply.status(400).send({ error: "Username already exists" });
+
+        // encrypt password
+        const encryptedPassword = await encrypt(password);
+
+        // create user
+        const admin = await User.create({
+            username,
+            password: encryptedPassword,
+            role: "admin",
+            is_superuser: true, // superuser is true for first admin
+            access: {
+                admins: true,
+                dashboard: true,
+                deposits: true,
+                games: true,
+                offers: true,
+                payment_methods: true,
+                reports: true,
+                settings: true,
+                transactions: true,
+                users: true,
+                withdrawals: true,
+            },
+        });
+
+        return reply.status(200).send({ message: "Signup Successful" });
+    } catch (error) {
+        logger.error(`admin.controller.signup: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+/**
+ * Retrieves the profile of the authenticated admin user.
+ * @controller admin
+ * @role admin
+ * @auth true
+ * @route GET /api/v1/admin/profile
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the admin profile.
+ */
+export async function getProfile(request, reply) {
+    try {
+        const user = request.user;
+        if (!user || user?.role !== "admin") return reply.status(401).send({ error: "Unauthorized" }); // admins only
+        return reply.status(200).send({
+            id: user.id,
+            phone: user.phone,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            // date_of_birth : user.date_of_birth,
+            gender: user.gender,
+            username: user.username,
+            email: user.email,
+        });
+    } catch (error) {
+        logger.error(`admin.controller.getprofile: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+/**
+ * Retrieves a list of admins.
+ * @controller admin
+ * @role admin
+ * @auth true
+ * @route GET /api/v1/admin/
+ * @queryparam {string} search - The search query.
+ * @queryparam {number} skip - The number of records to skip.
+ * @queryparam {number} limit - The number of records to return.
+ * @queryparam {string} role - The role of the admin.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the list of admins.
+ */
+export async function getAdmins(request, reply) {
+    try {
+        if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" }); // Only admin can view other team members
+
+        const { search, skip, limit, role } = request.query;
+
+        let where = {};
+        where = { ...where, role: { [Op.not]: "" } }; // role is not empty
+        if (search) where = { ...where, [Op.or]: [{ username: { [Op.iLike]: `%${search}%` } }, { first_name: { [Op.iLike]: `%${search}%` } }, { last_name: { [Op.iLike]: `%${search}%` } }, { phone: { [Op.iLike]: `%${search}%` } }, { email: { [Op.iLike]: `%${search}%` } }] };
+        if (role) where = { ...where, role };
+        // if (request.user.role === "subadmin") where = { ...where, role: { [Op.not]: "admin" } }; // role is not admin if user is subadmin (subadmins can't view admins) for future use, right now only admins can access this route
+
+        const users = await User.findAll({
+            where,
+            order: [["createdAt", "DESC"]],
+            limit: limit ? parseInt(limit) : 20,
+            offset: skip ? parseInt(skip) : 0,
+        });
+
+        return reply.status(200).send({ users });
+    } catch (error) {
+        logger.error(`admin.controller.getadmins: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+/**
+ * Retrieves an admin by ID.
+ * @controller admin
+ * @role admin
+ * @auth true
+ * @route GET /api/v1/admin/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the admin.
+ */
+export async function getAdmin(request, reply) {
+    try {
+        if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" }); // Only admin can view other team members
+        const user = await User.findOne({ where: { id: request.params.id } });
+        if (!user) return reply.status(404).send({ error: "User not found" });
+        return reply.status(200).send(user);
+    } catch (error) {
+        logger.error(`admin.controller.getadmin: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+/**
+ * Deletes an admin by ID.
+ * @controller admin
+ * @role admin
+ * @auth true
+ * @route DELETE /api/v1/admin/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while deleting the admin.
+ */
+export async function deleteAdmin(request, reply) {
+    try {
+        if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" }); // Only admin can delete other team members
+
+        const user = await User.findOne({ where: { id: request.params.id } });
+
+        if (!user) return reply.status(404).send({ error: "User not found" });
+
+        // if request.user.id === user.id, then user is deleting himself, return error
+        if (request.user.id === user.id) return reply.status(400).send({ error: "You can't delete yourself. Ask another admin to delete your account." });
+
+        // if user.is_superuser, then bail
+        if (user.is_superuser) return reply.status(400).send({ error: "You can't delete the superuser. But good try." });
+
+        await user.destroy();
+        return reply.status(200).send({ message: "Team member deleted" });
+    } catch (error) {
+        logger.error(`admin.controller.deleteadmin: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+/**
+ * Updates an admin by ID.
+ * @controller admin
+ * @role admin
+ * @auth true
+ * @route PUT /api/v1/admin/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while updating the admin.
+ */
+export async function updateAdmin(request, reply, next) {
+    try {
+        if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" }); // Only admin can update other team members
+
+        const user = await User.findOne({ where: { id: request.params.id } });
+
+        if (!user) return reply.status(404).send({ error: "User not found" });
+
+        // if update user is superuser, then bail
+        if (user.is_superuser &amp;&amp; request.user.id !== user.id) return reply.status(400).send({ error: "You can't update the superuser. But good try." });
+
+        let { email, password, first_name, last_name, username, phone, role, is_banned = false } = request.body;
+
+        if (!email &amp;&amp; !first_name &amp;&amp; !last_name &amp;&amp; !username &amp;&amp; !password) return reply.status(400).send({ error: "Nothing to update" });
+
+        if (username) {
+            username = username.toLowerCase().replace(/[^a-zA-Z0-9]/g, "");
+            // check if username exists and is not the same as current user
+            const userExists = await User.findOne({ where: { username } });
+            if (userExists &amp;&amp; userExists.id !== user.id) return reply.status(400).send({ error: "Username already in use" });
+        }
+
+        if (email) user.email = email.toLowerCase();
+        if (username) user.username = username;
+        if (password) user.password = await encrypt(password);
+        if (first_name) user.first_name = first_name;
+        if (last_name) user.last_name = last_name;
+        if (phone) user.phone = phone;
+        // if (date_of_birth) user.date_of_birth = date_of_birth;
+        // if (gender) user.gender = gender;
+        // if (app_language) user.app_language = app_language;
+        if (role) user.role = role;
+        user.is_banned = is_banned;
+        await user.save();
+        return reply.status(200).send({ message: "Admin Updated" });
+    } catch (error) {
+        logger.error(`admin.controller.updateadmin: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+/**
+ * Creates a new admin.
+ * @controller admin
+ * @role admin
+ * @auth true
+ * @route POST /api/v1/admin
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating the admin.
+ */
+export async function createAdmin(request, reply) {
+    try {
+        if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" }); // Only admin can create other team members
+
+        let { email, password, first_name, last_name, username, phone, role, is_banned = false } = request.body;
+
+        // format username
+        username = username.toLowerCase().replace(/[^a-zA-Z0-9]/g, "");
+
+        // Username and password required
+        if (!username || !password) return reply.status(400).send({ error: "Username and password required" });
+
+        // check if username exists
+        const userExists = await User.findOne({ where: { username } });
+        if (userExists) return reply.status(400).send({ error: "Username already in use" });
+
+        let user = {};
+        user.username = username;
+        user.password = await encrypt(password);
+        user.role = role;
+        if (email) user.email = email.toLowerCase();
+        if (first_name) user.first_name = first_name;
+        if (last_name) user.last_name = last_name;
+        if (phone) user.phone = phone;
+        // if (gender) user.gender = gender;
+        // if (date_of_birth) user.date_of_birth = date_of_birth;
+        if (is_banned) user.is_banned = is_banned;
+
+        user = await User.create(user);
+
+        return reply.status(200).send({ message: "Admin created" });
+    } catch (error) {
+        logger.error(`admin.controller.createadmin: ${error}`);
+        reply.status(500).send({ error: error.message });
+    }
+}
+
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%2520Routes.html">Admin Routes</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-services_deposit.html">services/deposit</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Tue Jul 11 2023 11:56:53 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

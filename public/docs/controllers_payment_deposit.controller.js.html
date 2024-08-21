@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/payment/deposit.controller.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/payment/deposit.controller.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Controller for handling deposit related operations.
+ * @file depsoit Controller
+ * @module Deposit Controller
+ * @category controllers
+ * @subcategory deposit
+ */
+import db from "../../models";
+import { logger } from "../../app.js";
+import { settleOffer } from "../../services/offer.service.js";
+import { getSettingByKey } from "../../services/site_setting.service.js";
+const { Deposit, Offer, Wallet, User, Referral } = db
+
+/**
+ * Retrieves all deposit from the database. If the user is not an admin, only the deposit associated with the user will be retrieved.
+ * @controller deposit
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/deposit
+ * @queryparam {number} limit - The maximum number of media to retrieve.
+ * @queryparam {number} skip - The number of media to skip.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the withdraw.
+ */
+export async function getAllDeposits(request, reply) {
+    try {
+        const { limit = 20, skip = 0, user_id } = request.query;
+        let where = {}
+        const is_admin = request.user.role === 'admin' ? true : false;
+
+        if (!is_admin) where = { user_id: request.user.id }; // If the user is not an admin, only the deposit associated with the user will be retrieved
+
+        // if user_id is coming in params and role is admin then give all deposit to admin associated to that user 
+        if (user_id &amp;&amp; is_admin) where = { user_id };
+        const alldeposit = await Deposit.findAll({ where, limit, skip });
+        reply.status(200).send(alldeposit);
+    } catch (err) {
+        logger.error(`deposit.controller.getalldeposit ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Retrieves deposit from the database. If the user is not an admin, only the deposit associated with the user will be retrieved.
+ * @controller deposit
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/deposit/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the deposits.
+ */
+export async function getDeposit(request, reply) {
+    try {
+        const id = request.params.id;
+        let where = { id }
+        if (request.user.role !== 'admin') where = { ...where, user_id: request.user.id } // if role is user then we show user deposit
+
+        const deposit = await Deposit.findOne({ where });
+        if (!deposit) return reply.status(404).send({ message: "Deposit does not exist" })
+        reply.status(200).send(deposit);
+    } catch (err) {
+        logger.error(`deposit.controller.getdeposit ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Creates  deposit into database. Only done by user
+ * @controller deposit
+ * @role user
+ * @auth true
+ * @route POST /api/v1/deposit
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating the deposit.
+ */
+export async function createDeposit(request, reply) {
+    try {
+        // 1. Checking if deposit request from user or not
+        if (request.user.role !== "user") return reply.status(401).send({ error: 'Unauthorized' });
+
+        // 2. Destructing properties from request body
+        const { amount, payment_gateway_id, offer_id = null } = request.body;
+
+        let data = {}
+        data.user_id = request.user.id
+        data.amount = amount
+        if (payment_gateway_id) data.payment_gateway_id = payment_gateway_id
+
+        // TODO: All the operations will be performed in Payment gateway success Response
+        // TODO: CHECK FOR GAMES CUTOFF WHEN WE IMPLEMENT GAMES MODEL\
+        // TODO: PAYMENT GATEWAY SETUP 
+        // TODO: PAYMENT GATEWAY,REPLY,redirect_id, we have to use payment_gateway_id {redirect_url, }
+        // 3. creating deposit
+
+
+        var deposit = await Deposit.create(data);
+
+
+        // 4.taking count of user previous deposit so that we can settle the user referral bonus
+        let user_deposit_count = await Deposit.count({ where: { user_id: request.user.id } })
+
+        // 5. if user is giving offer id at the time of deposit then settle the offer
+        let settledOffer;
+        if (offer_id) {
+            settledOffer = await settleOffer(offer_id, request.user.id, deposit.id, "deposit")
+            // if offer is settled then update deposit with offer_id 
+            deposit.offer_id = settledOffer.offer_id
+
+        }
+        // 5. Finding user's wallet
+        let wallet = await Wallet.findOne({ where: { user_id: request.user.id } });
+
+        // 6. Updating user's wallet
+        if (wallet) wallet.balance += deposit.amount;
+        await wallet.save();
+
+        // 7. Here we finding the user 
+        let user = await User.findOne({ where: { id: request.user.id } })
+
+        // 8. taking minimum number of deposit required so that we can check with total deposit count of user that user has done total amount of transferring referral or not
+        let deposit_required = parseInt(await getSettingByKey("referral_bonus_after_deposit")) || 1;
+
+        // 9. Here we checking if the user has made total number of deposit that is require for transferring referral bonus and referred by someone then for users first payment we transfer a referral bonus to referral user 
+        if (user_deposit_count === deposit_required &amp;&amp; user.referred_by) {
+            // 10. Here  we finding referring user     
+            let referrer = await User.findOne({
+                where: { referral_code: user.referred_by },
+                include: ['wallet']
+            })
+
+            // 11. if its entry in referral table present where is paid is false
+            let referral
+            if (referrer) {
+                referral = await Referral.findOne({ where: { referrer_id: referrer.id, referred_id: user.id, is_paid: false } })
+            }
+
+
+            const refer_count = await Referral.count({ where: { referred_id: user.id } }) // checking if user was referred by someone else before
+
+            // 12. Transferring referral bonus if referrer is present ,referral bonus amount  is not paid  and user was not already referred by someone
+            if (referrer &amp;&amp; refer_count === 1 &amp;&amp; referral) {
+                let referral_bonus = parseInt(await getSettingByKey("referral_bonus")) || 100;
+                referrer.wallet.bonus += referral_bonus
+                await referrer.wallet.save()
+                await referrer.save()
+
+
+                referral.is_paid = true
+                await referral.save()
+            }
+        }
+        user.has_made_first_payment = true;
+        await user.save();
+        await deposit.save();
+
+        return reply.status(200).send({ message: "Deposit successfully" })
+    } catch (err) {
+        logger.error(`deposit.controller.createDeposit ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Updates deposit in the database . Only done by admin.
+ * @controller deposit
+ * @role admin
+ * @auth true
+ * @route PUT /api/v1/deposit
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while updating the deposit.
+ */
+
+//done by admin only
+export async function updateDeposit(request, reply) {
+    try {
+        if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" })
+        const id = request.params.id;
+        const { status, remark = "" } = request.body;
+
+        let deposit = await Deposit.findOne({ where: { id } })
+        if (!deposit) return reply.status(404).send({ error: "Deposit does not exist" })
+
+        deposit.status = status;
+        deposit.remark = remark;
+        await deposit.save();
+
+        return reply.status(200).send({ message: "Updated successfully" })
+    } catch (err) {
+        logger.error(`deposit.controller.updateDeposit ${err}`);
+        reply.status(500).send({ error: err.message });
+    }
+}
+
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Admin%2520Validator.html">Admin Validator</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-Contest%2520Controller.html">Contest Controller</a></li><li><a href="module-Contest%2520Validator.html">Contest Validator</a></li><li><a href="module-ContestCategory%2520Controller.html">ContestCategory Controller</a></li><li><a href="module-ContestCategory%2520Validator.html">ContestCategory Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Deposit%2520Validator.html">Deposit Validator</a></li><li><a href="module-GameMode%2520Validator.html">GameMode Validator</a></li><li><a href="module-Game_mode%2520Controller.html">Game_mode Controller</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Media%2520Validator.html">Media Validator</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Offer%2520Validator.html">Offer Validator</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Page%2520Validator.html">Page Validator</a></li><li><a href="module-PaymentMethod%2520Controller.html">PaymentMethod Controller</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-PaymentMethod%2520Validator.html">PaymentMethod Validator</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-SiteSetting%2520Controller.html">SiteSetting Controller</a></li><li><a href="module-SiteSetting%2520Validator.html">SiteSetting Validator</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Social%2520Validator.html">Social Validator</a></li><li><a href="module-Sport%2520Controller.html">Sport Controller</a></li><li><a href="module-Sport%2520Validator.html">Sport Validator</a></li><li><a href="module-Tax%2520Controller.html">Tax Controller</a></li><li><a href="module-Tax%2520Validator.html">Tax Validator</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-Transaction%2520Validator.html">Transaction Validator</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-User%2520Validator.html">User Validator</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-Withdraw%2520Validator.html">Withdraw Validator</a></li><li><a href="module-app.html">app</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Classes</h3><ul><li><a href="ClaimedOffers.html">ClaimedOffers</a></li><li><a href="Contest.html">Contest</a></li><li><a href="ContestCategory.html">ContestCategory</a></li><li><a href="ContestEntry.html">ContestEntry</a></li><li><a href="ContestEntryTeam.html">ContestEntryTeam</a></li><li><a href="Deposit.html">Deposit</a></li><li><a href="Kyc.html">Kyc</a></li><li><a href="Media.html">Media</a></li><li><a href="Offer.html">Offer</a></li><li><a href="Otp.html">Otp</a></li><li><a href="Page.html">Page</a></li><li><a href="Payment.html">Payment</a></li><li><a href="PaymentMethod.html">PaymentMethod</a></li><li><a href="Referral.html">Referral</a></li><li><a href="SiteSetting.html">SiteSetting</a></li><li><a href="Social.html">Social</a></li><li><a href="Sport.html">Sport</a></li><li><a href="Tax.html">Tax</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="User.html">User</a></li><li><a href="UserAddress.html">UserAddress</a></li><li><a href="UserSetting.html">UserSetting</a></li><li><a href="Wallet.html">Wallet</a></li><li><a href="Withdraw.html">Withdraw</a></li><li><a href="WithdrawAccount.html">WithdrawAccount</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Jul 23 2023 18:53:36 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

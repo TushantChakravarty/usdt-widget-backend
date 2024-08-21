@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: app.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: app.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Main entry point for the Play999 API.
+ * It sets up the Fastify server, registers plugins,
+ * imports routes, and starts the server.
+ * 
+ * @file App.js
+ * @module app
+ * @category app
+ * @subcategory main
+ * @requires fastify
+ */
+import Fastify from 'fastify'
+import cookie from '@fastify/cookie'
+import cors from '@fastify/cors'
+import pino from 'pino'
+import dotenv from 'dotenv'
+import routes from './routes'
+import fastifyStatic from '@fastify/static'
+import rateLimit from '@fastify/rate-limit'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
+// import { errorHandler } from './utils/validate.util.js'
+import db from "./models"
+import jwtAuthPlugin from "./plugins/jwt-auth.plugin.js"
+import redisPlugin from './plugins/redis.plugin.js'
+import multipart from '@fastify/multipart'
+import path from 'path'
+import { initSiteSetting } from './services/site_setting.service.js'
+dotenv.config() // load environment variables from .env file
+
+/**
+ * Fastify server instance
+ * @type {FastifyInstance}
+ */
+export const server = Fastify({
+    logger: pino({
+        level: process.env.NODE_ENV === "production" ? "error" : "debug", // set log level
+    }),
+})
+
+/**
+ * Internal Logger
+ * @type {pino.Logger}
+ */
+export const logger = server.log
+
+/**
+ * Set custom error handler
+ */
+// server.setErrorHandler(errorHandler)
+
+/**
+ * Multipart form data plugin (for file uploads)
+ */
+await server.register(multipart)
+
+/**
+ * Register cookie plugin
+ */
+await server.register(cookie, {
+    secret: process.env.COOKIE_SECRETS.split(","), // array of keys to be used for cookies signature
+})
+
+/**
+ * Register redis caching plugin
+ */
+await server.register(redisPlugin)
+
+/** 
+ * Setup static/public directory
+ */
+await server.register(fastifyStatic, {
+    root: path.join(__dirname, '../public'),
+    prefix: '/public/',
+    // constraints: { host: 'example.com' } // optional: default {}
+})
+
+/**
+ * Register rate-limit plugin
+ * Limit requests to the server by IP address. We'll also set request limit on server level. This will limit the number of requests to the server from a single IP address. This is useful to prevent brute-force/DDOS attacks.
+ * @see https://github.com/fastify/fastify-rate-limit
+ */
+await server.register(rateLimit, {
+    max: 100, // max requests per windowMs
+    timeWindow: '1 minute', // windowMs: milliseconds - how long to keep records of requests in memory
+    cache: 10000, // number of max entries in the global cache
+    // allowList: ['127.0.0.1'], // default []
+    nameSpace: 'play999-api-ratelimit-', // default is 'fastify-rate-limit-'
+    // keyGenerator: function (request) { /* ... */ }, // default (request) => request.raw.ip. TODO: make sure user's ip is accessible behind nginx proxy, if not then use request.headers['x-forwarded-for'] || request.ip
+})
+
+/**
+ * Register swagger plugin
+ */
+await server.register(swagger)
+
+await server.register(swaggerUi, {
+    routePrefix: '/docs',
+    swagger: {
+        info: {
+            title: 'Play999 Documentation',
+            description: 'Play999 API Documentation',
+            version: '0.1.0',
+            termsOfService: 'https://example.com/tos',
+            contact: {
+                name: 'John Doe',
+                url: 'https://www.example.com',
+                email: 'john.doe@email.com'
+            }
+        },
+        externalDocs: {
+            url: 'https://www.example.com/api/',
+            description: 'Find more info here'
+        },
+        host: '127.0.0.1:3000',
+        basePath: '',
+        schemes: ['http', 'https'],
+    },
+    uiConfig: {
+        docExpansion: 'list', // expand/not all the documentations none|list|full
+        deepLinking: false
+    },
+    uiHooks: {
+        onRequest: function (request, reply, next) {
+            next()
+        },
+        preHandler: function (request, reply, next) {
+            next()
+        }
+    },
+    staticCSP: true,
+    transformStaticCSP: (header) => header,
+    exposeRoute: true
+})
+
+/**
+ * Register server-jwt-auth plugin
+ */
+await server.register(jwtAuthPlugin)
+
+/**
+ * Register server-cors plugin
+ */
+await server.register(cors, {
+    // TODO: Setup CORS options before deploying to production
+    // origin: 'https://example.com', // Allow requests from this origin
+    // methods: ['GET', 'POST'], // Allow specified HTTP methods
+    // allowedHeaders: ['Content-Type'], // Allow specified request headers
+    // exposedHeaders: ['Content-Length'], // Expose specified response headers
+    // credentials: true, // Enable sending credentials (cookies, HTTP authentication) in cross-origin requests
+    // preflightContinue: false, // Disable handling of preflight requests
+    // optionsSuccessStatus: 204 // Set the response status code for successful OPTIONS requests
+})
+
+/**
+ * Register routes
+ */
+await server.get('/', async (request, reply) => {
+    return reply.send({ message: 'Hello world.' })
+}) // root route
+
+/**
+ * Register api/v1 routes
+ */
+await server.register(routes, { prefix: "/api/v1" })
+
+/**
+ * Connect to the database
+ */
+db.sequelize
+    .sync({ alter: true })
+    .then(() => {
+        console.log("Database connected")
+        logger.info("Database connected")
+        initSiteSetting(); // initializes site settings for the first time when app starts
+    })
+    .catch((err) => {
+        console.log("Unable to connect to the database: ", err)
+        logger.error("Unable to connect to the database: ", err)
+    });
+
+/** 
+ * Handle uncaught exceptions and unhandled promise rejections 
+ */
+process.on("uncaughtException", (err) => {
+    console.log(`Error: ${err.message}`)
+    logger.error(`Error: ${err.message}`)
+    server.close(() => process.exit(1)); // close server &amp; exit process: mandatory (as per the Node.js docs)
+})
+
+process.on("unhandledRejection", (err) => {
+    console.log(`Error: ${err.message}`)
+    logger.error(`Error: ${err.message}`)
+    server.close(() => process.exit(1))
+})
+
+// console.log all server routes
+// server.ready((err) => {
+//     if (err) throw err
+//     console.log(server.printRoutes())
+// })
+
+/** 
+ * Run the server! 
+ */
+const start = async () => {
+    try {
+        server.listen({
+            port: process.env.APP_PORT || 3000,
+            host: process.env.APP_HOST || "127.0.0.1",
+        })
+    } catch (err) {
+        logger.error(`server error: ${err}`)
+        process.exit(1)
+    }
+}
+
+start()
+
+/**
+ * Run swagger!
+ */
+server.ready(err => {
+    if (err) throw err
+    server.swagger()
+})
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Admin%2520Validator.html">Admin Validator</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-Contest%2520Controller.html">Contest Controller</a></li><li><a href="module-Contest%2520Validator.html">Contest Validator</a></li><li><a href="module-ContestCategory%2520Controller.html">ContestCategory Controller</a></li><li><a href="module-ContestCategory%2520Validator.html">ContestCategory Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Deposit%2520Validator.html">Deposit Validator</a></li><li><a href="module-GameMode%2520Validator.html">GameMode Validator</a></li><li><a href="module-Game_mode%2520Controller.html">Game_mode Controller</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Media%2520Validator.html">Media Validator</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Offer%2520Validator.html">Offer Validator</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Page%2520Validator.html">Page Validator</a></li><li><a href="module-PaymentMethod%2520Controller.html">PaymentMethod Controller</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-PaymentMethod%2520Validator.html">PaymentMethod Validator</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-SiteSetting%2520Controller.html">SiteSetting Controller</a></li><li><a href="module-SiteSetting%2520Validator.html">SiteSetting Validator</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Social%2520Validator.html">Social Validator</a></li><li><a href="module-Sport%2520Controller.html">Sport Controller</a></li><li><a href="module-Sport%2520Validator.html">Sport Validator</a></li><li><a href="module-Tax%2520Controller.html">Tax Controller</a></li><li><a href="module-Tax%2520Validator.html">Tax Validator</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-Transaction%2520Validator.html">Transaction Validator</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-User%2520Validator.html">User Validator</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-Withdraw%2520Validator.html">Withdraw Validator</a></li><li><a href="module-app.html">app</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Classes</h3><ul><li><a href="ClaimedOffers.html">ClaimedOffers</a></li><li><a href="Contest.html">Contest</a></li><li><a href="ContestCategory.html">ContestCategory</a></li><li><a href="ContestEntry.html">ContestEntry</a></li><li><a href="ContestEntryTeam.html">ContestEntryTeam</a></li><li><a href="Deposit.html">Deposit</a></li><li><a href="Kyc.html">Kyc</a></li><li><a href="Media.html">Media</a></li><li><a href="Offer.html">Offer</a></li><li><a href="Otp.html">Otp</a></li><li><a href="Page.html">Page</a></li><li><a href="Payment.html">Payment</a></li><li><a href="PaymentMethod.html">PaymentMethod</a></li><li><a href="Referral.html">Referral</a></li><li><a href="SiteSetting.html">SiteSetting</a></li><li><a href="Social.html">Social</a></li><li><a href="Sport.html">Sport</a></li><li><a href="Tax.html">Tax</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="User.html">User</a></li><li><a href="UserAddress.html">UserAddress</a></li><li><a href="UserSetting.html">UserSetting</a></li><li><a href="Wallet.html">Wallet</a></li><li><a href="Withdraw.html">Withdraw</a></li><li><a href="WithdrawAccount.html">WithdrawAccount</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Jul 23 2023 18:53:36 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

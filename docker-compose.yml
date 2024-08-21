@@ -1,0 +1,92 @@
+version: '3'
+
+services:
+  api:
+    image: ${DOCKER_API_IMAGE}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 3000:3000
+      - 9229:9229 # port for node debugging
+    depends_on:
+      - redis
+      - kafka
+      - rabbitmq
+    stdin_open: true
+    volumes:
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./package.json:/app/package.json
+      - ./.env:/app/.env
+      - ./logs:/app/logs
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_SECRET}
+      - KAFKA_BROKER=kafka:9092
+      - KAFKA_CLIENT_ID=play999_client
+      - KAFKA_GROUP_ID=play999_group
+      - KAFKA_TOPIC=my_topic_name
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    networks:
+      - play999_api_ff_network
+
+  redis:
+    image: redis/redis-stack-server:latest
+    container_name: redis
+    command: redis-server --bind 0.0.0.0 --protected-mode no
+    ports:
+      - 6379:6379
+    networks:
+      - play999_api_ff_network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - 2181:2181
+    networks:
+      - play999_api_ff_network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - 9092:9092
+    networks:
+      - play999_api_ff_network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"   # RabbitMQ server port
+      - "15672:15672" # Management plugin web UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - play999_api_ff_network
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  play999_api_ff_network:

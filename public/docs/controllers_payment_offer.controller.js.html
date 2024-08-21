@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: controllers/payment/offer.controller.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: controllers/payment/offer.controller.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Controller for handling offer related operations.
+ * @file offer Controller
+ * @module Offer Controller
+ * @category controllers
+ * @subcategory offer
+ */
+import db from "../../models"
+import { logger } from "../../app.js"
+import { Op } from "sequelize"
+import { nanoid } from "nanoid"
+
+const { Offer } = db;
+
+/**
+ * Retrieves all(active, inactive, deleted) offers from the database for admin and only active offers for user
+ * @controller offer
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/offer
+ * @queryparam {string} search - apply search according to name and type and retrieve data.
+ * @queryparam {number} limit - The maximum number of offer to retrieve.
+ * @queryparam {string} skip - The number of offer to skip.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the offer.
+ */
+export async function getAllOffer(request, reply) {
+    try {
+        const { search, limit, skip } = request.query;
+        let where = {}
+
+        const currentDate = new Date().toISOString().split('T')[0];
+
+        // 1.if user role is not admin then we show only active offers to users
+        if (request.user.role !== 'admin') where = { is_active: true, end_date: { [Op.gte]: currentDate }, start_date: { [Op.lte]: currentDate } } // TODO: CHECK WHETHER DATE QUERY IS WORKING FINE OR NOT
+
+        // 2.Providing a search functionality to user and admin 
+        if (search) where = { ...where, [Op.or]: [{ name: { [Op.iLike]: `%${search}%` } },] }
+
+
+        const allOffer = await Offer.findAll({
+            where,
+            limit: limit ? parseInt(limit) : 20,
+            offset: skip ? parseInt(skip) : 0,
+            paranoid: request.user.role === 'admin' ? false : true
+        })
+        return reply.status(200).send(allOffer)
+    } catch (err) {
+        logger.error(`offer.controller.getAllOffer ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Adds a new offer. Only done by admin
+ * @controller offer
+ * @role admin
+ * @auth true
+ * @route POST /api/v1/offer
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while creating the offer.
+ */
+export async function createOffer(request, reply) {
+    try {
+        if (request.user.role !== "admin") return reply.status(401).send({ error: "Unauthorized" });
+
+        let { name, description, type, value, is_percentage = false, min_deposit, max_credit, games_cutoff, code, start_date, end_date, is_bonus = false, is_reusable = false, is_active = true, is_autoapply } = request.body
+
+        // if admin is trying to create any offer with is_active=true and is_autoapply = true then below code checks if there is any offer exist with this type which is active and auto apply becouse there can be only one auto apply offer of this type and it is active
+
+        if (is_autoapply == true &amp;&amp; is_active == true) {
+            const autoApplyOffer = await Offer.findOne({ where: { type, is_autoapply: true, is_active: true } })
+            if (autoApplyOffer) return reply.status(409).send({ error: `offer of type ${type} with auto apply already exist which is active` })
+        }
+        // 1. if already an offer exist with the same code, bail early
+        const alreadyoffer = await Offer.findOne({ where: { code: code } })
+        if (alreadyoffer) return reply.status(409).send({ error: "Coupon code already exists" })
+
+        // 2. if type is signup and is_percentage is true, bail early
+        if (type === "signup" &amp;&amp; is_percentage) return reply.status(409).send({ error: "Signup offer cannot be percentage based" })
+
+        let data = { name, type, value, code, is_bonus, is_active, is_reusable, is_percentage, start_date, end_date, is_autoapply }
+        // data.valid_till = new Date().toISOString().split('T')[0];
+
+        if (description) data.description = description
+        if (min_deposit) data.min_deposit = min_deposit
+        if (max_credit) data.max_credit = max_credit
+        if (games_cutoff) data.games_cutoff = games_cutoff
+        await Offer.create(data)
+
+        return reply.status(200).send({ message: "Offer created successfully" })
+    } catch (err) {
+        logger.error(`offer.controller.Createoffer ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Retrieves single offer from the database. If the user is not an admin, only the valid offer will be retrived.
+ * @controller offer
+ * @role admin, user
+ * @auth true
+ * @route GET /api/v1/offer/:code
+ * @param {string} code - search offer accoring to code.
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the offer.
+ */
+export async function getOfferByCode(request, reply) {
+    try {
+        let code = request.params.code;
+        // code = parseInt(code, 10);
+        let where = { code }
+        const currentDate = new Date();
+        if (request.user.role !== 'admin') where = { ...where, is_active: true, end_date: { [Op.gte]: currentDate }, start_date: { [Op.lte]: currentDate } } // TODO: CHECK WHETHER DATE QUERY IS WORKING FINE OR NOT 
+
+        let offer = await Offer.findOne({
+            where,
+            paranoid: request.user.role === 'admin' ? false : true // if user is admin then we are showing soft deleted offer also
+        })
+
+        if (!offer) return reply.status(404).send({ error: "Offer does not exist" })
+
+        return reply.status(200).send(offer)
+    } catch (err) {
+        logger.error(`offer.controller.getOfferByCode ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Updates single offer in the database. only applicable to admin.
+ * @controller offer
+ * @role admin
+ * @auth true
+ * @route PUT /api/v1/offer/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the offer.
+ */
+export async function updateOffer(request, reply) {
+    try {
+        if (request.user.role !== 'admin') return reply.status(401).send({ error: 'Unauthorized' })
+        const { id } = request.params;
+        let { name, description, type, value, is_percentage, min_deposit, max_credit, games_cutoff, start_date, end_date, is_bonus = false, is_reusable = false, is_active = true, is_autoapply } = request.body
+
+        // 1. Check if offer exists
+        var offer = await Offer.findOne({ where: { id } })
+        if (!offer) return reply.status(404).send({ error: "Offer does not exist" })
+        // 2. if admin is trying to update any offer with is_active=true and is_autoapply = true then below code checks if there is any offer exist with this type which is active and auto apply expect this offer becouse there can be only one auto apply offer of this type and it is active
+        let activeOfferWithAutoApply;
+        if (is_active == true &amp;&amp; is_autoapply == true) {
+            activeOfferWithAutoApply = await Offer.findOne(
+                {
+                    where: {
+                        type,
+                        is_autoapply: true,
+                        is_active: true,
+                        id: {
+                            [Op.ne]: id
+                        }
+                    }
+                })
+        }
+
+        if (activeOfferWithAutoApply) return reply.status(409).send({ error: `offer of type ${type} with auto apply already exist which is active` })
+        // 3. if type is signup and is_percentage is true, bail early
+        if (type === "signup" &amp;&amp; is_percentage) return reply.status(409).send({ error: "Signup offer cannot be percentage based" })
+
+        if (name) offer.name = name;
+        if (description) offer.description = description
+        if (type) offer.type = type
+        if (value) offer.value = value
+        if (offer.is_percentage !== is_percentage) offer.is_percentage = is_percentage
+        if (min_deposit) offer.min_deposit = min_deposit
+        if (max_credit) offer.max_credit = max_credit
+        if (games_cutoff) offer.games_cutoff = games_cutoff
+        if (end_date) offer.end_date = end_date
+        if (start_date) offer.start_date = start_date
+        if (offer.is_bonus !== is_bonus) offer.is_bonus = is_bonus
+        if (offer.is_reusable !== is_reusable) offer.is_reusable = is_reusable
+        if (offer.is_active !== is_active) offer.is_active = is_active
+        if (offer.is_autoapply !== is_autoapply) offer.is_autoapply = is_autoapply
+
+        await offer.save()
+
+        return reply.status(200).send({ message: "Offer updated successfully" })
+
+    } catch (err) {
+        logger.error(`offer.controller.updateOffer ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Delete offer by id. Only applicable to admin. Offers are soft-deleted and can be retrieved by admin
+ * @controller offer
+ * @role admin
+ * @auth true
+ * @route DELETE /api/v1/offer/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the offer.
+ */
+export async function deleteOffer(request, reply) {
+    try {
+        if (request.user.role !== 'admin') return reply.status(401).send({ error: "Unauthorized" })
+
+        let offer = await Offer.findOne({ where: { id: request.params.id } })
+
+        if (!offer) return reply.status(404).send({ error: "Offer does not exist" })
+
+        offer.code = offer.code + '_' + nanoid() // before soft deletion, we are changing the code of offer so that it can be used again
+        await offer.save()
+
+        await Offer.destroy({ where: { id: request.params.id } })
+
+        return reply.status(200).send({ message: "Offer deleted successfully" })
+
+    } catch (err) {
+        logger.error(`offer.controller.deleteOffer ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}
+
+/**
+ * Restore soft deleted offer in the database. only applicable to admin.
+ * @controller offer
+ * @role admin
+ * @auth true
+ * @route PUT /api/v1/offer/restore/:id
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while retrieving the offer.
+ */
+export async function restoreOffer(request, reply) {
+    try {
+        if (request.user.role !== 'admin') return reply.status(401).send({ error: "Unauthorized" })
+
+        const softDeletedOffer = await Offer.findOne({ paranoid: false, where: { id: request.params.id } }); // paranoid false is used to get soft deleted offer
+
+        if (!softDeletedOffer) return reply.status(404).send({ error: "Offer does not exist" })
+
+        await softDeletedOffer.restore();
+
+        return reply.status(200).send({ message: "Offer restored successfully" })
+
+    } catch (err) {
+        logger.error(`offer.controller.restoreOffer ${err}`);
+        return reply.status(500).send({ error: err.message });
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%2520Controller.html">Admin Controller</a></li><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Admin%2520Validator.html">Admin Validator</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-Contest%2520Controller.html">Contest Controller</a></li><li><a href="module-Contest%2520Validator.html">Contest Validator</a></li><li><a href="module-ContestCategory%2520Controller.html">ContestCategory Controller</a></li><li><a href="module-ContestCategory%2520Validator.html">ContestCategory Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-Deposit%2520Controller.html">Deposit Controller</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Deposit%2520Validator.html">Deposit Validator</a></li><li><a href="module-GameMode%2520Validator.html">GameMode Validator</a></li><li><a href="module-Game_mode%2520Controller.html">Game_mode Controller</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Media%2520Controller.html">Media Controller</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Media%2520Validator.html">Media Validator</a></li><li><a href="module-Offer%2520Controller.html">Offer Controller</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Offer%2520Validator.html">Offer Validator</a></li><li><a href="module-Page%2520Controller.html">Page Controller</a></li><li><a href="module-Page%2520Routes.html">Page Routes</a></li><li><a href="module-Page%2520Validator.html">Page Validator</a></li><li><a href="module-PaymentMethod%2520Controller.html">PaymentMethod Controller</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-PaymentMethod%2520Validator.html">PaymentMethod Validator</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-SiteSetting%2520Controller.html">SiteSetting Controller</a></li><li><a href="module-SiteSetting%2520Validator.html">SiteSetting Validator</a></li><li><a href="module-Social%2520Controller.html">Social Controller</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Social%2520Validator.html">Social Validator</a></li><li><a href="module-Sport%2520Controller.html">Sport Controller</a></li><li><a href="module-Sport%2520Validator.html">Sport Validator</a></li><li><a href="module-Tax%2520Controller.html">Tax Controller</a></li><li><a href="module-Tax%2520Validator.html">Tax Validator</a></li><li><a href="module-Transaction%2520Controller.html">Transaction Controller</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-Transaction%2520Validator.html">Transaction Validator</a></li><li><a href="module-User%2520Controller.html">User Controller</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-User%2520Validator.html">User Validator</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Controller.html">Withdraw Controller</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-Withdraw%2520Validator.html">Withdraw Validator</a></li><li><a href="module-app.html">app</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Classes</h3><ul><li><a href="ClaimedOffers.html">ClaimedOffers</a></li><li><a href="Contest.html">Contest</a></li><li><a href="ContestCategory.html">ContestCategory</a></li><li><a href="ContestEntry.html">ContestEntry</a></li><li><a href="ContestEntryTeam.html">ContestEntryTeam</a></li><li><a href="Deposit.html">Deposit</a></li><li><a href="Kyc.html">Kyc</a></li><li><a href="Media.html">Media</a></li><li><a href="Offer.html">Offer</a></li><li><a href="Otp.html">Otp</a></li><li><a href="Page.html">Page</a></li><li><a href="Payment.html">Payment</a></li><li><a href="PaymentMethod.html">PaymentMethod</a></li><li><a href="Referral.html">Referral</a></li><li><a href="SiteSetting.html">SiteSetting</a></li><li><a href="Social.html">Social</a></li><li><a href="Sport.html">Sport</a></li><li><a href="Tax.html">Tax</a></li><li><a href="Transaction.html">Transaction</a></li><li><a href="User.html">User</a></li><li><a href="UserAddress.html">UserAddress</a></li><li><a href="UserSetting.html">UserSetting</a></li><li><a href="Wallet.html">Wallet</a></li><li><a href="Withdraw.html">Withdraw</a></li><li><a href="WithdrawAccount.html">WithdrawAccount</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Jul 23 2023 18:53:36 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

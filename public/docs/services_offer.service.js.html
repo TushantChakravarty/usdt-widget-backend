@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/offer.service.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: services/offer.service.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Service for handling offer-related operations.
+ * @file Offer Service
+ * @module Offer Service
+ * @category services
+ * @subcategory offer
+ */
+import { logger } from "../app.js"
+import db from "../models/"
+import { Op } from "sequelize";
+const { Offer, Deposit, User, ClaimedOffers } = db;
+
+/**
+ * Service to get 1 auto offer by type.
+ * Auto offers are offers with is_autoapply = true. if is_autoapply = true then this offer will be applied automatically on signup, deposit etc, i.e no need to enter coupon code or anything.
+ * Can be called from multiple endpoints including signup, deposit, login etc
+ * @param {string} type - The type of the offer.
+ * @returns {Promise&lt;Object>} - A promise that resolves to the offer object.
+ * @throws {Error} - If the offer is not found.
+ * @example
+ * inside deposit.controller.js
+ * const autoOffer = await getAutoOffer("deposit")
+ */
+export async function getAutoOffer(type) {
+    try {
+        const currentDate = new Date().toISOString().split('T')[0];
+        // 1. Check start_date, end_date, type, isautoapply and pull valid offer
+        const offer = await Offer.findOne({ where: { is_active: true, type: type, is_autoapply: true, end_date: { [Op.gte]: currentDate }, start_date: { [Op.lte]: currentDate } } });
+
+        // 2. return offer
+        return offer;
+    } catch (err) {
+        logger.error(`offer.service.getAutoOffer ${err}`);
+        throw err;
+    }
+}
+
+/**
+ * Service to settle all offers
+ * Can be called from multiple endpoints including signup, deposit, login etc
+ * @param {integer} offer_id - The offer_id of the offer.
+ * @param {integer} user_id - The user_id of the user.
+ * @param {integer} relation_id - The relation_id of the offer, i.e if type deposit then relation_id will be deposit_id, if type signup then relation_id will be user_id
+ * @param {string} type - The type of the offer.
+ * @returns {Promise&lt;Object>} - A promise that resolves to the settled offer object.
+ * @throws {Error} - If the offer is not found.
+ * @throws {Error} - If the offer is already settled.
+ * @throws {Error} - If the offer is not active.
+ * @throws {Error} - If the offer is not reusable.
+ * @example
+ * inside deposit.controller.js
+ * const settledOffer = await settleOffer(offer_id, user_id, "deposit")
+ */
+export async function settleOffer(offer_id, user_id, relation_id, type) {
+    try {
+        const offer = await Offer.findByPk(offer_id);
+
+        // 1. Check if offer exists and is active
+        if (!offer || !offer.is_active) throw new Error("Offer not found");
+
+        // 2. check if user has claimed this offer
+        if (!offer.is_reusable) {
+            const alreadyClaimed = await ClaimedOffers.findOne({ where: { user_id, offer_id } })
+            if (alreadyClaimed) throw new Error("Offer is already settled");
+        }
+
+        // 3. check if offer is valid on this type of event
+        if (offer.type !== type) throw new Error("Offer is not valid on this type of event");
+
+        // 4. Check start_date and end_date
+        const currentDate = new Date().toISOString().split('T')[0];
+        if (offer.start_date > currentDate || offer.end_date &lt; currentDate) throw new Error("Invalid Offer!");
+
+        // 5. Check if offer is valid on this relation_id
+        if (offer.type === "deposit") {
+            const deposit = await Deposit.findByPk(relation_id);
+            if (deposit.amount &lt; offer.min_deposit) throw new Error("Offer is not valid on this deposit amount");
+        }
+
+        // 6. Check if offer is valid on this user on signup
+        const user = await User.findByPk(user_id, { include: ["wallet"] });
+        if (offer.type === "signup") {
+            if (user_id !== relation_id) throw new Error("Offer is not valid on this user");
+        }
+
+        // 7. get relation from relation_id, if type is deposit then get deposit, if type is signup then get user
+        let relation;
+        if (offer.type === "deposit") {
+            relation = await Deposit.findByPk(relation_id);
+        } else if (offer.type === "signup") {
+            relation = await User.findByPk(relation_id);
+        }
+
+        // 8. check if offer is_percentage, if yes, then calculate value else use value as it is. if offer.is_bonus then credit the value to user's wallet.bonus, else credit the value to user's wallet.balance
+        let value = offer.value;
+        if (offer.is_percentage &amp;&amp; offer.type === "deposit") {
+            value = (relation.amount / 100) * value;
+            if (value > offer.max_credit) value = offer.max_credit
+        }
+        // 9. if offer is bonus, then credit the value to user's wallet.bonus, else credit the value to user's wallet.balance
+        if (offer.is_bonus) {
+            user.wallet.bonus += value;
+        } else {
+            user.wallet.balance += value;
+        }
+
+        // 10. update user's wallet
+        await user.wallet.save();
+
+        // 11. add an entry between offer and user in offer_user table
+        await ClaimedOffers.create({ offer_id, user_id });
+
+        // 12. return settled offer
+        return offer;
+    } catch (err) {
+        logger.error(`offer.service.settleOffer ${err}`);
+        throw err;
+    }
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Admin%252520Routes.html">Admin Routes</a></li><li><a href="module-Analytics%2520Routes.html">Analytics Routes</a></li><li><a href="module-Challenge%2520Routes.html">Challenge Routes</a></li><li><a href="module-Common%2520Validator.html">Common Validator</a></li><li><a href="module-ContestCategory%2520category%2520Routes.html">ContestCategory category Routes</a></li><li><a href="module-Controller.html">Controller</a></li><li><a href="module-CricketMatch%2520Routes.html">CricketMatch Routes</a></li><li><a href="module-CricketPlayer%2520Routes.html">CricketPlayer Routes</a></li><li><a href="module-CricketScorecard%2520Routes.html">CricketScorecard Routes</a></li><li><a href="module-Deposit%2520Routes.html">Deposit Routes</a></li><li><a href="module-Index%2520Routes.html">Index Routes</a></li><li><a href="module-Init%2520Routes.html">Init Routes</a></li><li><a href="module-JWT%2520Authentication%2520Plugin.html">JWT Authentication Plugin</a></li><li><a href="module-Localization%2520Routes.html">Localization Routes</a></li><li><a href="module-Localization%2520Service.html">Localization Service</a></li><li><a href="module-Match%2520Routes.html">Match Routes</a></li><li><a href="module-Media%2520Routes.html">Media Routes</a></li><li><a href="module-Media%2520Service.html">Media Service</a></li><li><a href="module-Offer%2520Routes.html">Offer Routes</a></li><li><a href="module-Offer%2520Service.html">Offer Service</a></li><li><a href="module-Page%252520Routes.html">Page Routes</a></li><li><a href="module-PaymentMethod%2520Routes.html">PaymentMethod Routes</a></li><li><a href="module-Player%2520Routes.html">Player Routes</a></li><li><a href="module-RBAM%2520Plugin.html">RBAM Plugin</a></li><li><a href="module-Redis%2520Cache%2520Plugin.html">Redis Cache Plugin</a></li><li><a href="module-Site%2520Service.html">Site Service</a></li><li><a href="module-Social%2520Routes.html">Social Routes</a></li><li><a href="module-Transaction%2520Routes.html">Transaction Routes</a></li><li><a href="module-User%2520Routes.html">User Routes</a></li><li><a href="module-User%2520Service.html">User Service</a></li><li><a href="module-Validator.html">Validator</a></li><li><a href="module-Withdraw%2520Routes.html">Withdraw Routes</a></li><li><a href="module-config_database.html">config/database</a></li><li><a href="module-contest%2520Routes.html">contest Routes</a></li><li><a href="module-contestEntryTeam%2520Routes.html">contestEntryTeam Routes</a></li><li><a href="module-contest_entry%2520Routes.html">contest_entry Routes</a></li><li><a href="module-game-mode%2520Routes.html">game-mode Routes</a></li><li><a href="module-leaderboard%2520Routes.html">leaderboard Routes</a></li><li><a href="module-models_index.html">models/index</a></li><li><a href="module-sport%2520Routes.html">sport Routes</a></li><li><a href="module-tax%2520Routes.html">tax Routes</a></li><li><a href="module-utils_password.html">utils/password</a></li><li><a href="module-utils_referral.html">utils/referral</a></li><li><a href="utils_cache.module_util.html">util</a></li><li><a href="utils_sms.module_util.html">util</a></li><li><a href="utils_username.module_util.html">util</a></li></ul><h3>Global</h3><ul><li><a href="global.html#GENDERS">GENDERS</a></li><li><a href="global.html#SETTINGS_CONSTANTS">SETTINGS_CONSTANTS</a></li><li><a href="global.html#calPrizePool">calPrizePool</a></li><li><a href="global.html#checkTeamSvc">checkTeamSvc</a></li><li><a href="global.html#contestEntrySvc">contestEntrySvc</a></li><li><a href="global.html#createContestEntrySvc">createContestEntrySvc</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.2</a> on Sun Oct 15 2023 18:37:00 GMT+0530 (India Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
