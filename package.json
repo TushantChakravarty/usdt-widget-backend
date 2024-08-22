@@ -16,7 +16,7 @@
     "start:dev": "NODE_ENV=development node ./scripts/esbuild.js",
     "docker:up": "docker-compose up",
     "docker:down": "docker-compose down -v",
-    "notification": "node ./build/app.js"
+    "widget": "node ./build/app.js"
   },
   "dependencies": {
     "@fastify/cookie": "^8.3.0",

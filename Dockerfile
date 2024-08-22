@@ -35,7 +35,7 @@ COPY --from=builder /usr/src/app/build ./build
 COPY .env ./
 
 # Set the command to run the application
-CMD [ "npm", "run", "notification" ]
+CMD [ "npm", "run", "widget" ]
 
 # Expose the necessary ports
 EXPOSE 3007
