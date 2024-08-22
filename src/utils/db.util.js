@@ -1,4 +1,6 @@
 import db from "../models";
+import logger from "./logger.util";
+
 /**
  * Util for migrating db
  */
