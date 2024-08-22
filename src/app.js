@@ -171,7 +171,7 @@ await server.get('/', async (request, reply) => {
     // Use state code in your application logic
     await usdtMarketPlace()
     return reply.send({
-        message: 'Hello world.',
+        message: 'Hello world.1',
         environment: process.env.NODE_ENV,
     })
 
