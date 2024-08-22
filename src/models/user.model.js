@@ -10,7 +10,6 @@
 
 "use strict";
 import { Model } from "sequelize";
-import { GENDERS, APP_LANGUAGES, USER_ROLES } from "../../constants/user.constant.js";
 // import fs from "fs";
 
 export default (sequelize, DataTypes) => {
