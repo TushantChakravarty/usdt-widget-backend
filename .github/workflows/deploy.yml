@@ -33,8 +33,8 @@ jobs:
           chmod 600 private_key.pem
           rsync -avz -e "ssh -i private_key.pem -o StrictHostKeyChecking=no" --exclude='node_modules' ./ $USER@$HOST:/home/ubuntu/your-project/
           ssh -i private_key.pem -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
-            cd /home/ubuntu/your-project/
-            npm install --production
+            cd /home/ubuntu/usdt-widget-backend
+            npm install 
             pm2 restart all
           EOF
 
