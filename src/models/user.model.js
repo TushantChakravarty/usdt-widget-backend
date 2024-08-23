@@ -34,6 +34,11 @@ export default (sequelize, DataTypes) => {
                 allowNull: true,
                 unique: true,
             },
+            token:{
+                type: DataTypes.STRING,
+                allowNull: true,
+                unique: true,
+            },
             role: {
                 type: DataTypes.ENUM,
                 values: ["user", "admin"],

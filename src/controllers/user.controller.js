@@ -15,17 +15,20 @@ export async function signup(request, reply) {
   try {
     const { emailId, password } = request.body;
     // check if emailId exists. although we have checked above that no users exist, still this check is good for future additions to this route
-    const userExists = await User.findOne({ where: { emailId } });
+    const userExists = await User.findOne({ where: { email:emailId } });
     if (userExists)
       return reply.status(409).send({ error: "Username already taken" });
     // encrypt password
     const encryptedPassword = await encrypt(password);
     // create user
-    const admin = await User.create({
-      emailId,
+    const user = await User.create({
+      email:emailId,
       password: encryptedPassword,
     });
+    if(user)
     return reply.status(200).send({ message: "Signup Successful" });
+    else
+    return reply.status(400).send({ message: "Signup failed" });
   } catch (error) {
     reply.status(500).send({ error: error.message });
   }
@@ -46,9 +49,10 @@ export async function login(request, reply) {
     // find user by username where role is not empty, and compare password
     const user = await User.scope("private").findOne({
       where: {
-        emailId,
+        email:emailId,
       },
     });
+    console.log(user)
     if (!user)
       return reply.status(404).send({ error: "Invalid email or password" }); // generic error to prevent bruteforce
     // compare password
@@ -59,12 +63,15 @@ export async function login(request, reply) {
     const token = await reply.jwtSign({
       id: user.id,
       role: user.role,
-      emailId: user.emailId,
+      emailId: user.email,
     });
+
+    user.token = token
+    await user.save()
     // set token in cookie
     reply.setCookie("token", token, {
       httpOnly: true,
-      secure: is_prod,
+     // secure: is_prod,
       sameSite: "strict",
       // signed: true, // dont use signed cookies with JWT
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 days
@@ -90,11 +97,7 @@ export async function getKycUrl(request, reply) {
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
 
-    const user = await User.scope("private").findOne({
-        where: {
-          email:email_id,
-        },
-      });
+    const user = request.user
 
     const body = {
       email: email_id,

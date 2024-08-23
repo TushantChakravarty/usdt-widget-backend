@@ -8,6 +8,7 @@
  */
 
 import Controller from "../controllers"
+import { validateToken } from "../utils/jwt.util";
 import Validator from "../validators";
 
 const { User: user } = Controller;
@@ -47,6 +48,7 @@ const routes = async (route, options) => { // route = fastify instance
      */
      route.post('/kyc/url', {
       //  schema: validator.signup,
+        preValidation:validateToken,
         preHandler: async (request, reply) => {
             request.body.emailId = request.body.email_id.trim();
         },
