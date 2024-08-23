@@ -29,6 +29,11 @@ export default (sequelize, DataTypes) => {
                 },
             },
             password: DataTypes.STRING, // hashed. only for admins, normal users will be logged in via otp
+            customerId:{
+                type: DataTypes.STRING,
+                allowNull: true,
+                unique: true,
+            },
             role: {
                 type: DataTypes.ENUM,
                 values: ["user", "admin"],

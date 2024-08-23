@@ -41,6 +41,19 @@ const routes = async (route, options) => { // route = fastify instance
     });
 
 
+     /**
+     * Route for user kyc.
+     * Handles the user kyc.
+     */
+     route.post('/kyc/url', {
+      //  schema: validator.signup,
+        preHandler: async (request, reply) => {
+            request.body.emailId = request.body.email_id.trim();
+        },
+        handler: user.getKycUrl,
+    });
+
+
 
 
 };

@@ -166,6 +166,8 @@ await server.register(cors, {
 /**
  * Register routes
  */
+await server.register(routes, { prefix: "/api/v1" })
+
 await server.get('/', async (request, reply) => {
     const state_code = request.headers['X-State-Code'] || 'Unknown';
     // Use state code in your application logic
@@ -177,7 +179,6 @@ await server.get('/', async (request, reply) => {
 
 }) // root route
 
-await server.register(routes, { prefix: "/api/v1" })
 
 
 await migrateDb()
