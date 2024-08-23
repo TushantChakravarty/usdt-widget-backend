@@ -50,7 +50,7 @@ const routes = async (route, options) => { // route = fastify instance
       //  schema: validator.signup,
         preValidation:validateToken,
         preHandler: async (request, reply) => {
-            request.body.emailId = request.body.email_id.trim();
+            request.body.phone_number = request.body.phone_number.trim();
         },
         handler: user.getKycUrl,
     });

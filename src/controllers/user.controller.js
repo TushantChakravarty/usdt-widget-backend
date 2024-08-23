@@ -93,14 +93,14 @@ export async function login(request, reply) {
  */
 export async function getKycUrl(request, reply) {
   try {
-    const { email_id, phone_number  } = request.body;
+    const {  phone_number  } = request.body;
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
 
     const user = request.user
 
     const body = {
-      email: email_id,
+      email: user.email,
       phoneNumber: phone_number,
       clientCustomerId: user?.id?user?.id:"1125268",
       type: "INDIVIDUAL",
