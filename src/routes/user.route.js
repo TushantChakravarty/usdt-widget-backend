@@ -47,20 +47,20 @@ const routes = async (route, options) => { // route = fastify instance
      * Handles the user kyc.
      */
      route.post('/kyc/url', {
-      //  schema: validator.signup,
-        preValidation:validateToken,
+        schema: validator.kycUrl,
+        preValidation: validateToken,
         preHandler: async (request, reply) => {
-            request.body.phone_number = request.body.phone_number.trim();
+          const phoneNumber = request.body.phone_number.trim();
+          request.body.phone_number = `+91-${phoneNumber}`;
         },
         handler: user.getKycUrl,
-    });
-
+      });
       /**
      * Route for user profile.
      * Handles the user profile
      */
       route.post('/profile', {
-        //  schema: validator.signup,
+          schema: validator.profile,
           preValidation:validateToken,
           preHandler: async (request, reply) => {
               request.body.email_id = request.body.email_id.trim();
