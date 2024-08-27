@@ -69,8 +69,7 @@ const routes = async (route, options) => { // route = fastify instance
     onRequest: [
       route.authenticate
     ],
-    //  preValidation: validateToken,
-
+    preValidation: validateToken,
     //   preHandler: async (request, reply) => {
     //       request.body.email_id = request.body.email_id.trim();
     //   },
@@ -78,9 +77,9 @@ const routes = async (route, options) => { // route = fastify instance
   });
 
   /**
-* Route for adding  user phone number.
-* Handles the user phone number update
-*/
+  * Route for adding  user phone number.
+  * Handles the user phone number update
+  */
   route.post('/add/phone', {
     //schema: validator.updatePhone,
     onRequest: [
@@ -93,10 +92,6 @@ const routes = async (route, options) => { // route = fastify instance
     },
     handler: user.updatePhone,
   });
-
-
-
-
 };
 
 export default routes;
