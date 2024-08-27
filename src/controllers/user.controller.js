@@ -15,20 +15,20 @@ export async function signup(request, reply) {
   try {
     const { emailId, password } = request.body;
     // check if emailId exists. although we have checked above that no users exist, still this check is good for future additions to this route
-    const userExists = await User.findOne({ where: { email:emailId } });
+    const userExists = await User.findOne({ where: { email: emailId } });
     if (userExists)
       return reply.status(409).send({ error: "Username already taken" });
     // encrypt password
     const encryptedPassword = await encrypt(password);
     // create user
     const user = await User.create({
-      email:emailId,
+      email: emailId,
       password: encryptedPassword,
     });
-    if(user)
-    return reply.status(200).send({ message: "Signup Successful" });
+    if (user)
+      return reply.status(200).send({ message: "Signup Successful" });
     else
-    return reply.status(400).send({ message: "Signup failed" });
+      return reply.status(400).send({ message: "Signup failed" });
   } catch (error) {
     reply.status(500).send({ error: error.message });
   }
@@ -49,7 +49,7 @@ export async function login(request, reply) {
     // find user by username where role is not empty, and compare password
     const user = await User.scope("private").findOne({
       where: {
-        email:emailId,
+        email: emailId,
       },
     });
     console.log(user)
@@ -71,7 +71,7 @@ export async function login(request, reply) {
     // set token in cookie
     reply.setCookie("token", token, {
       httpOnly: true,
-     // secure: is_prod,
+      // secure: is_prod,
       sameSite: "strict",
       // signed: true, // dont use signed cookies with JWT
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 days
@@ -98,7 +98,7 @@ export async function getProfile(request, reply) {
     const User1 = request.user
     let user = await User.scope("private").findOne({
       where: {
-        email:User1.email,
+        email: User1.email,
       },
     });
     if (user) {
@@ -106,10 +106,10 @@ export async function getProfile(request, reply) {
       delete user.password;
       delete user.token;
     }
-    
+
     if (!user)
       return reply.status(404).send({ error: "Invalid User details" }); // generic error to prevent bruteforce
-   
+
     return reply.status(200).send({ message: "Success", user });
   } catch (error) {
     reply.status(500).send({ error: error.message });
@@ -133,21 +133,21 @@ export async function updatePhone(request, reply) {
     const User1 = request.user
     let user = await User.scope("private").findOne({
       where: {
-        email:User1.email,
+        email: User1.email,
       },
     });
-   
-    
+
+
     if (!user)
       return reply.status(400).send({ error: "Invalid User details" }); // generic error to prevent bruteforce'
 
-      user.phone = phone_number
-      const updated = await user.save()
-      console.log(updated?.dataValues?.phone)
-    if(updated?.dataValues?.phone)
-    return reply.status(200).send({ message: "Success" });
+    user.phone = phone_number
+    const updated = await user.save()
+    console.log(updated?.dataValues?.phone)
+    if (updated?.dataValues?.phone)
+      return reply.status(200).send({ message: "Success" });
     else
-    reply.status(500).send({ error: "unable to update user phone number"});
+      reply.status(500).send({ error: "unable to update user phone number" });
   } catch (error) {
     reply.status(500).send({ error: error.message });
   }
@@ -165,16 +165,22 @@ export async function updatePhone(request, reply) {
  */
 export async function getKycUrl(request, reply) {
   try {
-    const {  phone_number  } = request.body;
+    const { phone_number } = request.body;
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
 
     const user = request.user
 
+    const user_current = await User.findOne({ where: { id: request.user.id } })
+
+    if (user_current.kycUrl !== null) {
+      return reply.status(200).send({ kyc_url: user_current.kycUrl })
+    }
+
     const body = {
       email: user.email,
       phoneNumber: phone_number,
-      clientCustomerId: user?.id?user?.id:"1125268",
+      clientCustomerId: user?.id ? user?.id : "1125268",
       type: "INDIVIDUAL",
     };
 
@@ -186,10 +192,10 @@ export async function getKycUrl(request, reply) {
 
     // Create the payload and signature
     const payload = cryptoJs.enc.Base64.stringify(
-        cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
+      cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
     );
     const signature = cryptoJs.enc.Hex.stringify(
-        cryptoJs.HmacSHA512(payload, secret)
+      cryptoJs.HmacSHA512(payload, secret)
     );
 
     // Create the headers
@@ -204,7 +210,7 @@ export async function getKycUrl(request, reply) {
     const url =
       "https://api-test.onramp.money/onramp/api/v2/whiteLabel/kyc/url";
 
-   const response = fetch(url, {
+    const response = await fetch(url, {
       method: "POST",
       headers: headers,
       body: JSON.stringify(body),
@@ -213,17 +219,38 @@ export async function getKycUrl(request, reply) {
       .then((data) => {
         console.log(data)
         return data
-    })
+      })
       .catch((error) => console.error("Error:", error));
-      if (user) { // Check if the user exists
-        user.customerId = response.customerId;
-        await user.save(); // Use await to ensure the save operation completes
-      } else {
-        console.error("User not found");
-        reply.status(500).send({ error: 'User not found'});
+    if (user) { // Check if the user exists
+
+      if (response.code === 200) {
+        console.log("coming inside this")
+
+        user_current.customerId = response.data.customerId;
+        user_current.signature = response.data.signature
+        user_current.kycUrl = response.data.kycUrl
+        user_current.phone_number = phone_number
+        await user_current.save(); // Use await to ensure the save operation completes
       }
-      return response
+    } else {
+      console.error("User not found");
+      reply.status(500).send({ error: 'User not found' });
+    }
+    console.log(response)
+    return reply.status(200).send({ kyc_url: response.data.kycUrl })
   } catch (error) {
     reply.status(500).send({ error: error.message });
   }
 }
+
+
+// {
+//   "status": 1,
+//   "code": 200,
+//   "data": {
+//       "kycUrl": "https://test.onramp.money/onramp/main/profile/?appId=1255377&kybData=d1450c0434fb0ea554b0470edbb011d05e1f16be0f8ba17466fed0e958e2aa51",
+//       "clientCustomerId": 1,
+//       "customerId": "1T7cEoPvMD_2144",
+//       "signature": "d1450c0434fb0ea554b0470edbb011d05e1f16be0f8ba17466fed0e958e2aa51"
+//   }
+// }

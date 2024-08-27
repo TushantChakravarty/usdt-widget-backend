@@ -29,17 +29,17 @@ export default (sequelize, DataTypes) => {
                 },
             },
             password: DataTypes.STRING, // hashed. only for admins, normal users will be logged in via otp
-            customerId:{
+            customerId: {
                 type: DataTypes.STRING,
                 allowNull: true,
                 unique: true,
             },
-            phone:{
+            phone: {
                 type: DataTypes.STRING,
                 allowNull: true,
                 unique: true,
             },
-            token:{
+            token: {
                 type: DataTypes.STRING,
                 allowNull: true,
                 unique: true,
@@ -50,13 +50,25 @@ export default (sequelize, DataTypes) => {
                 allowNull: false,
                 defaultValue: "user",
             }, // role for access control
-            isKycCompleted:{
-                type:DataTypes.BOOLEAN,
-                defaultValue:false
+            isKycCompleted: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false
             },
-            isPhoneAdded:{
-                type:DataTypes.BOOLEAN,
-                defaultValue:false
+            isPhoneAdded: {
+                type: DataTypes.BOOLEAN,
+                defaultValue: false
+            },
+            signature: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            kycUrl: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            phone_number: {
+                type: DataTypes.STRING,
+                allowNull: true,
             },
 
 
