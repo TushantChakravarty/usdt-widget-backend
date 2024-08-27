@@ -94,11 +94,11 @@ export async function login(request, reply) {
 export async function getProfile(request, reply) {
   // login for admin team members
   try {
-    const { email_id } = request.body;
     // find user by username where role is not empty, and compare password
+    const User1 = request.user
     let user = await User.scope("private").findOne({
       where: {
-        email:email_id,
+        email:User1.email,
       },
     });
     if (user) {
@@ -127,11 +127,13 @@ export async function getProfile(request, reply) {
 export async function updatePhone(request, reply) {
   // login for admin team members
   try {
-    const { email_id, phone_number } = request.body;
+    console.log('here', request.user)
+    const { phone_number } = request.body;
     // find user by username where role is not empty, and compare password
+    const User1 = request.user
     let user = await User.scope("private").findOne({
       where: {
-        email:email_id,
+        email:User1.email,
       },
     });
    

@@ -60,12 +60,12 @@ const routes = async (route, options) => { // route = fastify instance
      * Route for user profile.
      * Handles the user profile
      */
-      route.post('/profile', {
-          schema: validator.profile,
+      route.get('/profile', {
+          //schema: validator.profile,
           preValidation:validateToken,
-          preHandler: async (request, reply) => {
-              request.body.email_id = request.body.email_id.trim();
-          },
+        //   preHandler: async (request, reply) => {
+        //       request.body.email_id = request.body.email_id.trim();
+        //   },
           handler: user.getProfile,
       });
 
@@ -74,10 +74,9 @@ const routes = async (route, options) => { // route = fastify instance
      * Handles the user phone number update
      */
        route.post('/add/phone', {
-        schema: validator.updatePhone,
+        //schema: validator.updatePhone,
         preValidation:validateToken,
         preHandler: async (request, reply) => {
-            request.body.email_id = request.body.email_id.trim(),
             request.body.phone_number = request.body.phone_number.trim();
         },
         handler: user.updatePhone,

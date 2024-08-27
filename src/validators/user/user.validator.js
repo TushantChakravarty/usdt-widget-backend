@@ -94,10 +94,9 @@ export const updatePhone = {
     body: {
         type: 'object',
         properties: {
-            email_id: { type: 'string', minLength: 3, maxLength: 40 },
             phone_number: { type: 'string', minLength: 10, maxLength: 10 },
         },
-        required: ['email_id',"phone_number"],
+        required: ["phone_number"],
         additionalProperties: false,
     },
     // response: {

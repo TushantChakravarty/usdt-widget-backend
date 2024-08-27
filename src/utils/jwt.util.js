@@ -17,7 +17,7 @@ export async function generateUserToken(details, fastify) {
       });
   
       if (!user) {
-        return reply.status(403).send(responseMapping(403, 'User not found'));
+        return reply.status(403).send({message:'User not found'});
       }
   
       // Instead of decorating the request, just assign the user object directly
@@ -25,7 +25,7 @@ export async function generateUserToken(details, fastify) {
   
     } catch (err) {
       console.log(err);
-      return reply.status(403).send(responseMapping(403, 'Your session expired'));
+      return reply.status(403).send({message:'Your session expired'});
     }
   };
   
