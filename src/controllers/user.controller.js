@@ -35,7 +35,7 @@ export async function signup(request, reply) {
 }
 
 /**
- * Authenticates an admin user and generates a login token.
+ * Authenticates an  user and generates a login token.
  * @controller admin
  * @route POST /api/v1/user/login
  * @param {Object} request - The request object.
@@ -78,6 +78,39 @@ export async function login(request, reply) {
       path: "/",
     });
     return reply.status(200).send({ message: "Logged in", token });
+  } catch (error) {
+    reply.status(500).send({ error: error.message });
+  }
+}
+
+/**
+ * gets user profile data.
+ * @controller admin
+ * @route POST /api/v1/user/profile
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while logging in.
+ */
+export async function getProfile(request, reply) {
+  // login for admin team members
+  try {
+    const { email_id } = request.body;
+    // find user by username where role is not empty, and compare password
+    let user = await User.scope("private").findOne({
+      where: {
+        email:email_id,
+      },
+    });
+    if (user) {
+      user = user.toJSON(); // Convert the Sequelize instance to a plain object
+      delete user.password;
+      delete user.token;
+    }
+    
+    if (!user)
+      return reply.status(404).send({ error: "Invalid User details" }); // generic error to prevent bruteforce
+   
+    return reply.status(200).send({ message: "Success", user });
   } catch (error) {
     reply.status(500).send({ error: error.message });
   }
