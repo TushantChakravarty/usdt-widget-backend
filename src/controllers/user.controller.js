@@ -117,6 +117,43 @@ export async function getProfile(request, reply) {
 }
 
 /**
+ * updates user phone number.
+ * @controller user
+ * @route POST /api/v1/user/add/phone
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while logging in.
+ */
+export async function updatePhone(request, reply) {
+  // login for admin team members
+  try {
+    const { email_id, phone_number } = request.body;
+    // find user by username where role is not empty, and compare password
+    let user = await User.scope("private").findOne({
+      where: {
+        email:email_id,
+      },
+    });
+   
+    
+    if (!user)
+      return reply.status(400).send({ error: "Invalid User details" }); // generic error to prevent bruteforce'
+
+      user.phone = phone_number
+      const updated = await user.save()
+      console.log(updated?.dataValues?.phone)
+    if(updated?.dataValues?.phone)
+    return reply.status(200).send({ message: "Success" });
+    else
+    reply.status(500).send({ error: "unable to update user phone number"});
+  } catch (error) {
+    reply.status(500).send({ error: error.message });
+  }
+}
+
+
+
+/**
  * Authenticates an admin user and generates a login token.
  * @controller user
  * @route POST /api/v1/user/kyc/url

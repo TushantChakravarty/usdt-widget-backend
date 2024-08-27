@@ -55,7 +55,8 @@ const routes = async (route, options) => { // route = fastify instance
         },
         handler: user.getKycUrl,
       });
-      /**
+
+    /**
      * Route for user profile.
      * Handles the user profile
      */
@@ -67,6 +68,20 @@ const routes = async (route, options) => { // route = fastify instance
           },
           handler: user.getProfile,
       });
+
+       /**
+     * Route for adding  user phone number.
+     * Handles the user phone number update
+     */
+       route.post('/add/phone', {
+        schema: validator.updatePhone,
+        preValidation:validateToken,
+        preHandler: async (request, reply) => {
+            request.body.email_id = request.body.email_id.trim(),
+            request.body.phone_number = request.body.phone_number.trim();
+        },
+        handler: user.updatePhone,
+    });
 
 
 
