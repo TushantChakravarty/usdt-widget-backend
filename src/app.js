@@ -24,7 +24,7 @@ import jwtAuthPlugin from "./plugins/jwt-auth.plugin.js"
 import RBAMPlugin from "./plugins/rbam.plugin.js"
 // import redisPlugin from './plugins/redis.plugin.js'
 import multipart from '@fastify/multipart'
-import fastifyJwt from '@fastify/jwt'
+// import fastifyJwt from '@fastify/jwt'
 import path from 'path'
 import logger from './utils/logger.util.js'
 import migrateDb from './utils/db.util.js'
@@ -41,9 +41,9 @@ export const server = Fastify({
 })
 
 
-server.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET,
-  });
+// server.register(fastifyJwt, {
+//     secret: process.env.JWT_SECRET,
+// });
 /**
  * Register custom error handler
  */
@@ -141,7 +141,7 @@ await server.register(swaggerUi, {
 /**
  * Register JWT middleware
  */
-//await server.register(jwtAuthPlugin)
+await server.register(jwtAuthPlugin)
 
 /**
  * Register RBAM (Role-Based Access Management) middleware

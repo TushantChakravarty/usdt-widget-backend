@@ -60,14 +60,3 @@ export default fastifyPlugin(async function (fastify, opts) {
 });
 
 
-
-
-export const validateToken = async (request, reply) => {
-    try {
-
-
-    } catch (err) {
-        console.log(err);
-        return reply.status(403).send({ message: 'Your session expired' });
-    }
-};
