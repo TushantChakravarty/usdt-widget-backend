@@ -165,19 +165,19 @@ export async function updatePhone(request, reply) {
  */
 export async function getKycUrl(request, reply) {
   try {
-    const {  phone_number  } = request.body;
+   // const {  phone_number  } = request.body;
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
 
     const user = request.user
-
+    console.log('user',user.phone)
     const body = {
       email: user.email,
-      phoneNumber: phone_number,
+      phoneNumber: user.phone,
       clientCustomerId: user?.id?user?.id:"1125268",
       type: "INDIVIDUAL",
     };
-
+    console.log(body)
     const timestamp = Date.now().toString();
     const obj = {
       body,
@@ -216,7 +216,7 @@ export async function getKycUrl(request, reply) {
     })
       .catch((error) => console.error("Error:", error));
       if (user) { // Check if the user exists
-        user.customerId = response.customerId;
+        user.customerId = await response.customerId;
         await user.save(); // Use await to ensure the save operation completes
       } else {
         console.error("User not found");
