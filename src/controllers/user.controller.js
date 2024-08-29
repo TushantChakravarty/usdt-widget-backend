@@ -146,7 +146,11 @@ export async function updatePhone(request, reply) {
       const updated = await user.save()
       console.log("updates",updated)
     if(updated?.dataValues?.phone)
-    return reply.status(200).send({ message: "Success" });
+    {
+      user.isPhoneAdded = true
+      await user.save()
+      return reply.status(200).send({ message: "Success" });
+    }
     else
     reply.status(500).send({ error: "unable to update user phone number"});
   } catch (error) {
