@@ -129,6 +129,7 @@ export async function updatePhone(request, reply) {
   try {
     console.log('here', request.user)
     const { phone_number } = request.body;
+    console.log(phone_number)
     // find user by username where role is not empty, and compare password
     const User1 = request.user
     let user = await User.scope("private").findOne({
