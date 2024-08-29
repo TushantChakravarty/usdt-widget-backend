@@ -143,7 +143,7 @@ export async function updatePhone(request, reply) {
 
       user.phone = phone_number
       const updated = await user.save()
-      console.log(updated?.dataValues?.phone)
+      console.log("updates",updated)
     if(updated?.dataValues?.phone)
     return reply.status(200).send({ message: "Success" });
     else
