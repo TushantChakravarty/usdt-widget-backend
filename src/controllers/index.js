@@ -4,9 +4,10 @@
  * @subcategory controller
  */
 import * as User from "./user.controller.js"
+import * as Callback from "./callback.controller.js"
 
 const Controller = {
-    User
+    User, Callback
 }
 
 export default Controller

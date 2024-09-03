@@ -48,8 +48,8 @@ const routes = async (route, options) => { // route = fastify instance
   */
   route.get('/kyc/url', {
     //schema: validator.kycUrl,
-   
-     preValidation: validateToken,
+
+    preValidation: validateToken,
     // preHandler: async (request, reply) => {
     //   const phoneNumber = request.body.phone_number.trim();
     //   request.body.phone_number = `+91-${phoneNumber}`;
@@ -66,7 +66,7 @@ const routes = async (route, options) => { // route = fastify instance
     // onRequest: [
     //   route.authenticate
     // ],
-     preValidation: validateToken,
+    preValidation: validateToken,
 
     //   preHandler: async (request, reply) => {
     //       request.body.email_id = request.body.email_id.trim();
@@ -86,10 +86,6 @@ const routes = async (route, options) => { // route = fastify instance
     preValidation: validateToken,
     handler: user.updatePhone,
   });
-
-
-
-
 };
 
 export default routes;
