@@ -28,7 +28,8 @@ export async function kycCallback(request, reply) {
                 };
     
                 // Save the updated user object
-                await user.save();
+                const updated = await user.save();
+                console.log(updated)
                 reply.status(200).send({ message: "success" });
             }else{
                 reply.status(400).send({ error: "User not found" });
