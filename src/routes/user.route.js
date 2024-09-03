@@ -46,17 +46,14 @@ const routes = async (route, options) => { // route = fastify instance
   * Route for user kyc.
   * Handles the user kyc.
   */
-  route.post('/kyc/url', {
-    onRequest: [
-      route.authenticate
-    ],
-    schema: validator.kycUrl,
-
-    // preValidation: validateToken,
-    preHandler: async (request, reply) => {
-      const phoneNumber = request.body.phone_number.trim();
-      request.body.phone_number = `+91-${phoneNumber}`;
-    },
+  route.get('/kyc/url', {
+    //schema: validator.kycUrl,
+   
+     preValidation: validateToken,
+    // preHandler: async (request, reply) => {
+    //   const phoneNumber = request.body.phone_number.trim();
+    //   request.body.phone_number = `+91-${phoneNumber}`;
+    // },
     handler: user.getKycUrl,
   });
 
@@ -66,10 +63,11 @@ const routes = async (route, options) => { // route = fastify instance
    */
   route.get('/profile', {
     //schema: validator.profile,
-    onRequest: [
-      route.authenticate
-    ],
-    preValidation: validateToken,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+     preValidation: validateToken,
+
     //   preHandler: async (request, reply) => {
     //       request.body.email_id = request.body.email_id.trim();
     //   },
@@ -77,21 +75,21 @@ const routes = async (route, options) => { // route = fastify instance
   });
 
   /**
-  * Route for adding  user phone number.
-  * Handles the user phone number update
-  */
+* Route for adding  user phone number.
+* Handles the user phone number update
+*/
   route.post('/add/phone', {
     //schema: validator.updatePhone,
-    onRequest: [
-      route.authenticate, // authentication middleware
-      //  route.rbam // RBAM middleware
-    ],
-    // preValidation: validateToken,
-    preHandler: async (request, reply) => {
-      request.body.phone_number = request.body.phone_number.trim();
-    },
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    preValidation: validateToken,
     handler: user.updatePhone,
   });
+
+
+
+
 };
 
 export default routes;

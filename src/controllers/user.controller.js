@@ -129,6 +129,7 @@ export async function updatePhone(request, reply) {
   try {
     console.log('here', request.user)
     const { phone_number } = request.body;
+    console.log(phone_number)
     // find user by username where role is not empty, and compare password
     const User1 = request.user
     let user = await User.scope("private").findOne({
@@ -143,9 +144,12 @@ export async function updatePhone(request, reply) {
 
     user.phone = phone_number
     const updated = await user.save()
-    console.log(updated?.dataValues?.phone)
-    if (updated?.dataValues?.phone)
+    console.log("updates", updated)
+    if (updated?.dataValues?.phone) {
+      user.isPhoneAdded = true
+      await user.save()
       return reply.status(200).send({ message: "Success" });
+    }
     else
       reply.status(500).send({ error: "unable to update user phone number" });
   } catch (error) {
@@ -165,25 +169,19 @@ export async function updatePhone(request, reply) {
  */
 export async function getKycUrl(request, reply) {
   try {
-    const { phone_number } = request.body;
+    // const {  phone_number  } = request.body;
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
 
     const user = request.user
-
-    const user_current = await User.findOne({ where: { id: request.user.id } })
-
-    if (user_current.kycUrl !== null) {
-      return reply.status(200).send({ kyc_url: user_current.kycUrl })
-    }
-
+    console.log('user', user.phone)
     const body = {
       email: user.email,
-      phoneNumber: phone_number,
+      phoneNumber: user.phone,
       clientCustomerId: user?.id ? user?.id : "1125268",
       type: "INDIVIDUAL",
     };
-
+    console.log(body)
     const timestamp = Date.now().toString();
     const obj = {
       body,
@@ -222,20 +220,13 @@ export async function getKycUrl(request, reply) {
       })
       .catch((error) => console.error("Error:", error));
     if (user) { // Check if the user exists
-
-      if (response.code === 200) {
-        console.log("coming inside this")
-
-        user_current.customerId = response.data.customerId;
-        user_current.signature = response.data.signature
-        user_current.kycUrl = response.data.kycUrl
-        user_current.phone_number = phone_number
-        await user_current.save(); // Use await to ensure the save operation completes
-      }
+      user.customerId = await response.customerId;
+      await user.save(); // Use await to ensure the save operation completes
     } else {
       console.error("User not found");
       reply.status(500).send({ error: 'User not found' });
     }
+
     console.log(response)
     return reply.status(200).send({ kyc_url: response.data.kycUrl })
   } catch (error) {
