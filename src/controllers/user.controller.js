@@ -173,7 +173,12 @@ export async function getKycUrl(request, reply) {
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
 
-    const user = request.user
+    const userData = request.user
+    const user = await User.scope("private").findOne({
+      where: {
+        email: userData.email,
+      },
+    });
     console.log('user', user.phone)
     if(!user)
     {
