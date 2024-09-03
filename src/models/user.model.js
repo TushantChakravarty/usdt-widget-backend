@@ -70,7 +70,16 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-
+            kyc: {
+                type: DataTypes.JSONB, // or DataTypes.JSON if you don't need PostgreSQL-specific functionality
+                allowNull: false,
+                defaultValue: {
+                    otp: false,
+                    basic: false,
+                    video:false,
+                    advanced:false
+                },
+            },
 
         },
         {

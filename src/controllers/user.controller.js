@@ -221,6 +221,7 @@ export async function getKycUrl(request, reply) {
       .catch((error) => console.error("Error:", error));
     if (user) { // Check if the user exists
       user.customerId = await response.customerId;
+      user.kycUrl = await response.kycUrl 
       await user.save(); // Use await to ensure the save operation completes
     } else {
       console.error("User not found");
