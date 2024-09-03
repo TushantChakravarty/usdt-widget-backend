@@ -189,6 +189,7 @@ export async function getKycUrl(request, reply) {
       phoneNumber: user.phone,
       clientCustomerId: user?.id ? user?.id : "1125268",
       type: "INDIVIDUAL",
+      kycRedirectUrl:"https://widget.usdtmarketplace.com/?type=onramp"
     };
     console.log(body)
     const timestamp = Date.now().toString();
