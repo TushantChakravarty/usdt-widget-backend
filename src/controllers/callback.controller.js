@@ -12,7 +12,7 @@ const { User } = db;
  */
 export async function kycCallback(request, reply) {
     try {
-        const details = console.log(request.body);
+        const details = request.body
         if (details.status === "OTP_COMPLETED") {
             let user = await User.scope("private").findOne({
                 where: {
