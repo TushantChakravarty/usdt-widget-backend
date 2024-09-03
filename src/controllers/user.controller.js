@@ -175,6 +175,10 @@ export async function getKycUrl(request, reply) {
 
     const user = request.user
     console.log('user', user.phone)
+    if(!user)
+    {
+      return reply.status(500).send({ error: 'User not found' });
+    }
     const body = {
       email: user.email,
       phoneNumber: user.phone,
@@ -219,6 +223,7 @@ export async function getKycUrl(request, reply) {
         return data
       })
       .catch((error) => console.error("Error:", error));
+      console.log('resp', response)
     if (user) { // Check if the user exists
       user.customerId = await response.customerId;
       user.kycUrl = await response.kycUrl 
