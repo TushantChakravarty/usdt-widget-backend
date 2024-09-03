@@ -19,17 +19,18 @@ export async function kycCallback(request, reply) {
                     customerId: details.metadata.customerId,
                 },
             });
-    
+            console.log("user",user)
             if (user) {
                 // Update the otp field in the kyc object
                 user.kyc = {
                     ...user.kyc,
                     otp: true,
                 };
-    
+                console.log('updated check',user)
+                
                 // Save the updated user object
                 const updated = await user.save();
-                console.log(updated)
+                console.log('updated',updated)
                 reply.status(200).send({ message: "success" });
             }else{
                 reply.status(400).send({ error: "User not found" });
