@@ -13,7 +13,7 @@ const { User } = db;
 export async function kycCallback(request, reply) {
     try {
         const details = console.log(request.body);
-        if (details.STATUS === "OTP_COMPLETED") {
+        if (details.status === "OTP_COMPLETED") {
             let user = await User.scope("private").findOne({
                 where: {
                     customerId: details.metadata.customerId,
