@@ -182,11 +182,11 @@ export async function getKycUrl(request, reply) {
     console.log('user', user.phone)
     if(!user)
     {
-      return reply.status(500).send({ error: 'User not found' });
+      return reply.status(400).send({status:200, error: 'User not found' });
     }
     if(user.kycUrl)
     {
-      return reply.status(200).send({ kyc_url: user.kycUrl })
+      return reply.status(200).send({ status:200,kyc_url: user.kycUrl })
     }
     const body = {
       email: user.email,
@@ -244,9 +244,9 @@ export async function getKycUrl(request, reply) {
     }
 
     console.log(response)
-    return reply.status(200).send({ kyc_url: response.data.kycUrl })
+    return reply.status(200).send({ status:200, kyc_url: response.data.kycUrl })
   } catch (error) {
-    reply.status(500).send({ error: error.message });
+    reply.status(500).send({ status:500,error: error.message });
   }
 }
 
