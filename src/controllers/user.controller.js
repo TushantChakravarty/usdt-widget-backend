@@ -184,6 +184,10 @@ export async function getKycUrl(request, reply) {
     {
       return reply.status(500).send({ error: 'User not found' });
     }
+    if(user.kycUrl)
+    {
+      return reply.status(200).send({ kyc_url: user.kycUrl })
+    }
     const body = {
       email: user.email,
       phoneNumber: user.phone,
