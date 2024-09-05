@@ -1,6 +1,8 @@
 import cryptoJs from "crypto-js";
 import db from "../models/index.js";
 import { compare, encrypt } from "../utils/password.util.js";
+import { getAllCoinsData } from "../ApiCalls/usdtapicalls.js";
+import { responseMapping, responseMappingWithData } from "../utils/responseMapper.js";
 
 const { User } = db;
 /**
@@ -158,9 +160,32 @@ export async function updatePhone(request, reply) {
 }
 
 
+/**
+ * updates user phone number.
+ * @controller user
+ * @route POST /api/v1/user/add/phone
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while logging in.
+ */
+export async function getAllCoins(request,reply) {
+  try {
+   
+    const coins = await getAllCoinsData()
+    console.log(coins)
+    if (coins.data) {
+    
+      return reply.status(200).send(responseMappingWithData(200,'success',coins.data));
+    }
+    else 
+      reply.status(500).send(responseMapping(500,"unable to get coins") );
+  } catch (error) {
+    reply.status(500).send(responseMapping(500,error.message));
+  }
+}
 
 /**
- * Authenticates an admin user and generates a login token.
+ * Gets kyc url for user.
  * @controller user
  * @route POST /api/v1/user/kyc/url
  * @param {Object} request - The request object.

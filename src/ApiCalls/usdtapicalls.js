@@ -63,3 +63,20 @@ export async function usdtMarketPlace() {
 
     }
 }
+
+export async function getAllCoinsData()
+{
+    try{
+
+        const response = await fetch('https://api.onramp.money/onramp/api/v3/buy/public/listAllCoins')
+        const coins = response.json()
+        if(coins)
+        return coins
+        else
+        return []
+    }catch(error)
+    {
+        console.log('coins error', error)
+        return []
+    }
+}

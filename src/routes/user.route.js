@@ -86,6 +86,21 @@ const routes = async (route, options) => { // route = fastify instance
     preValidation: validateToken,
     handler: user.updatePhone,
   });
+
+   /**
+* Route for adding  user phone number.
+* Handles the user phone number update
+*/
+route.get('/getAllCoins', {
+  //schema: validator.updatePhone,
+  // onRequest: [
+  //   route.authenticate
+  // ],
+  preValidation: validateToken,
+  handler: user.getAllCoins,
+});
 };
+
+
 
 export default routes;
