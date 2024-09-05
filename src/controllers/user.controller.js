@@ -3,6 +3,7 @@ import db from "../models/index.js";
 import { compare, encrypt } from "../utils/password.util.js";
 import { getAllCoinsData } from "../ApiCalls/usdtapicalls.js";
 import { responseMapping, responseMappingWithData } from "../utils/responseMapper.js";
+import { Currencies } from "../utils/currencies.js";
 
 const { User } = db;
 /**
@@ -163,7 +164,7 @@ export async function updatePhone(request, reply) {
 /**
  * gets all crypto coins for user.
  * @controller user
- * @route POST /api/v1/user/getAllCOins
+ * @route GET /api/v1/user/getAllCoins
  * @param {Object} request - The request object.
  * @param {Object} reply - The reply object.
  * @throws {Error} If an error occurs while logging in.
@@ -183,6 +184,29 @@ export async function getAllCoins(request,reply) {
     reply.status(500).send(responseMapping(500,error.message));
   }
 }
+
+/**
+ * gets all currencies.
+ * @controller user
+ * @route GET /api/v1/user/getAllCurrencies
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while logging in.
+ */
+export async function getAllCurrencies(request,reply) {
+  try {
+    const data = Currencies
+    if (data) {
+    
+      return reply.status(200).send(responseMappingWithData(200,'success',data));
+    }
+    else 
+      reply.status(500).send(responseMapping(500,"unable to get coins") );
+  } catch (error) {
+    reply.status(500).send(responseMapping(500,error.message));
+  }
+}
+
 
 /**
  * Gets kyc url for user.
