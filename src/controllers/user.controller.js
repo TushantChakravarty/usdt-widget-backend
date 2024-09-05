@@ -172,7 +172,7 @@ export async function getAllCoins(request,reply) {
   try {
    
     const coins = await getAllCoinsData()
-    console.log(coins)
+    //console.log(coins)
     if (coins.data) {
     
       return reply.status(200).send(responseMappingWithData(200,'success',coins.data));
