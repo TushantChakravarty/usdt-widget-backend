@@ -161,9 +161,9 @@ export async function updatePhone(request, reply) {
 
 
 /**
- * updates user phone number.
+ * gets all crypto coins for user.
  * @controller user
- * @route POST /api/v1/user/add/phone
+ * @route POST /api/v1/user/getAllCOins
  * @param {Object} request - The request object.
  * @param {Object} reply - The reply object.
  * @throws {Error} If an error occurs while logging in.
