@@ -2,8 +2,15 @@ import cryptoJs from "crypto-js";
 import db from "../models/index.js";
 import { compare, encrypt } from "../utils/password.util.js";
 import logger from "../utils/logger.util.js";
+import { getAllCoinsData } from "../ApiCalls/usdtapicalls.js";
+import {
+  responseMapping,
+  responseMappingWithData,
+} from "../utils/responseMapper.js";
+import { Currencies } from "../utils/currencies.js";
+import { networks } from "../utils/networks.js";
 
-const { User } = db;
+const { User, Coin } = db;
 /**
  * Registers a new user.
  * @controller user
@@ -26,10 +33,8 @@ export async function signup(request, reply) {
       email: emailId,
       password: encryptedPassword,
     });
-    if (user)
-      return reply.status(200).send({ message: "Signup Successful" });
-    else
-      return reply.status(400).send({ message: "Signup failed" });
+    if (user) return reply.status(200).send({ message: "Signup Successful" });
+    else return reply.status(400).send({ message: "Signup failed" });
   } catch (error) {
     reply.status(500).send({ error: error.message });
   }
@@ -53,7 +58,7 @@ export async function login(request, reply) {
         email: emailId,
       },
     });
-    console.log(user)
+    console.log(user);
     if (!user)
       return reply.status(404).send({ error: "Invalid email or password" }); // generic error to prevent bruteforce
     // compare password
@@ -67,8 +72,8 @@ export async function login(request, reply) {
       emailId: user.email,
     });
 
-    user.token = token
-    await user.save()
+    user.token = token;
+    await user.save();
     // set token in cookie
     reply.setCookie("token", token, {
       httpOnly: true,
@@ -96,7 +101,7 @@ export async function getProfile(request, reply) {
   // login for admin team members
   try {
     // find user by username where role is not empty, and compare password
-    const User1 = request.user
+    const User1 = request.user;
     let user = await User.scope("private").findOne({
       where: {
         email: User1.email,
@@ -108,8 +113,7 @@ export async function getProfile(request, reply) {
       delete user.token;
     }
 
-    if (!user)
-      return reply.status(404).send({ error: "Invalid User details" }); // generic error to prevent bruteforce
+    if (!user) return reply.status(404).send({ error: "Invalid User details" }); // generic error to prevent bruteforce
 
     return reply.status(200).send({ message: "Success", user });
   } catch (error) {
@@ -128,40 +132,153 @@ export async function getProfile(request, reply) {
 export async function updatePhone(request, reply) {
   // login for admin team members
   try {
-    console.log('here', request.user)
+    console.log("here", request.user);
     const { phone_number } = request.body;
-    console.log(phone_number)
+    console.log(phone_number);
     // find user by username where role is not empty, and compare password
-    const User1 = request.user
+    const User1 = request.user;
     let user = await User.scope("private").findOne({
       where: {
         email: User1.email,
       },
     });
 
+    if (!user) return reply.status(400).send({ error: "Invalid User details" }); // generic error to prevent bruteforce'
 
-    if (!user)
-      return reply.status(400).send({ error: "Invalid User details" }); // generic error to prevent bruteforce'
-
-    user.phone = phone_number
-    const updated = await user.save()
-    console.log("updates", updated)
+    user.phone = phone_number;
+    const updated = await user.save();
+    console.log("updates", updated);
     if (updated?.dataValues?.phone) {
-      user.isPhoneAdded = true
-      await user.save()
+      user.isPhoneAdded = true;
+      await user.save();
       return reply.status(200).send({ message: "Success" });
-    }
-    else
+    } else
       reply.status(500).send({ error: "unable to update user phone number" });
   } catch (error) {
     reply.status(500).send({ error: error.message });
   }
 }
 
+/**
+ * gets all crypto coins for user.
+ * @controller user
+ * @route GET /api/v1/user/getAllCoins
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while logging in.
+ */
+export async function getAllCoins(request, reply) {
+  try {
+    let coins = await Coin.findAll();
+    let coinsArray = [];
+    if (coins.length <= 0) {
+      let coinsData = await getAllCoinsData();
+      coins = coinsData?.data;
+      if (coins) {
+        coinsArray = Object.entries(coins).map(([coin, coinDetails]) => ({
+          coin,
+          ...coinDetails,
+        }));
+        try {
+          await Coin.bulkCreate(coinsArray, {
+            updateOnDuplicate: [
+              "coin",
+              "coinId",
+              "coinIcon",
+              "coinName",
+              "balanceFloatPlaces",
+            ],
+          });
+          console.log("Coins saved successfully!");
+        } catch (error) {
+          console.error("Error saving coins: ", error);
+        }
+      }
+    }
+    //console.log('data',coins)
+    //console.log("data array", coinsArray);
 
+    if (coins?.length > 0 || coinsArray?.length > 0) {
+      const filteredCoins =
+        coinsArray?.length > 0
+          ? coinsArray.filter((coin) => coin.coinId === 54)
+          : coins.filter((coin) => coin.coinId === 54);
+
+      return reply
+        .status(200)
+        .send(responseMappingWithData(200, "success", filteredCoins));
+    } else reply.status(500).send(responseMapping(500, "unable to get coins"));
+  } catch (error) {
+    reply.status(500).send(responseMapping(500, error.message));
+  }
+}
 
 /**
- * Authenticates an admin user and generates a login token.
+ * gets all currencies.
+ * @controller user
+ * @route GET /api/v1/user/getAllCurrencies
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while logging in.
+ */
+export async function getAllCurrencies(request, reply) {
+  try {
+    const data = Currencies;
+    if (data) {
+      return reply
+        .status(200)
+        .send(responseMappingWithData(200, "success", data));
+    } else reply.status(500).send(responseMapping(500, "unable to get currencies"));
+  } catch (error) {
+    reply.status(500).send(responseMapping(500, error.message));
+  }
+}
+
+/**
+ * gets all networks
+ * @controller user
+ * @route GET /api/v1/user/getAllNetworks
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while logging in.
+ */
+export async function getAllNetworks(request, reply) {
+  try {
+    console.log(request.query.id)
+    if (!request.query.id) {
+      reply.status(500).send(responseMapping(500, "please send coin id"));
+    }
+    if (request.query.id !== '54') {
+      reply.status(500).send(responseMapping(500, "invalid coin id"));
+    }
+    const data = networks
+    let updatedData = []
+    const coinData = await Coin.findOne({
+      where: {
+        coinId: request.query.id
+      }
+    })
+    console.log(coinData)
+    if (coinData) {
+      data.map((item) => {
+        updatedData.push({
+          ...item,
+          icon: coinData.coinIcon
+        })
+      })
+    }
+    if (updatedData) {
+      return reply
+        .status(200)
+        .send(responseMappingWithData(200, "success", updatedData));
+    } else reply.status(500).send(responseMapping(500, "unable to get networks"));
+  } catch (error) {
+    reply.status(500).send(responseMapping(500, error.message));
+  }
+}
+
+/**
+ * Gets kyc url for user.
  * @controller user
  * @route POST /api/v1/user/kyc/url
  * @param {Object} request - The request object.
@@ -174,15 +291,27 @@ export async function getKycUrl(request, reply) {
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
 
-    const user = request.user
-    console.log('user', user.phone)
+    const userData = request.user;
+    const user = await User.scope("private").findOne({
+      where: {
+        email: userData.email,
+      },
+    });
+    console.log("user", user.phone);
+    if (!user) {
+      return reply.status(400).send({ status: 200, error: "User not found" });
+    }
+    if (user.kycUrl) {
+      return reply.status(200).send({ status: 200, kyc_url: user.kycUrl });
+    }
     const body = {
       email: user.email,
       phoneNumber: user.phone,
       clientCustomerId: user?.id ? user?.id : "1125268",
       type: "INDIVIDUAL",
+      kycRedirectUrl: "https://widget.usdtmarketplace.com/?type=onramp",
     };
-    console.log(body)
+    console.log(body);
     const timestamp = Date.now().toString();
     const obj = {
       body,
@@ -216,22 +345,27 @@ export async function getKycUrl(request, reply) {
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log(data)
-        return data
+        console.log(data);
+        return data;
       })
       .catch((error) => console.error("Error:", error));
-    if (user) { // Check if the user exists
-      user.customerId = await response.customerId;
+    console.log("resp", response);
+    if (user) {
+      // Check if the user exists
+      user.customerId = await response.data.customerId;
+      user.kycUrl = await response.data.kycUrl;
       await user.save(); // Use await to ensure the save operation completes
     } else {
       console.error("User not found");
-      reply.status(500).send({ error: 'User not found' });
+      reply.status(500).send({ error: "User not found" });
     }
 
-    console.log(response)
-    return reply.status(200).send({ kyc_url: response.data.kycUrl })
+    console.log(response);
+    return reply
+      .status(200)
+      .send({ status: 200, kyc_url: response.data.kycUrl });
   } catch (error) {
-    reply.status(500).send({ error: error.message });
+    reply.status(500).send({ status: 500, error: error.message });
   }
 }
 

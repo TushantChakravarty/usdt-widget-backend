@@ -99,6 +99,48 @@ const routes = async (route, options) => { // route = fastify instance
     // preValidation: validateToken,
     handler: user.getQuotes,
   });
+  /*
+* Route for getting all crypto coins.
+* Handles getting crypto coins data
+*/
+  route.get('/getAllCoins', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    //preValidation: validateToken,
+    handler: user.getAllCoins,
+  });
+
+  /**
+* Route for getting all supported currencies
+* Handles getting all supported currencies data
+*/
+  route.get('/getAllCurrencies', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    // preValidation: validateToken,
+    handler: user.getAllCurrencies,
+  });
+
+  /**
+ * Route for getting all supported networks
+ * Handles getting all supported networks data
+ */
+  route.get('/getAllNetworks', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    // preValidation: validateToken,
+    handler: user.getAllNetworks,
+  });
+
+
 };
+
+
 
 export default routes;

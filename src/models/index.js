@@ -13,7 +13,7 @@
 import Sequelize from 'sequelize'
 import config from '../config/database.js'
 import User from "./user.model.js"
-
+import Coin from './coin.model.js';
 
 // 1. Import the model files
 
@@ -21,6 +21,7 @@ const db = {}
 const sequelize = new Sequelize(config)
 
 db.User = User(sequelize, Sequelize.DataTypes)
+db.Coin = Coin(sequelize, Sequelize.DataTypes)
 
 
 //Initialize models
