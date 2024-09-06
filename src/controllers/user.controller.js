@@ -5,7 +5,7 @@ import { getAllCoinsData } from "../ApiCalls/usdtapicalls.js";
 import { responseMapping, responseMappingWithData } from "../utils/responseMapper.js";
 import { Currencies } from "../utils/currencies.js";
 
-const { User } = db;
+const { User,Coin } = db;
 /**
  * Registers a new user.
  * @controller user
@@ -171,16 +171,34 @@ export async function updatePhone(request, reply) {
  */
 export async function getAllCoins(request,reply) {
   try {
-   
-    const coins = await getAllCoinsData()
-    //console.log(coins)
-    if (coins.data) {
-      const coinsArray = Object.entries(coins.data).map(([coin, coinDetails]) => ({
-        coin,
-        ...coinDetails
-    }));
-    
-      return reply.status(200).send(responseMappingWithData(200,'success',coinsArray));
+    let coins = await Coin.findAll()
+    let coinsArray =[]
+      if(coins.length<=0)
+      {
+
+        let coinsData = await getAllCoinsData()
+        coins = coinsData?.data
+        if (coins) {
+          coinsArray = Object.entries(coins).map(([coin, coinDetails]) => ({
+            coin,
+            ...coinDetails
+          }));
+          try {
+            await Coin.bulkCreate(coinsArray, {
+              updateOnDuplicate: ["coin", "coinId", "coinIcon", "coinName", "balanceFloatPlaces"]
+            });
+            console.log("Coins saved successfully!");
+          } catch (error) {
+            console.error("Error saving coins: ", error);
+          }
+        }
+      }
+    //console.log('data',coins)
+    console.log('data array',coinsArray)
+
+    if(coins||coinsArray?.length>0)
+    {
+      return reply.status(200).send(responseMappingWithData(200,'success',coinsArray?.length>0?coinsArray:coins));
     }
     else 
       reply.status(500).send(responseMapping(500,"unable to get coins") );
