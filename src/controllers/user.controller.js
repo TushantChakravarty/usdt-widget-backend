@@ -196,7 +196,7 @@ export async function getAllCoins(request,reply) {
     //console.log('data',coins)
     console.log('data array',coinsArray)
 
-    if(coins||coinsArray?.length>0)
+    if(coins?.length>0||coinsArray?.length>0)
     {
       return reply.status(200).send(responseMappingWithData(200,'success',coinsArray?.length>0?coinsArray:coins));
     }
