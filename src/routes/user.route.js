@@ -86,6 +86,19 @@ const routes = async (route, options) => { // route = fastify instance
     preValidation: validateToken,
     handler: user.updatePhone,
   });
+
+  /**
+* Route for adding  user phone number.
+* Handles the user phone number update
+*/
+  route.post('/get-quotes', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    // preValidation: validateToken,
+    handler: user.getQuotes,
+  });
 };
 
 export default routes;
