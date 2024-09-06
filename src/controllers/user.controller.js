@@ -175,8 +175,12 @@ export async function getAllCoins(request,reply) {
     const coins = await getAllCoinsData()
     //console.log(coins)
     if (coins.data) {
+      const coinsArray = Object.entries(coins.data).map(([coin, coinDetails]) => ({
+        coin,
+        ...coinDetails
+    }));
     
-      return reply.status(200).send(responseMappingWithData(200,'success',coins.data));
+      return reply.status(200).send(responseMappingWithData(200,'success',coinsArray));
     }
     else 
       reply.status(500).send(responseMapping(500,"unable to get coins") );
