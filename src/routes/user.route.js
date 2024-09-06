@@ -96,7 +96,7 @@ route.get('/getAllCoins', {
   // onRequest: [
   //   route.authenticate
   // ],
-  preValidation: validateToken,
+  //preValidation: validateToken,
   handler: user.getAllCoins,
 });
 
@@ -109,7 +109,7 @@ route.get('/getAllCurrencies', {
   // onRequest: [
   //   route.authenticate
   // ],
-  preValidation: validateToken,
+ // preValidation: validateToken,
   handler: user.getAllCurrencies,
 });
 
