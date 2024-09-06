@@ -113,6 +113,19 @@ route.get('/getAllCurrencies', {
   handler: user.getAllCurrencies,
 });
 
+ /**
+* Route for getting all supported networks
+* Handles getting all supported networks data
+*/
+route.get('/getAllNetworks', {
+  //schema: validator.updatePhone,
+  // onRequest: [
+  //   route.authenticate
+  // ],
+ // preValidation: validateToken,
+  handler: user.getAllNetworks,
+});
+
 
 };
 
