@@ -248,6 +248,10 @@ export async function getAllNetworks(request, reply) {
     {
       reply.status(500).send(responseMapping(500, "please send coin id"));
     }
+    if(request.query.id!=='54')
+    {
+      reply.status(500).send(responseMapping(500, "invalid coin id"));
+    }
     const data = networks
     let updatedData =[]
     const coinData = await Coin.findOne({where:{
