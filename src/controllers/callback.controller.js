@@ -37,6 +37,98 @@ export async function kycCallback(request, reply) {
                 reply.status(400).send({ error: "User not found" });
             }
         }
+        if (details.status === "BASIC_KYC_COMPLETED") {
+            let user = await User.scope("private").findOne({
+                where: {
+                    customerId: details.metadata.customerId,
+                },
+            });
+            console.log("user",user)
+            if (user) {
+                // Update the otp field in the kyc object
+                user.kyc = {
+                    ...user.kyc,
+                    basic: true,
+                };
+                console.log('updated check',user)
+                
+                // Save the updated user object
+                const updated = await user.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "User not found" });
+            }
+        }
+        if (details.status === "INTERMEDIATE_KYC_COMPLETED") {
+            let user = await User.scope("private").findOne({
+                where: {
+                    customerId: details.metadata.customerId,
+                },
+            });
+            console.log("user",user)
+            if (user) {
+                // Update the otp field in the kyc object
+                user.kyc = {
+                    ...user.kyc,
+                    intermediate: true,
+                };
+                console.log('updated check',user)
+                
+                // Save the updated user object
+                const updated = await user.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "User not found" });
+            }
+        }
+        if (details.status === "ADVANCE_KYC_COMPLETED") {
+            let user = await User.scope("private").findOne({
+                where: {
+                    customerId: details.metadata.customerId,
+                },
+            });
+            console.log("user",user)
+            if (user) {
+                // Update the otp field in the kyc object
+                user.kyc = {
+                    ...user.kyc,
+                    advanced: true,
+                };
+                console.log('updated check',user)
+                
+                // Save the updated user object
+                const updated = await user.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "User not found" });
+            }
+        }
+        if (details.status === "COMPLETED") {
+            let user = await User.scope("private").findOne({
+                where: {
+                    customerId: details.metadata.customerId,
+                },
+            });
+            console.log("user",user)
+            if (user) {
+                // Update the otp field in the kyc object
+                user.kyc = {
+                    ...user.kyc,
+                    completed: true,
+                };
+                console.log('updated check',user)
+                
+                // Save the updated user object
+                const updated = await user.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "User not found" });
+            }
+        }
     } catch (error) {
         console.error("Error updating OTP status:", error);
         reply.status(500).send({ error: "Internal server error" });
