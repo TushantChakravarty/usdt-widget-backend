@@ -131,7 +131,6 @@ export async function getProfile(request, reply) {
 export async function updatePhone(request, reply) {
   // login for admin team members
   try {
-    console.log("here", request.user);
     const { phone_number } = request.body;
     console.log(phone_number);
     // find user by username where role is not empty, and compare password
@@ -141,9 +140,13 @@ export async function updatePhone(request, reply) {
         email: User1.email,
       },
     });
+    let phoneExists = await  User.findOne({where:{
+      phone:phone_number
+    }})
+    if(phoneExists)
+    return reply.status(400).send({ error: "Phone number already exists" });
 
     if (!user) return reply.status(400).send({ error: "Invalid User details" }); // generic error to prevent bruteforce'
-
     user.phone = phone_number;
     const updated = await user.save();
     console.log("updates", updated);
@@ -350,14 +353,13 @@ export async function getKycUrl(request, reply) {
       })
       .catch((error) => console.error("Error:", error));
     console.log("resp", response);
-    if (user) {
+    if (user&&response?.data?.customerId) {
       // Check if the user exists
       user.customerId = await response.data.customerId;
       user.kycUrl = await response.data.kycUrl;
       await user.save(); // Use await to ensure the save operation completes
     } else {
-      console.error("User not found");
-      reply.status(500).send({ error: "User not found" });
+      reply.status(500).send({ error: "internal sever error" });
     }
 
     console.log(response);
