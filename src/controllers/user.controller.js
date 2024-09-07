@@ -261,7 +261,7 @@ export async function getAllNetworks(request, reply) {
         coinId: request.query.id
       }
     })
-    console.log(coinData)
+    //console.log(coinData)
     if (coinData) {
       data.map((item) => {
         updatedData.push({
