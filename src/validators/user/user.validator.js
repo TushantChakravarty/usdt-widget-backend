@@ -109,3 +109,61 @@ export const updatePhone = {
     //     ...commonSchemas.errorResponse,
     // },
 }
+
+
+export const createOnramp = {
+    body: {
+        type: 'object',
+        properties: {
+            fromCurrency: { type: 'string', minLength: 1, maxLength: 10 },
+            toCurrency: { type: 'string', minLength: 1, maxLength: 10 },
+            chain: { type: 'string', minLength: 1, maxLength: 10 },
+            paymentMethodType: { type: 'string', minLength: 1, maxLength: 10 },
+            depositAddress: { type: 'string', minLength: 1 },
+            fromAmount: { type: 'number', minimum: 1 },
+            toAmount: { type: 'number', minimum: 1 },
+            rate: { type: 'number', minimum: 1 }
+        },
+        required: ["fromCurrency", "toCurrency", "chain", "paymentMethodType", "depositAddress", "fromAmount", "toAmount", "rate"],
+        additionalProperties: false,
+    },
+    // response: {
+    //     200: {
+    //         type: 'object',
+    //         properties: {
+    //             message: { type: 'string' },
+    //         },
+    //     },
+    //     ...commonSchemas.errorResponse,
+    // },
+}
+
+export const getQuotes = {
+    body: {
+        type: 'object',
+        properties: {
+            fromCurrency: {
+                type: "string",
+                enum: ["INR"]
+            },
+            toCurrency: {
+                type: "string",
+                enum: ["USDT"]
+            },
+            chain: { type: 'string', minLength: 1, maxLength: 10 },
+            paymentMethodType: { type: 'string', minLength: 1, maxLength: 10 },
+            fromAmount: { type: 'number', minimum: 1000 }
+        },
+        required: ["fromCurrency", "toCurrency", "chain", "paymentMethodType", "fromAmount"],
+        additionalProperties: false,
+    },
+    // response: {
+    //     200: {
+    //         type: 'object',
+    //         properties: {
+    //             message: { type: 'string' },
+    //         },
+    //     },
+    //     ...commonSchemas.errorResponse,
+    // },
+}

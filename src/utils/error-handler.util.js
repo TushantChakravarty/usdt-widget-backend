@@ -10,6 +10,7 @@ export default function handleErrors(fastify) {
                 param: e.schemaPath
             }));
             reply.status(400).send({
+                code: 400,
                 error: 'Bad Request',
                 message: 'Validation failed',
                 details: details

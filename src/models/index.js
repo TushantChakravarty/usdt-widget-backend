@@ -14,6 +14,7 @@ import Sequelize from 'sequelize'
 import config from '../config/database.js'
 import User from "./user.model.js"
 import Coin from './coin.model.js';
+import OnRampTransaction from './onramp.model.js'
 
 // 1. Import the model files
 
@@ -22,6 +23,7 @@ const sequelize = new Sequelize(config)
 
 db.User = User(sequelize, Sequelize.DataTypes)
 db.Coin = Coin(sequelize, Sequelize.DataTypes)
+db.OnRampTransaction = OnRampTransaction(sequelize, Sequelize.DataTypes)
 
 
 //Initialize models
