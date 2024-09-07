@@ -1,6 +1,7 @@
 import cryptoJs from "crypto-js";
 import db from "../models/index.js";
 import { compare, encrypt } from "../utils/password.util.js";
+import logger from "../utils/logger.util.js";
 import { getAllCoinsData } from "../ApiCalls/usdtapicalls.js";
 import {
   responseMapping,
@@ -247,26 +248,25 @@ export async function getAllCurrencies(request, reply) {
 export async function getAllNetworks(request, reply) {
   try {
     console.log(request.query.id)
-    if(!request.query.id)
-    {
+    if (!request.query.id) {
       reply.status(500).send(responseMapping(500, "please send coin id"));
     }
-    if(request.query.id!=='54')
-    {
+    if (request.query.id !== '54') {
       reply.status(500).send(responseMapping(500, "invalid coin id"));
     }
     const data = networks
-    let updatedData =[]
-    const coinData = await Coin.findOne({where:{
-      coinId:request.query.id
-    }})
+    let updatedData = []
+    const coinData = await Coin.findOne({
+      where: {
+        coinId: request.query.id
+      }
+    })
     console.log(coinData)
-    if(coinData)
-    {
-      data.map((item)=>{
+    if (coinData) {
+      data.map((item) => {
         updatedData.push({
           ...item,
-          icon:coinData.coinIcon
+          icon: coinData.coinIcon
         })
       })
     }
@@ -371,6 +371,80 @@ export async function getKycUrl(request, reply) {
   }
 }
 
+
+export async function onRampRequest() {
+  try {
+    console.log("coming inside this ")
+    const apiKey = process.env.apiKey;
+    const secret = process.env.secret;
+
+    // if (!request.user.isKycCompleted) {
+    //   return reply.status(400).send({ error: "Please complete your kyc" })
+    // }
+
+    const body = {
+      fromCurrency: "INR",
+      toCurrency: "USDT",
+      chain: "erc20",
+      paymentMethodType: "UPI",
+      depositAddress: "0xEb5DcCaaD810f67cEeB25c415C62d1b5E9A408CC",
+      customerId: "iQ4i1Jiv5q_2149",
+      fromAmount: 1000,
+      toAmount: 5.66,
+      rate: 93.58
+    }
+
+
+    const timestamp = Date.now().toString();
+    const obj = {
+      body,
+      timestamp,
+    };
+
+    // Create the payload and signature
+    const payload = cryptoJs.enc.Base64.stringify(
+      cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
+    );
+    const signature = cryptoJs.enc.Hex.stringify(
+      cryptoJs.HmacSHA512(payload, secret)
+    );
+
+    // Create the headers
+    const headers = {
+      "Content-Type": "application/json",
+      apiKey: apiKey,
+      payload: payload,
+      signature: signature,
+    };
+
+
+    const url =
+      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/onramp/createTransaction"
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors, e.g., 404, 500, etc.
+      console.log(await response.json())
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+
+    return data;
+
+  } catch (error) {
+    console.log("this is error", error.message)
+
+  }
+}
+
+
 // {
 //   "status": 1,
 //   "code": 200,
@@ -381,3 +455,65 @@ export async function getKycUrl(request, reply) {
 //       "signature": "d1450c0434fb0ea554b0470edbb011d05e1f16be0f8ba17466fed0e958e2aa51"
 //   }
 // }
+
+export async function getQuotes(request, reply) {
+  try {
+    const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } = request.body
+    const apiKey = process.env.apiKey;
+    const secret = process.env.secret;
+
+    const body = {
+      fromCurrency: fromCurrency,
+      toCurrency: toCurrency,
+      fromAmount: fromAmount,
+      chain: chain,
+      paymentMethodType: paymentMethodType
+    }
+    const timestamp = Date.now().toString();
+    const obj = {
+      body,
+      timestamp,
+    };
+
+    // Create the payload and signature
+    const payload = cryptoJs.enc.Base64.stringify(
+      cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
+    );
+    const signature = cryptoJs.enc.Hex.stringify(
+      cryptoJs.HmacSHA512(payload, secret)
+    );
+
+    // Create the headers
+    const headers = {
+      "Content-Type": "application/json",
+      apiKey: apiKey,
+      payload: payload,
+      signature: signature,
+    };
+
+
+    const url =
+      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors, e.g., 404, 500, etc.
+      console.log(await response.json())
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+
+    return data;
+
+  } catch (error) {
+    logger.error("user.controller.getQuotes", error.message)
+    console.log('user.controller.getQUotes', error.message)
+  }
+}
