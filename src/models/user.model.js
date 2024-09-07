@@ -77,7 +77,9 @@ export default (sequelize, DataTypes) => {
                     otp: false,
                     basic: false,
                     video:false,
-                    advanced:false
+                    advanced:false,
+                    intermediate:false,
+                    sta:false
                 },
             },
 
