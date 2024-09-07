@@ -115,6 +115,7 @@ export async function kycCallback(request, reply) {
             console.log("user",user)
             if (user) {
                 // Update the otp field in the kyc object
+                user.isKycCompleted = true
                 user.kyc = {
                     ...user.kyc,
                     completed: true,
