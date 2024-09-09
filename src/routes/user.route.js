@@ -91,8 +91,22 @@ const routes = async (route, options) => { // route = fastify instance
 * Route for adding  user phone number.
 * Handles the user phone number update
 */
-  route.post('/get-quotes', {
+  route.post('/createOnrampTransaction', {
     //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    schema: validator.createOnramp,
+    preValidation: validateToken,
+    handler: user.onRampRequest,
+  });
+
+  /**
+* Route for adding  user phone number.
+* Handles the user phone number update
+*/
+  route.post('/get-quotes', {
+    schema: validator.getQuotes,
     // onRequest: [
     //   route.authenticate
     // ],
