@@ -181,6 +181,23 @@ export async function callbackHandler(request, reply) {
                 reply.status(400).send({ error: "transaction not found" });
             }
         }
+        // if (details.status === "ON_CHAIN_COMPLETED") {
+        //     let transaction = await OnRampTransaction.findOne({
+        //         where: {
+        //             reference_id: details.referenceId,
+        //         },
+        //     });
+        //     if (transaction) {
+        //         // Update the status field in the transaction 
+        //         transaction.status =details.status                
+        //         // Save the updated transaction object
+        //         const updated = await transaction.save();
+        //         console.log('updated',updated)
+        //         reply.status(200).send({ message: "success" });
+        //     }else{
+        //         reply.status(400).send({ error: "transaction not found" });
+        //     }
+        // }
         if (details.status === "ON_CHAIN_COMPLETED") {
             let transaction = await OnRampTransaction.findOne({
                 where: {
@@ -189,24 +206,7 @@ export async function callbackHandler(request, reply) {
             });
             if (transaction) {
                 // Update the status field in the transaction 
-                transaction.status =details.status                
-                // Save the updated transaction object
-                const updated = await transaction.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "transaction not found" });
-            }
-        }
-        if (details.status === "ON_CHAIN_COMPLETED") {
-            let transaction = await OnRampTransaction.findOne({
-                where: {
-                    reference_id: details.referenceId,
-                },
-            });
-            if (transaction) {
-                // Update the status field in the transaction 
-                transaction.status =details.status                
+                transaction.status ="SUCCESS"               
                 // Save the updated transaction object
                 const updated = await transaction.save();
                 console.log('updated',updated)
