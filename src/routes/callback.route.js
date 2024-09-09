@@ -17,8 +17,8 @@ const routes = async (route, options) => { // route = fastify instance
     /**
      * Route for callback of kyc.
      */
-    route.post('/kyc', {
-        handler: callback.kycCallback,
+    route.post('/callback', {
+        handler: callback.CallbackHandler,
     });
 
 
