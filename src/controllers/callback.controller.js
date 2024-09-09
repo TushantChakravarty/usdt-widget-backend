@@ -217,7 +217,7 @@ export async function callbackHandler(request, reply) {
         }
        
     } catch (error) {
-        console.error("Error updating OTP status:", error);
+        console.error("Error updating callback status:", error);
         reply.status(500).send({ error: "Internal server error" });
     }
 }

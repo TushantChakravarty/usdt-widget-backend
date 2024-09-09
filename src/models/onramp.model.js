@@ -60,7 +60,11 @@ export default (sequelize, DataTypes) => {
             rate: {
                 type: DataTypes.FLOAT,
                 allowNull: false
-            }
+            },
+            status:{
+                type: DataTypes.FLOAT,
+                allowNull: false
+            },
 
         },
         {
