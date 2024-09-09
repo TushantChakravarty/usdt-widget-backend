@@ -2,7 +2,7 @@ import cryptoJs from "crypto-js";
 import db from "../models/index.js";
 import { compare, encrypt } from "../utils/password.util.js";
 import logger from "../utils/logger.util.js";
-import { getAllCoinsData } from "../ApiCalls/usdtapicalls.js";
+import { getAllCoinsData, getAllNetworkData } from "../ApiCalls/usdtapicalls.js";
 import {
   responseMapping,
   responseMappingError,
@@ -174,6 +174,7 @@ export async function updatePhone(request, reply) {
 export async function getAllCoins(request, reply) {
   try {
     let coins = await Coin.findAll();
+    console.log("got coins",coins[0])
     let coinsArray = [];
     if (coins.length <= 0) {
       let coinsData = await getAllCoinsData();
@@ -181,13 +182,15 @@ export async function getAllCoins(request, reply) {
       if (coins) {
         coinsArray = Object.entries(coins).map(([coin, coinDetails]) => ({
           coin,
+          coinid:coinDetails.coinId,
           ...coinDetails,
         }));
+        console.log('here',coinsArray[0])
         try {
           await Coin.bulkCreate(coinsArray, {
             updateOnDuplicate: [
               "coin",
-              "coinId",
+              "coinid",
               "coinIcon",
               "coinName",
               "balanceFloatPlaces",
@@ -205,8 +208,8 @@ export async function getAllCoins(request, reply) {
     if (coins?.length > 0 || coinsArray?.length > 0) {
       const filteredCoins =
         coinsArray?.length > 0
-          ? coinsArray.filter((coin) => coin.coinId === 54)
-          : coins.filter((coin) => coin.coinId === 54);
+          ? coinsArray.filter((coin) => coin.coinid === 54)
+          : coins.filter((coin) => coin.coinid === 54);
 
       return reply
         .status(200)
@@ -259,16 +262,27 @@ export async function getAllNetworks(request, reply) {
     let updatedData = []
     const coinData = await Coin.findOne({
       where: {
-        coinId: request.query.id
+        coinid: request.query.id
       }
     })
+    const networkData = await getAllNetworkData()
+    const filteredNetworks = networkData.filter(item => item.coinid == 54)
+    //console.log("network data",filteredNetworks)
     //console.log(coinData)
     if (coinData) {
       data.map((item) => {
-        updatedData.push({
-          ...item,
-          icon: coinData.coinIcon
-        })
+        const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+        console.log("here",networkData)
+        if(networkData[0]?.withdrawalFee)
+        {
+
+          updatedData.push({
+            ...item,
+            icon: coinData.coinIcon,
+            fee:networkData[0]?.withdrawalFee,
+            minBuy:networkData[0]?.minimumWithdrawal
+          })
+        }
       })
     }
     if (updatedData) {

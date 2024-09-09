@@ -4,7 +4,11 @@ import { Model } from "sequelize";
 export default (sequelize, DataTypes) => {
     class Coin extends Model {
         static associate(models) {
-            // define association here if needed
+            // Define association with Network
+            Coin.hasMany(models.Network, {
+                foreignKey: "coinid",
+                as: "network",
+            });
         }
     }
 
@@ -15,10 +19,11 @@ export default (sequelize, DataTypes) => {
                 allowNull: false,
                 unique: true,
             },
-            coinId: {
+            coinid: {
                 type: DataTypes.INTEGER,
-                allowNull: false,
+                allowNull: true,
                 unique: true,
+               // primaryKey: true, // Ensure this is the primary key if needed
             },
             coinIcon: {
                 type: DataTypes.STRING,
@@ -36,7 +41,8 @@ export default (sequelize, DataTypes) => {
         {
             sequelize,
             modelName: "Coin",
-            timestamps: false, // if you don't need timestamps
+            tableName: "Coin",
+            timestamps: false,
         }
     );
 
