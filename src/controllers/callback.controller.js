@@ -10,7 +10,7 @@ const { User, OnRampTransaction } = db;
  * @param {Object} reply - The reply object.
  * @throws {Error} If an error occurs while signing up.
  */
-export async function CallbackHandler(request, reply) {
+export async function callbackHandler(request, reply) {
     try {
         const details = request.body
         console.log(details)
