@@ -5,6 +5,7 @@ import logger from "../utils/logger.util.js";
 import { getAllCoinsData } from "../ApiCalls/usdtapicalls.js";
 import {
   responseMapping,
+  responseMappingError,
   responseMappingWithData,
 } from "../utils/responseMapper.js";
 import { Currencies } from "../utils/currencies.js";
@@ -60,11 +61,11 @@ export async function login(request, reply) {
     });
     console.log(user);
     if (!user)
-      return reply.status(404).send({ error: "Invalid email or password" }); // generic error to prevent bruteforce
+      return reply.status(404).send(responseMappingError(404,"User doesnt exist" )); // generic error to prevent bruteforce
     // compare password
     const match = await compare(password, user.password);
     if (!match)
-      return reply.status(401).send({ error: "Invalid username or password" }); // generic error to prevent bruteforce
+      return reply.status(401).send(responseMappingError(401,"Invalid username or password" )); // generic error to prevent bruteforce
     // generate token
     const token = await reply.jwtSign({
       id: user.id,
@@ -85,7 +86,7 @@ export async function login(request, reply) {
     });
     return reply.status(200).send({ message: "Logged in", token });
   } catch (error) {
-    reply.status(500).send({ error: error.message });
+    reply.status(500).send(responseMappingError(500,error.message ));
   }
 }
 
@@ -113,11 +114,11 @@ export async function getProfile(request, reply) {
       delete user.token;
     }
 
-    if (!user) return reply.status(404).send({ error: "Invalid User details" }); // generic error to prevent bruteforce
+    if (!user) return reply.status(404).send(responseMappingError(404,"Invalid User details" )); // generic error to prevent bruteforce
 
     return reply.status(200).send({ message: "Success", user });
   } catch (error) {
-    reply.status(500).send({ error: error.message });
+    reply.status(500).send(responseMappingError(500, error.message ));
   }
 }
 
@@ -145,20 +146,20 @@ export async function updatePhone(request, reply) {
       phone:phone_number
     }})
     if(phoneExists)
-    return reply.status(400).send({ error: "Phone number already exists" });
+    return reply.status(400).send(responseMappingError(400, "Phone number already exists" ));
 
-    if (!user) return reply.status(400).send({ error: "Invalid User details" }); // generic error to prevent bruteforce'
+    if (!user) return reply.status(400).send(responseMappingError(400,"Invalid User details" )); // generic error to prevent bruteforce'
     user.phone = phone_number;
     const updated = await user.save();
     console.log("updates", updated);
     if (updated?.dataValues?.phone) {
       user.isPhoneAdded = true;
       await user.save();
-      return reply.status(200).send({ message: "Success" });
+      return reply.status(200).send(responseMapping(200, "Success" ));
     } else
-      reply.status(500).send({ error: "unable to update user phone number" });
+      reply.status(500).send(responseMappingError(500,"unable to update user phone number" ));
   } catch (error) {
-    reply.status(500).send({ error: error.message });
+    reply.status(500).send(responseMappingError(500,error.message ));
   }
 }
 
@@ -210,9 +211,9 @@ export async function getAllCoins(request, reply) {
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", filteredCoins));
-    } else reply.status(500).send(responseMapping(500, "unable to get coins"));
+    } else reply.status(500).send(responseMappingError(500, "unable to get coins"));
   } catch (error) {
-    reply.status(500).send(responseMapping(500, error.message));
+    reply.status(500).send(responseMappingError(500, error.message));
   }
 }
 
@@ -231,9 +232,9 @@ export async function getAllCurrencies(request, reply) {
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", data));
-    } else reply.status(500).send(responseMapping(500, "unable to get currencies"));
+    } else reply.status(500).send(responseMappingError(500, "unable to get currencies"));
   } catch (error) {
-    reply.status(500).send(responseMapping(500, error.message));
+    reply.status(500).send(responseMappingError(500, error.message));
   }
 }
 
@@ -249,10 +250,10 @@ export async function getAllNetworks(request, reply) {
   try {
     console.log(request.query.id)
     if (!request.query.id) {
-      reply.status(500).send(responseMapping(500, "please send coin id"));
+      reply.status(500).send(responseMappingError(500, "please send coin id"));
     }
     if (request.query.id !== '54') {
-      reply.status(500).send(responseMapping(500, "invalid coin id"));
+      reply.status(500).send(responseMappingError(500, "invalid coin id"));
     }
     const data = networks
     let updatedData = []
@@ -274,9 +275,9 @@ export async function getAllNetworks(request, reply) {
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", updatedData));
-    } else reply.status(500).send(responseMapping(500, "unable to get networks"));
+    } else reply.status(500).send(responseMappingError(500, "unable to get networks"));
   } catch (error) {
-    reply.status(500).send(responseMapping(500, error.message));
+    reply.status(500).send(responseMappingError(500, error.message));
   }
 }
 
@@ -302,7 +303,7 @@ export async function getKycUrl(request, reply) {
     });
     console.log("user", user.phone);
     if (!user) {
-      return reply.status(400).send({ status: 200, error: "User not found" });
+      return reply.status(400).send(responseMappingError(200, "User not found" ));
     }
     if (user.kycUrl) {
       return reply.status(200).send({ status: 200, kyc_url: user.kycUrl });
@@ -359,7 +360,7 @@ export async function getKycUrl(request, reply) {
       user.kycUrl = await response.data.kycUrl;
       await user.save(); // Use await to ensure the save operation completes
     } else {
-      reply.status(500).send({ error: "internal sever error" });
+      reply.status(500).send(responseMappingError(500,"internal sever error" ));
     }
 
     console.log(response);
@@ -380,7 +381,7 @@ export async function onRampRequest(request, reply) {
     const { fromCurrency, toCurrency, chain, paymentMethodType, depositAddress, fromAmount, toAmount, rate } = request.body
 
     if (!request.user.isKycCompleted) {
-      return reply.status(500).send(responseMapping(500, "Please complete your kyc"))
+      return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
     }
 
     let body = {
@@ -447,7 +448,7 @@ export async function onRampRequest(request, reply) {
       .send(responseMappingWithData(200, "success", data.data.fiatPaymentInstructions));
   } catch (error) {
     console.log("this is error", error.message)
-    return reply.status(500).send(responseMapping(500, `${error.message}`))
+    return reply.status(500).send(responseMappingError(500, `${error.message}`))
   }
 }
 
@@ -524,7 +525,7 @@ export async function getQuotes(request, reply) {
   } catch (error) {
     logger.error("user.controller.getQuotes", error.message)
     console.log('user.controller.getQUotes', error.message)
-    return reply.status(500).send(responseMapping(500, `${error.message}`))
+    return reply.status(500).send(responseMappingError(500, `${error.message}`))
 
   }
 }
