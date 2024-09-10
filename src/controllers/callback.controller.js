@@ -130,68 +130,64 @@ export async function callbackHandler(request, reply) {
                 reply.status(400).send({ error: "User not found" });
             }
         }
-        if (details.status === "FIAT_DEPOSIT_RECEIVED") {
+        if(details.eventType =="ONRAMP")
+        {
             let transaction = await OnRampTransaction.findOne({
                 where: {
-                    reference_id: details.referenceId,
+                    reference_id: details.referenceId.toString(),
                 },
             });
-            if (transaction) {
-                // Update the status field in the transaction 
-                transaction.status =details.status                
-                // Save the updated transaction object
-                const updated = await transaction.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "transaction not found" });
+            if (details.status === "FIAT_DEPOSIT_RECEIVED") {
+                
+                if (transaction) {
+                    // Update the status field in the transaction 
+                    transaction.status =details.status                
+                    // Save the updated transaction object
+                    const updated = await transaction.save();
+                    console.log('updated',updated)
+                    reply.status(200).send({ message: "success" });
+                }else{
+                    reply.status(400).send({ error: "transaction not found" });
+                }
             }
-        }
-        if (details.status === "TRADE COMPLETED") {
-            let transaction = await OnRampTransaction.findOne({
-                where: {
-                    reference_id: details.referenceId,
-                },
-            });
-            if (transaction) {
-                // Update the status field in the transaction 
-                transaction.status =details.status                
-                // Save the updated transaction object
-                const updated = await transaction.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "transaction not found" });
+            if (details.status === "TRADE COMPLETED") {
+               
+                if (transaction) {
+                    // Update the status field in the transaction 
+                    transaction.status =details.status                
+                    // Save the updated transaction object
+                    const updated = await transaction.save();
+                    console.log('updated',updated)
+                    reply.status(200).send({ message: "success" });
+                }else{
+                    reply.status(400).send({ error: "transaction not found" });
+                }
             }
-        }
-        if (details.status === "ON_CHAIN_INITIATED") {
-            let transaction = await OnRampTransaction.findOne({
-                where: {
-                    reference_id: details.referenceId,
-                },
-            });
-            if (transaction) {
-                // Update the status field in the transaction 
-                transaction.status =details.status                
-                // Save the updated transaction object
-                const updated = await transaction.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "transaction not found" });
+            if (details.status === "ON_CHAIN_INITIATED") {
+                
+                if (transaction) {
+                    // Update the status field in the transaction 
+                    transaction.status =details.status                
+                    // Save the updated transaction object
+                    const updated = await transaction.save();
+                    console.log('updated',updated)
+                    reply.status(200).send({ message: "success" });
+                }else{
+                    reply.status(400).send({ error: "transaction not found" });
+                }
             }
-        }
-        // if (details.status === "ON_CHAIN_COMPLETED") {
-        //     let transaction = await OnRampTransaction.findOne({
-        //         where: {
-        //             reference_id: details.referenceId,
-        //         },
-        //     });
-        //     if (transaction) {
-        //         // Update the status field in the transaction 
-        //         transaction.status =details.status                
-        //         // Save the updated transaction object
-        //         const updated = await transaction.save();
+        
+            // if (details.status === "ON_CHAIN_COMPLETED") {
+                //     let transaction = await OnRampTransaction.findOne({
+                    //         where: {
+                        //             reference_id: details.referenceId,
+                        //         },
+                        //     });
+                        //     if (transaction) {
+                            //         // Update the status field in the transaction 
+                            //         transaction.status =details.status                
+                            //         // Save the updated transaction object
+                            //         const updated = await transaction.save();
         //         console.log('updated',updated)
         //         reply.status(200).send({ message: "success" });
         //     }else{
@@ -199,11 +195,7 @@ export async function callbackHandler(request, reply) {
         //     }
         // }
         if (details.status === "ON_CHAIN_COMPLETED") {
-            let transaction = await OnRampTransaction.findOne({
-                where: {
-                    reference_id: details.referenceId,
-                },
-            });
+           
             if (transaction) {
                 // Update the status field in the transaction 
                 transaction.status ="SUCCESS"               
@@ -215,6 +207,7 @@ export async function callbackHandler(request, reply) {
                 reply.status(400).send({ error: "transaction not found" });
             }
         }
+    }
        
     } catch (error) {
         console.error("Error updating callback status:", error);
