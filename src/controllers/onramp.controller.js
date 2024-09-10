@@ -14,7 +14,7 @@ const { User, Coin, OnRampTransaction } = db;
 
 export async function getAllOnRampTransaction(request, reply) {
     try {
-        const { limit = 10, skip = 0 } = request.query
+        const { limit = 100, skip = 0 } = request.query
         const all_on_ramp = await OnRampTransaction.findAll({
             where: {
                 user_id: request.user.id
