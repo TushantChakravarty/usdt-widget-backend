@@ -141,11 +141,13 @@ export async function updatePhone(request, reply) {
         email: User1.email,
       },
     });
-    let phoneExists = await  User.findOne({where:{
-      phone:phone_number
-    }})
-    if(phoneExists)
-    return reply.status(400).send({ error: "Phone number already exists" });
+    let phoneExists = await User.findOne({
+      where: {
+        phone: phone_number
+      }
+    })
+    if (phoneExists)
+      return reply.status(400).send({ error: "Phone number already exists" });
 
     if (!user) return reply.status(400).send({ error: "Invalid User details" }); // generic error to prevent bruteforce'
     user.phone = phone_number;
@@ -353,7 +355,7 @@ export async function getKycUrl(request, reply) {
       })
       .catch((error) => console.error("Error:", error));
     console.log("resp", response);
-    if (user&&response?.data?.customerId) {
+    if (user && response?.data?.customerId) {
       // Check if the user exists
       user.customerId = await response.data.customerId;
       user.kycUrl = await response.data.kycUrl;
@@ -525,6 +527,23 @@ export async function getQuotes(request, reply) {
     logger.error("user.controller.getQuotes", error.message)
     console.log('user.controller.getQUotes', error.message)
     return reply.status(500).send(responseMapping(500, `${error.message}`))
+
+  }
+}
+
+
+export async function getAllOnRampTransaction(request, reply) {
+  try {
+    const all_on_ramp = await OnRampTransaction.findAll({
+      where: {
+        uuid: request.user.id
+      }
+    })
+
+  } catch (error) {
+    logger.error("user.controller.getQuotes", error.message)
+    console.log('user.controller.getQUotes', error.message)
+    return reply.status(500).send(responseMapping(500, `Internal server error`))
 
   }
 }
