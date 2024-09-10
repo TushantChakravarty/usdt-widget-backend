@@ -141,7 +141,7 @@ export async function callbackHandler(request, reply) {
                 
                 if (transaction) {
                     // Update the status field in the transaction 
-                    transaction.status =details.status                
+                    transaction.status = details.status                
                     // Save the updated transaction object
                     const updated = await transaction.save();
                     console.log('updated',updated)
