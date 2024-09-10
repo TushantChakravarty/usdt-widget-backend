@@ -62,7 +62,7 @@ export default (sequelize, DataTypes) => {
                 allowNull: false
             },
             status:{
-                type: DataTypes.FLOAT,
+                type: DataTypes.STRING,
                 allowNull: false,
                 defaultValue:'PENDING'
             },
