@@ -1,6 +1,6 @@
 import db from "../models/index.js";
 
-const { User } = db;
+const { User, OnRampTransaction } = db;
 
 /**
  * get otp callback kyc.
@@ -10,7 +10,7 @@ const { User } = db;
  * @param {Object} reply - The reply object.
  * @throws {Error} If an error occurs while signing up.
  */
-export async function kycCallback(request, reply) {
+export async function callbackHandler(request, reply) {
     try {
         const details = request.body
         console.log(details)
@@ -130,8 +130,113 @@ export async function kycCallback(request, reply) {
                 reply.status(400).send({ error: "User not found" });
             }
         }
+        if (details.status === "FIAT_DEPOSIT_RECEIVED") {
+            let transaction = await OnRampTransaction.findOne({
+                where: {
+                    reference_id: details.referenceId,
+                },
+            });
+            if (transaction) {
+                // Update the status field in the transaction 
+                transaction.status =details.status                
+                // Save the updated transaction object
+                const updated = await transaction.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "transaction not found" });
+            }
+        }
+        if (details.status === "TRADE COMPLETED") {
+            let transaction = await OnRampTransaction.findOne({
+                where: {
+                    reference_id: details.referenceId,
+                },
+            });
+            if (transaction) {
+                // Update the status field in the transaction 
+                transaction.status =details.status                
+                // Save the updated transaction object
+                const updated = await transaction.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "transaction not found" });
+            }
+        }
+        if (details.status === "ON_CHAIN_INITIATED") {
+            let transaction = await OnRampTransaction.findOne({
+                where: {
+                    reference_id: details.referenceId,
+                },
+            });
+            if (transaction) {
+                // Update the status field in the transaction 
+                transaction.status =details.status                
+                // Save the updated transaction object
+                const updated = await transaction.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "transaction not found" });
+            }
+        }
+        // if (details.status === "ON_CHAIN_COMPLETED") {
+        //     let transaction = await OnRampTransaction.findOne({
+        //         where: {
+        //             reference_id: details.referenceId,
+        //         },
+        //     });
+        //     if (transaction) {
+        //         // Update the status field in the transaction 
+        //         transaction.status =details.status                
+        //         // Save the updated transaction object
+        //         const updated = await transaction.save();
+        //         console.log('updated',updated)
+        //         reply.status(200).send({ message: "success" });
+        //     }else{
+        //         reply.status(400).send({ error: "transaction not found" });
+        //     }
+        // }
+        if (details.status === "ON_CHAIN_COMPLETED") {
+            let transaction = await OnRampTransaction.findOne({
+                where: {
+                    reference_id: details.referenceId,
+                },
+            });
+            if (transaction) {
+                // Update the status field in the transaction 
+                transaction.status ="SUCCESS"               
+                // Save the updated transaction object
+                const updated = await transaction.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "transaction not found" });
+            }
+        }
+       
     } catch (error) {
-        console.error("Error updating OTP status:", error);
+        console.error("Error updating callback status:", error);
         reply.status(500).send({ error: "Internal server error" });
     }
 }
+
+// /**
+//  * callback for onramp transactionsa=
+//  * @controller user
+//  * @route POST /api/v1/callback/onramp
+//  * @param {Object} request - The request object.
+//  * @param {Object} reply - The reply object.
+//  * @throws {Error} If an error occurs while signing up.
+//  */
+// export async function onrampCallback(request, reply) {
+//     try {
+//         const details = request.body
+//         console.log(details)
+      
+//     } catch (error) {
+//         console.error("Error updating onramp tx status:", error);
+//         reply.status(500).send({ error: "Internal server error" });
+//     }
+// }

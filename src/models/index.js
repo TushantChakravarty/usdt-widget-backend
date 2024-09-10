@@ -10,35 +10,44 @@
 
 'use strict';
 
-import Sequelize from 'sequelize'
-import config from '../config/database.js'
-import User from "./user.model.js"
+import Sequelize from 'sequelize';
+import config from '../config/database.js';
+import User from './user.model.js';
 import Coin from './coin.model.js';
-import OnRampTransaction from './onramp.model.js'
+import OnRampTransaction from './onramp.model.js';
+import Network from './network.model.js';
 
-// 1. Import the model files
+// Initialize the Sequelize instance
+const sequelize = new Sequelize(config);
 
-const db = {}
-const sequelize = new Sequelize(config)
+const db = {
+    User: User(sequelize, Sequelize.DataTypes),
+    Coin: Coin(sequelize, Sequelize.DataTypes),
+    OnRampTransaction: OnRampTransaction(sequelize, Sequelize.DataTypes),
+    Network: Network(sequelize, Sequelize.DataTypes),
+};
 
-db.User = User(sequelize, Sequelize.DataTypes)
-db.Coin = Coin(sequelize, Sequelize.DataTypes)
-db.OnRampTransaction = OnRampTransaction(sequelize, Sequelize.DataTypes)
-
-
-//Initialize models
+// Initialize model associations
 const initializeModels = () => {
-    console.log(`Imported ${Object.keys(db).length} models`)
+    console.log(`Imported ${Object.keys(db).length} models`);
     for (const modelName of Object.keys(db)) {
-        console.log(`Associating ${modelName}`)
+        console.log(`Associating ${modelName}`);
         if (db[modelName].associate) {
-            db[modelName].associate(db)
+            db[modelName].associate(db);
         }
     }
 };
 
-initializeModels()
+initializeModels();
 
-db.sequelize = sequelize
-db.Sequelize = Sequelize
-export default db
+// Sync database
+// sequelize.sync({ force: true }).then(() => {
+//     console.log("Database synced");
+// }).catch((error) => {
+//     console.error("Error syncing database:", error);
+// });
+
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+export default db;

@@ -94,7 +94,7 @@ export const updatePhone = {
     body: {
         type: 'object',
         properties: {
-            phone_number: { type: 'string', minLength: 10, maxLength: 10 },
+            phone_number: { type: 'string', minLength: 10, maxLength: 15 },
         },
         required: ["phone_number"],
         additionalProperties: false,

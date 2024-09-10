@@ -7,6 +7,13 @@ export function responseMapping(code, msg) {
     }
 }
 
+export function responseMappingError(code, msg) {
+    return {
+        code: code,
+        error: msg,
+    }
+}
+
 export function responseMappingWithData(code, msg, data) {
     return {
         code: code,
