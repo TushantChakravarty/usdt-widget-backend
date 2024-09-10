@@ -21,7 +21,7 @@ export async function getAllOnRampTransaction(request, reply) {
             },
             limit: limit,
             offset: skip,
-            //  order: [["createdAt", "DESC"]],
+            order: [["createdAt", "DESC"]],
         })
 
         return reply.status(200).send(responseMappingWithData(200, "Success", all_on_ramp))

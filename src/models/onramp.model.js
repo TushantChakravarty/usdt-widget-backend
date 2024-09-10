@@ -61,17 +61,17 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.FLOAT,
                 allowNull: false
             },
-            status:{
+            status: {
                 type: DataTypes.FLOAT,
                 allowNull: false,
-                defaultValue:'PENDING'
+                defaultValue: 'PENDING'
             },
 
         },
         {
             sequelize,
             modelName: "OnRampTransaction",
-            timestamps: false, // if you don't need timestamps
+            // timestamps: false, // if you don't need timestamps
         }
     );
 
