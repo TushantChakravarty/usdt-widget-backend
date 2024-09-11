@@ -29,7 +29,7 @@ import path from 'path'
 import logger from './utils/logger.util.js'
 import migrateDb from './utils/db.util.js'
 import amqp from 'amqplib'
-import { usdtMarketPlace } from './ApiCalls/usdtapicalls.js'
+import cron from './utils/cron/index.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
 /**
@@ -173,7 +173,6 @@ await server.register(routes, { prefix: "/api/v1" })
 await server.get('/', async (request, reply) => {
     const state_code = request.headers['X-State-Code'] || 'Unknown';
     // Use state code in your application logic
-    await usdtMarketPlace()
     return reply.send({
         message: 'Hello world.1',
         environment: process.env.NODE_ENV,

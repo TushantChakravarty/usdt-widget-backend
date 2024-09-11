@@ -1,6 +1,7 @@
 import CryptoJS from "crypto-js";
 import db from "../models/index";
-const { Network, Coin } = db;
+import { createNewRecord, findOneAndUpdate } from "../Dao/dao";
+const { Network, Coin, Usdt } = db;
 async function generatePayloadAndSignature(secret, body) {
   const timestamp = Date.now().toString();
   const obj = {
@@ -169,5 +170,77 @@ export async function getAllNetworkData() {
   } catch (error) {
     console.log("network error", error);
     return [];
+  }
+}
+
+export async function getQuotes(details) {
+  try {
+    const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } = details
+    const apiKey = process.env.apiKey;
+    const secret = process.env.secret;
+    const body = {
+      fromCurrency: fromCurrency,
+      toCurrency: toCurrency,
+      fromAmount: fromAmount,
+      chain: chain,
+      paymentMethodType: paymentMethodType
+    }
+    console.log(body)
+
+
+    // Create the payload and signature
+    const { payload, signature } = await generatePayloadAndSignature(
+      secret,
+      body
+    );
+    const headers = {
+      "Content-Type": "application/json",
+      apiKey: apiKey,
+      payload: payload,
+      signature: signature,
+    };
+
+
+    const url =
+      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors, e.g., 404, 500, etc.
+      console.log(await response.json())
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+    if(data.data.rate)
+    {
+      const query ={
+        id:1
+      }
+      const updateObj ={
+        inrRate:data.data.rate
+      }
+      const response = await Usdt.findAll()
+      if(response?.length>0)
+      {
+        findOneAndUpdate(Usdt,query,updateObj)
+      }else{
+        createNewRecord(Usdt,updateObj)
+      }
+    }
+
+    return data
+
+  } catch (error) {
+    //logger.error("user.controller.getQuotes", error.message)
+    console.log('usdtapi.getQUotes', error.message)
+    return error
+
   }
 }

@@ -10,8 +10,9 @@ import {
 } from "../utils/responseMapper.js";
 import { Currencies } from "../utils/currencies.js";
 import { networks } from "../utils/networks.js";
+import { findRecord } from "../Dao/dao.js";
 
-const { User, Coin, OnRampTransaction } = db;
+const { User, Coin, OnRampTransaction, Usdt } = db;
 /**
  * Registers a new user.
  * @controller user
@@ -452,15 +453,21 @@ export async function onRampRequest(request, reply) {
 
     const data = await response.json();
     console.log(data);
+    if(data.data.transactionId)
+    {
 
-    body.user_id = request.user.id,
-    body.reference_id = data.data.transactionId
-    
-    const transaction = await OnRampTransaction.create(body)
-
-    return reply
+      body.user_id = request.user.id,
+      body.reference_id = data.data.transactionId
+      
+      const transaction = await OnRampTransaction.create(body)
+      
+      return reply
       .status(200)
       .send(responseMappingWithData(200, "success", data.data.fiatPaymentInstructions));
+    }else{
+      return reply.status(500).send(responseMappingError(500, "Unable to process your request at the moment"))
+
+    }
   } catch (error) {
     console.log("this is error", error.message)
     return reply.status(500).send(responseMappingError(500, `${error.message}`))
@@ -554,6 +561,29 @@ export async function getAllOnRampTransaction(request, reply) {
       }
     })
 
+  } catch (error) {
+    logger.error("user.controller.getQuotes", error.message)
+    console.log('user.controller.getQUotes', error.message)
+    return reply.status(500).send(responseMapping(500, `Internal server error`))
+
+  }
+}
+
+export async function getUsdtRate(request, reply) {
+  try {
+    let query ={
+      id:1
+    }
+    const usdt = await findRecord(Usdt,query)
+    if(usdt)
+    {
+      return reply
+      .status(200)
+      .send(responseMappingWithData(200, "success", usdt.inrRate));
+    }else{
+      return reply.status(500).send(responseMapping(500, 0))
+
+    }
   } catch (error) {
     logger.error("user.controller.getQuotes", error.message)
     console.log('user.controller.getQUotes', error.message)

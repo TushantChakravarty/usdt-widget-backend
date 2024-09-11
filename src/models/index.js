@@ -16,6 +16,7 @@ import User from './user.model.js';
 import Coin from './coin.model.js';
 import OnRampTransaction from './onramp.model.js';
 import Network from './network.model.js';
+import Usdt from './usdtRate.model.js';
 
 // Initialize the Sequelize instance
 const sequelize = new Sequelize(config);
@@ -25,6 +26,8 @@ const db = {
     Coin: Coin(sequelize, Sequelize.DataTypes),
     OnRampTransaction: OnRampTransaction(sequelize, Sequelize.DataTypes),
     Network: Network(sequelize, Sequelize.DataTypes),
+    Usdt: Usdt(sequelize, Sequelize.DataTypes),
+
 };
 
 // Initialize model associations
