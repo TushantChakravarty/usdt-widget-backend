@@ -272,17 +272,23 @@ export async function getAllNetworks(request, reply) {
     const filteredNetworks = networkData.filter(item => item.coinid == 54)
     //console.log("network data",filteredNetworks)
     //console.log(coinData)
-    if (coinData) {
+    let query ={
+      id:1
+    }
+    const usdt = await findRecord(Usdt,query)
+      if (coinData) {
       data.map((item) => {
         const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
-        console.log("here", networkData)
+        //console.log("here", networkData)
         if (networkData[0]?.withdrawalFee) {
 
           updatedData.push({
             ...item,
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
-            minBuy: networkData[0]?.minimumWithdrawal
+            minBuy: networkData[0]?.minimumWithdrawal,
+            minBuyInRupee:usdt?.inrRate? Number(networkData[0]?.minimumWithdrawal)*usdt?.inrRate:networkData[0]?.minimumWithdrawal
+
           })
         }
       })
