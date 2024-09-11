@@ -207,6 +207,20 @@ export async function callbackHandler(request, reply) {
                 reply.status(400).send({ error: "transaction not found" });
             }
         }
+
+        if (details.status === "FAILED") {
+           
+            if (transaction) {
+                // Update the status field in the transaction 
+                transaction.status ="FAILED"               
+                // Save the updated transaction object
+                const updated = await transaction.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "transaction not found" });
+            }
+        }
     }
        
     } catch (error) {
