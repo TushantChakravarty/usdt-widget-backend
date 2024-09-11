@@ -7,32 +7,31 @@ import { getQuotes } from "../../ApiCalls/usdtapicalls";
 // import { SETTINGS_CONSTANTS } from "../../constants/settings.constant.js"
 // import { getCronSettingsTiming } from "../../services/cron_setting.service.js";
 /**
- * Every 30 seconds cron job
+ * Every 1 hour cron job
  * @param {Function} callback
  * @returns {CronJob}
  * @see {@link https://www.npmjs.com/package/cron}
  */
-const Every30SecondsCronJob = new CronJob("*/30 * * * * *", async () => {
+const Every1HourCronJob = new CronJob("0 * * * *", async () => {
     try {
-        console.log("Every 30 sec cron job starting for quotes")
+        console.log("Hourly cron job starting for quotes");
         const body = {
-            fromCurrency:"INR",
-            toCurrency:"USDT",
-            fromAmount:"1000",
-            chain:"erc20",
-            paymentMethodType:"UPI"
-        }
-        getQuotes(body)
-        console.log("Every 30 sec cron job end")
+            fromCurrency: "INR",
+            toCurrency: "USDT",
+            fromAmount: "1000",
+            chain: "erc20",
+            paymentMethodType: "UPI"
+        };
+        await getQuotes(body);  // Make sure to await asynchronous functions
+        console.log("Hourly cron job end");
     } catch (err) {
-        //logger.error(`Every30SecondsCronJob ${err}`)
+        console.error(`HourlyCronJob error: ${err}`);  // Changed logger.error to console.error for simplicity
     }
-
 }, null, true, "Asia/Kolkata");
 
 
 // export all cron jobs
 export default () => {
-    Every30SecondsCronJob;
+    Every1HourCronJob;
  
 };
