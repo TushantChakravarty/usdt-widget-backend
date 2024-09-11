@@ -455,8 +455,7 @@ export async function onRampRequest(request, reply) {
 
     body.user_id = request.user.id,
     body.reference_id = data.data.transactionId
-    body.status = "Pending"
-
+    
     const transaction = await OnRampTransaction.create(body)
 
     return reply

@@ -31,7 +31,6 @@ export default (sequelize, DataTypes) => {
             toCurrency: {
                 type: DataTypes.STRING,
                 allowNull: false
-
             },
             chain: {
                 type: DataTypes.STRING,
@@ -61,17 +60,18 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.FLOAT,
                 allowNull: false
             },
-            status:{
+            status: {
                 type: DataTypes.STRING,
                 allowNull: false,
-                defaultValue:'PENDING'
+                defaultValue: 'PENDING'
             },
-
         },
         {
             sequelize,
             modelName: "OnRampTransaction",
-            timestamps: false, // if you don't need timestamps
+            timestamps: true,
+            createdAt: 'date',  // Rename createdAt to 'date'
+            updatedAt: 'time',  // Rename updatedAt to 'time'
         }
     );
 
