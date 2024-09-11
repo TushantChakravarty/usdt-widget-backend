@@ -581,13 +581,13 @@ export async function getUsdtRate(request, reply) {
       .status(200)
       .send(responseMappingWithData(200, "success", usdt.inrRate));
     }else{
-      return reply.status(500).send(responseMapping(500, 0))
+      return reply.status(500).send(responseMappingError(500, 0))
 
     }
   } catch (error) {
     logger.error("user.controller.getQuotes", error.message)
     console.log('user.controller.getQUotes', error.message)
-    return reply.status(500).send(responseMapping(500, `Internal server error`))
+    return reply.status(500).send(responseMappingError(500, `Internal server error`))
 
   }
 }
