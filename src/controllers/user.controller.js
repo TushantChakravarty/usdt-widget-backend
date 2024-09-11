@@ -537,12 +537,20 @@ export async function getQuotes(request, reply) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const data = await response.json();
+    let data = await response.json();
     console.log(data);
-
-    return reply
+    if(data.data)
+    {
+      let updatedData = data.data
+      updatedData.feeInUsdt = Number(data?.data?.fees[0]?.gasFee)/Number(data?.data?.rate)
+      return reply
       .status(200)
-      .send(responseMappingWithData(200, "success", data.data));
+      .send(responseMappingWithData(200, "success", updatedData));
+    }else{
+      return reply
+      .status(200)
+      .send(responseMappingWithData(200, "success", 0));
+    }
 
   } catch (error) {
     logger.error("user.controller.getQuotes", error.message)
