@@ -4,8 +4,9 @@
  * @subcategory validator
  */
 import * as User from "./user/user.validator.js"
+import * as Offramp from "./user/offramp.validator.js"
 const Validator = {
-    User
+    User, Offramp
 };
 
 export default Validator;

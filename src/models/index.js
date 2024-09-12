@@ -17,6 +17,7 @@ import Coin from './coin.model.js';
 import OnRampTransaction from './onramp.model.js';
 import Network from './network.model.js';
 import Usdt from './usdtRate.model.js';
+import OffRampTransaction from "./offramp.model.js"
 
 // Initialize the Sequelize instance
 const sequelize = new Sequelize(config);
@@ -28,6 +29,7 @@ const db = {
     Network: Network(sequelize, Sequelize.DataTypes),
     Usdt: Usdt(sequelize, Sequelize.DataTypes),
 
+    OffRampTransaction: OffRampTransaction(sequelize, Sequelize.DataTypes)
 };
 
 // Initialize model associations
