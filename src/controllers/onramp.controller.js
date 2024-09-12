@@ -24,7 +24,7 @@ export async function getAllOnRampTransaction(request, reply) {
             attributes: { exclude: ['time'] },  // Exclude 'time' property from the response
             // order: [["date", "DESC"]], // Use 'date' if needed for sorting
         
-            order: [["createdAt", "DESC"]],
+            order: [["date", "DESC"]],
         })
 
         return reply.status(200).send(responseMappingWithData(200, "Success", all_on_ramp))
