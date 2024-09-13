@@ -404,6 +404,41 @@ export async function onRampRequest(request, reply) {
     if (!request.user.isKycCompleted) {
       return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
     }
+    const dataNet = networks
+    let updatedData = []
+    const coinData = await Coin.findOne({
+      where: {
+        coinid: 54
+      }
+    })
+    const networkData = await getAllNetworkData()
+    const filteredNetworks = networkData.filter(item => item.coinid == 54)
+    //console.log("network data",filteredNetworks)
+    //console.log(coinData)
+    let query ={
+      id:1
+    }
+    const usdt = await findRecord(Usdt,query)
+      if (coinData) {
+        dataNet.map((item) => {
+        const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+        //console.log("here", networkData)
+        if (networkData[0]?.withdrawalFee) {
+
+          updatedData.push({
+            ...item,
+            icon: coinData.coinIcon,
+            fee: networkData[0]?.withdrawalFee,
+            minBuy: networkData[0]?.minimumWithdrawal,
+            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
+          })
+        }
+      })
+    }
+    const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
+    console.log(minWithdrawl)
+    if(minWithdrawl.minBuyInRupee>fromAmount)
+    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
 
     let body = {
       fromCurrency: fromCurrency,

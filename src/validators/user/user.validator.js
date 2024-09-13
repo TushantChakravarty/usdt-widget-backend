@@ -120,7 +120,7 @@ export const createOnramp = {
             chain: { type: 'string', minLength: 1, maxLength: 10 },
             paymentMethodType: { type: 'string', minLength: 1, maxLength: 10 },
             depositAddress: { type: 'string', minLength: 1 },
-            fromAmount: { type: 'number', minimum: 1050 },
+            fromAmount: { type: 'number', minimum: 0 },
             toAmount: { type: 'number', minimum: 1 },
             rate: { type: 'number', minimum: 1 }
         },
