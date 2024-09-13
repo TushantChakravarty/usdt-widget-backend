@@ -152,7 +152,7 @@ export const getQuotes = {
             },
             chain: { type: 'string', minLength: 1, maxLength: 10 },
             paymentMethodType: { type: 'string', minLength: 1, maxLength: 10 },
-            fromAmount: { type: 'number', minimum: 1000 }
+            fromAmount: { type: 'number', minimum: 0 }
         },
         required: ["fromCurrency", "toCurrency", "chain", "paymentMethodType", "fromAmount"],
         additionalProperties: false,
