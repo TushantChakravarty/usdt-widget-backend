@@ -510,7 +510,7 @@ export async function onRampRequest(request, reply) {
     }
   } catch (error) {
     console.log("this is error", error.message)
-    return reply.status(500).send(responseMappingError(500, `${error.message}`))
+    return reply.status(500).send(responseMappingError(500, `internal server error`))
   }
 }
 
