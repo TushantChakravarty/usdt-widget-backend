@@ -92,8 +92,8 @@ export async function offRampRequest(request, reply) {
         const apiKey = process.env.apiKey;
         const secret = process.env.secret;
 
-        const { fromCurrency, toCurrency, chain, fiatAccountId, fromAmount, toAmount, rate, customerId, paymentMethodType, depositAddress } = request.body
-        console.log(request.body)
+        const { fromCurrency, toCurrency, chain, fiatAccountId, fromAmount, toAmount, rate } = request.body
+
         // if (!request.user.isKycCompleted) {
         //     return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
         // }
@@ -105,14 +105,11 @@ export async function offRampRequest(request, reply) {
             toCurrency: toCurrency,
             chain: chain,
             fiatAccountId: fiatAccountId,
-            customerId: customerId,
+            customerId: request.user.customerId,
             fromAmount: fromAmount,
             toAmount: toAmount,
-            rate: rate,
-            paymentMethodType,
-            depositAddress
+            rate: rate
         }
-        console.log(body)
         const timestamp = Date.now().toString();
         const obj = {
             body,
@@ -148,7 +145,7 @@ export async function offRampRequest(request, reply) {
         console.log("data check",data);
 
         body.user_id = request.user.id,
-        body.reference_id = data.data.transactionId
+            body.reference_id = data.data.transactionId
 
         const transaction = await OffRampTransaction.create(body)
 
