@@ -2,7 +2,7 @@ import cryptoJs from "crypto-js";
 import db from "../models/index.js";
 import { compare, encrypt } from "../utils/password.util.js";
 import logger from "../utils/logger.util.js";
-import { getAllCoinsData, getAllNetworkData } from "../ApiCalls/usdtapicalls.js";
+import { getAllCoinsData, getAllNetworkData, getWithdrawFee } from "../ApiCalls/usdtapicalls.js";
 import {
   responseMapping,
   responseMappingError,
@@ -10,8 +10,9 @@ import {
 } from "../utils/responseMapper.js";
 import { Currencies } from "../utils/currencies.js";
 import { networks } from "../utils/networks.js";
+import { findRecord } from "../Dao/dao.js";
 
-const { User, Coin, OnRampTransaction } = db;
+const { User, Coin, OnRampTransaction, Usdt } = db;
 /**
  * Registers a new user.
  * @controller user
@@ -271,17 +272,22 @@ export async function getAllNetworks(request, reply) {
     const filteredNetworks = networkData.filter(item => item.coinid == 54)
     //console.log("network data",filteredNetworks)
     //console.log(coinData)
-    if (coinData) {
+    let query ={
+      id:1
+    }
+    const usdt = await findRecord(Usdt,query)
+      if (coinData) {
       data.map((item) => {
         const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
-        console.log("here", networkData)
+        //console.log("here", networkData)
         if (networkData[0]?.withdrawalFee) {
 
           updatedData.push({
             ...item,
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
-            minBuy: networkData[0]?.minimumWithdrawal
+            minBuy: networkData[0]?.minimumWithdrawal,
+            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
           })
         }
       })
@@ -398,6 +404,41 @@ export async function onRampRequest(request, reply) {
     if (!request.user.isKycCompleted) {
       return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
     }
+    const dataNet = networks
+    let updatedData = []
+    const coinData = await Coin.findOne({
+      where: {
+        coinid: 54
+      }
+    })
+    const networkData = await getAllNetworkData()
+    const filteredNetworks = networkData.filter(item => item.coinid == 54)
+    //console.log("network data",filteredNetworks)
+    //console.log(coinData)
+    let query ={
+      id:1
+    }
+    const usdt = await findRecord(Usdt,query)
+      if (coinData) {
+        dataNet.map((item) => {
+        const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+        //console.log("here", networkData)
+        if (networkData[0]?.withdrawalFee) {
+
+          updatedData.push({
+            ...item,
+            icon: coinData.coinIcon,
+            fee: networkData[0]?.withdrawalFee,
+            minBuy: networkData[0]?.minimumWithdrawal,
+            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
+          })
+        }
+      })
+    }
+    const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
+    console.log(minWithdrawl)
+    if(minWithdrawl.minBuyInRupee>fromAmount)
+    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
 
     let body = {
       fromCurrency: fromCurrency,
@@ -452,18 +493,24 @@ export async function onRampRequest(request, reply) {
 
     const data = await response.json();
     console.log(data);
+    if(data.data.transactionId)
+    {
 
-    body.user_id = request.user.id,
+      body.user_id = request.user.id,
       body.reference_id = data.data.transactionId
-
-    const transaction = await OnRampTransaction.create(body)
-
-    return reply
+      
+      const transaction = await OnRampTransaction.create(body)
+      
+      return reply
       .status(200)
       .send(responseMappingWithData(200, "success", data.data.fiatPaymentInstructions));
+    }else{
+      return reply.status(500).send(responseMappingError(500, "Unable to process your request at the moment"))
+
+    }
   } catch (error) {
     console.log("this is error", error.message)
-    return reply.status(500).send(responseMappingError(500, `${error.message}`))
+    return reply.status(500).send(responseMappingError(500, `internal server error`))
   }
 }
 
@@ -492,6 +539,41 @@ export async function getQuotes(request, reply) {
       chain: chain,
       paymentMethodType: paymentMethodType
     }
+    const dataNet = networks
+    let updatedData = []
+    const coinData = await Coin.findOne({
+      where: {
+        coinid: 54
+      }
+    })
+    const networkData = await getAllNetworkData()
+    const filteredNetworks = networkData.filter(item => item.coinid == 54)
+    //console.log("network data",filteredNetworks)
+    //console.log(coinData)
+    let query ={
+      id:1
+    }
+    const usdt = await findRecord(Usdt,query)
+      if (coinData) {
+        dataNet.map((item) => {
+        const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+        //console.log("here", networkData)
+        if (networkData[0]?.withdrawalFee) {
+
+          updatedData.push({
+            ...item,
+            icon: coinData.coinIcon,
+            fee: networkData[0]?.withdrawalFee,
+            minBuy: networkData[0]?.minimumWithdrawal,
+            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
+          })
+        }
+      })
+    }
+    const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
+    console.log(minWithdrawl)
+    if(minWithdrawl.minBuyInRupee>fromAmount)
+    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
     const timestamp = Date.now().toString();
     const obj = {
       body,
@@ -530,12 +612,20 @@ export async function getQuotes(request, reply) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
-    const data = await response.json();
+    let data = await response.json();
     console.log(data);
-
-    return reply
+    if(data.data)
+    {
+      let updatedData = data.data
+      updatedData.feeInUsdt = Number(data?.data?.fees[0]?.gasFee)/Number(data?.data?.rate)
+      return reply
       .status(200)
-      .send(responseMappingWithData(200, "success", data.data));
+      .send(responseMappingWithData(200, "success", updatedData));
+    }else{
+      return reply
+      .status(200)
+      .send(responseMappingWithData(200, "success", 0));
+    }
 
   } catch (error) {
     logger.error("user.controller.getQuotes", error.message)
@@ -558,6 +648,29 @@ export async function getAllOnRampTransaction(request, reply) {
     logger.error("user.controller.getQuotes", error.message)
     console.log('user.controller.getQUotes', error.message)
     return reply.status(500).send(responseMapping(500, `Internal server error`))
+
+  }
+}
+
+export async function getUsdtRate(request, reply) {
+  try {
+    let query ={
+      id:1
+    }
+    const usdt = await findRecord(Usdt,query)
+    if(usdt)
+    {
+      return reply
+      .status(200)
+      .send(responseMappingWithData(200, "success", usdt.inrRate));
+    }else{
+      return reply.status(500).send(responseMappingError(500, 0))
+
+    }
+  } catch (error) {
+    logger.error("user.controller.getQuotes", error.message)
+    console.log('user.controller.getQUotes', error.message)
+    return reply.status(500).send(responseMappingError(500, `Internal server error`))
 
   }
 }

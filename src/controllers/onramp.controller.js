@@ -14,14 +14,17 @@ const { User, Coin, OnRampTransaction } = db;
 
 export async function getAllOnRampTransaction(request, reply) {
     try {
-        const { limit = 10, skip = 0 } = request.query
+        const { limit = 100, skip = 0 } = request.query
         const all_on_ramp = await OnRampTransaction.findAll({
             where: {
                 user_id: request.user.id
             },
             limit: limit,
             offset: skip,
-            order: [["createdAt", "DESC"]],
+            attributes: { exclude: ['time'] },  // Exclude 'time' property from the response
+            // order: [["date", "DESC"]], // Use 'date' if needed for sorting
+        
+            order: [["date", "DESC"]],
         })
 
         return reply.status(200).send(responseMappingWithData(200, "Success", all_on_ramp))

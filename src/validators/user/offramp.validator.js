@@ -18,7 +18,7 @@ export const createOfframp = {
             fiatAccountId: { type: 'string', minLength: 1 },
             fromAmount: { type: 'number', },
             toAmount: { type: 'number', },
-            rate: { type: 'number' }
+            rate: { type: 'number' },
         },
         required: ["fromCurrency", "toCurrency", "chain", "fiatAccountId", "fromAmount", "toAmount", "rate"],
         additionalProperties: false,
@@ -39,10 +39,41 @@ export const addFiatAccount = {
     body: {
         type: 'object',
         properties: {
-            fiatAccount: { type: 'string', minLength: 1, maxLength: 10 },
-            ifsc: { type: 'string', minLength: 1, maxLength: 10 },
+            fiatAccount: { type: 'string', minLength: 1, maxLength: 20 },
+            ifsc: { type: 'string', minLength: 1, maxLength: 16 },
         },
         required: ["fiatAccount", "ifsc"],
         additionalProperties: false,
     }
+}
+
+
+export const getQuotesOfframp = {
+    body: {
+        type: 'object',
+        properties: {
+            fromCurrency: {
+                type: "string",
+                enum: ["USDT"]
+            },
+            toCurrency: {
+                type: "string",
+                enum: ["INR"]
+            },
+            chain: { type: 'string', minLength: 1, maxLength: 10 },
+            paymentMethodType: { type: 'string', minLength: 1, maxLength: 10 },
+            fromAmount: { type: 'number', minimum: 0 }
+        },
+        required: ["fromCurrency", "toCurrency", "chain", "paymentMethodType", "fromAmount"],
+        additionalProperties: false,
+    },
+    // response: {
+    //     200: {
+    //         type: 'object',
+    //         properties: {
+    //             message: { type: 'string' },
+    //         },
+    //     },
+    //     ...commonSchemas.errorResponse,
+    // },
 }

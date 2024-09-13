@@ -152,6 +152,18 @@ const routes = async (route, options) => { // route = fastify instance
     handler: user.getAllNetworks,
   });
 
+  /**
+ * Route for getting usdtRate
+ * Handles getting current usdt rate
+ */
+  route.get('/getUsdtRate', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    // preValidation: validateToken,
+    handler: user.getUsdtRate,
+  });
 
 };
 

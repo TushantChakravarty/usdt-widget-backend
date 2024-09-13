@@ -45,6 +45,34 @@ const routes = async (route, options) => { // route = fastify instance
         handler: offramp.AddFiatAccountId,
     });
 
+      /**
+   * Route for getting quote for offramp 
+   * Handles getting quotes for a given coin-currency pair
+   */
+      route.post('/getQuotes', {
+        //schema: validator.updatePhone,
+        // onRequest: [
+        //   route.authenticate
+        // ],
+        schema: validator.getQuotesOfframp,
+        preValidation: validateToken,
+        handler: offramp.getQuotes,
+    });
+
+     /**
+   * Route for getting all offramp transactions
+   * Handles getting all offramp transactions
+   */
+     route.get('/getAllTransactions', {
+        //schema: validator.updatePhone,
+        // onRequest: [
+        //   route.authenticate
+        // ],
+       // schema: validator.getQuotesOfframp,
+        preValidation: validateToken,
+        handler: offramp.getAllOffRamp,
+    });
+
 
 };
 
