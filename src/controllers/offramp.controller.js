@@ -72,6 +72,7 @@ export async function AddFiatAccountId(request, reply) {
         console.log(data);
 
         if (data.code === 200) {
+
             const user = await User.findOne({ where: { id: request.user.id } })
             user.fiatAccountId = data.data.fiatAccountId
             await user.save()

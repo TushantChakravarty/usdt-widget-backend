@@ -17,6 +17,7 @@ import Coin from './coin.model.js';
 import OnRampTransaction from './onramp.model.js';
 import Network from './network.model.js';
 import OffRampTransaction from "./offramp.model.js"
+import FiatAccount from "./fiat.account.model.js"
 
 // Initialize the Sequelize instance
 const sequelize = new Sequelize(config);
@@ -26,7 +27,8 @@ const db = {
     Coin: Coin(sequelize, Sequelize.DataTypes),
     OnRampTransaction: OnRampTransaction(sequelize, Sequelize.DataTypes),
     Network: Network(sequelize, Sequelize.DataTypes),
-    OffRampTransaction: OffRampTransaction(sequelize, Sequelize.DataTypes)
+    OffRampTransaction: OffRampTransaction(sequelize, Sequelize.DataTypes),
+    FiatAccount: FiatAccount(sequelize, Sequelize.DataTypes)
 };
 
 // Initialize model associations

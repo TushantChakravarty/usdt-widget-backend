@@ -25,7 +25,7 @@ export default (sequelize, DataTypes) => {
                     model: "Coin",
                     key: "coinid",
                 },
-                
+
             },
             withdrawalFee: {
                 type: DataTypes.DECIMAL(20, 10),
