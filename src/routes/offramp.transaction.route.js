@@ -45,6 +45,20 @@ const routes = async (route, options) => { // route = fastify instance
         handler: offramp.AddFiatAccountId,
     });
 
+      /**
+   * Route for getting all supported networks
+   * Handles getting all supported networks data
+   */
+      route.post('/getQuotes', {
+        //schema: validator.updatePhone,
+        // onRequest: [
+        //   route.authenticate
+        // ],
+        schema: validator.getQuotesOfframp,
+        preValidation: validateToken,
+        handler: offramp.getQuotes,
+    });
+
 
 };
 
