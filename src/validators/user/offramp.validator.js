@@ -18,7 +18,10 @@ export const createOfframp = {
             fiatAccountId: { type: 'string', minLength: 1 },
             fromAmount: { type: 'number', },
             toAmount: { type: 'number', },
-            rate: { type: 'number' }
+            rate: { type: 'number' },
+            customerId:{ type: 'string'}, 
+            paymentMethodType: {type: 'string'}, 
+            depositAddress:{ type: 'string'}
         },
         required: ["fromCurrency", "toCurrency", "chain", "fiatAccountId", "fromAmount", "toAmount", "rate"],
         additionalProperties: false,
