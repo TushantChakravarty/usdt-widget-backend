@@ -287,8 +287,7 @@ export async function getAllNetworks(request, reply) {
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
             minBuy: networkData[0]?.minimumWithdrawal,
-            minBuyInRupee:usdt?.inrRate? Number(networkData[0]?.minimumWithdrawal)*usdt?.inrRate:networkData[0]?.minimumWithdrawal
-
+            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
           })
         }
       })
