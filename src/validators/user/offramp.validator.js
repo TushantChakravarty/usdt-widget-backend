@@ -40,7 +40,7 @@ export const addFiatAccount = {
         type: 'object',
         properties: {
             fiatAccount: { type: 'string', minLength: 1, maxLength: 20 },
-            ifsc: { type: 'string', minLength: 1, maxLength: 10 },
+            ifsc: { type: 'string', minLength: 1, maxLength: 16 },
         },
         required: ["fiatAccount", "ifsc"],
         additionalProperties: false,
