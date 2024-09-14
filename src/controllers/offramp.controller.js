@@ -118,9 +118,15 @@ export async function offRampRequest(request, reply) {
 
         const { fromCurrency, toCurrency, chain, fiatAccountId, fromAmount, toAmount, rate } = request.body
 
-        // if (!request.user.isKycCompleted) {
-        //     return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
-        // }
+        if (!request.user.isKycCompleted) {
+            return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
+        }
+        const fiatAccounts = await getAllFiatAccount(request,reply)
+        console.log(fiatAccounts)
+        if(fiatAccounts?.data?.length==0)
+        {
+            return reply.status(500).send(responseMappingError(500, "Please add fiat account"))
+        }
         // if (request.user.fiatAccountId === null) {
         //     return reply.status(500).send(responseMappingError(500, "Please create fiat account"))
         // }
