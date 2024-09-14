@@ -1,0 +1,41 @@
+"use strict";
+import { Model } from "sequelize";
+
+export default (sequelize, DataTypes) => {
+    class FiatAccount extends Model {
+        static associate(models) {
+            // Associate FiatAccount with User
+            FiatAccount.belongsTo(models.User, {
+                foreignKey: "user_id",
+                as: "user",
+            });
+        }
+    }
+
+    FiatAccount.init(
+        {
+            user_id: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
+            fiatAccountId: {
+                type: DataTypes.STRING,
+                allowNull: false,
+            },
+            fiatAccount: {
+                type: DataTypes.STRING
+            },
+            ifsc: {
+                type: DataTypes.STRING,
+            }
+        },
+        {
+            sequelize,
+            modelName: "FiatAccount",
+            tableName: "FiatAccount",
+            // timestamps: false,
+        }
+    );
+
+    return FiatAccount;
+};
