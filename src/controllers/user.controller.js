@@ -531,13 +531,30 @@ export async function getQuotes(request, reply) {
     const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } = request.body
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
+    let body
+    if(fromCurrency=="INR")
+    {
 
-    const body = {
-      fromCurrency: fromCurrency,
-      toCurrency: toCurrency,
-      fromAmount: fromAmount,
-      chain: chain,
-      paymentMethodType: paymentMethodType
+      body = {
+        fromCurrency: fromCurrency,
+        toCurrency: toCurrency,
+        fromAmount: fromAmount,
+        chain: chain,
+        paymentMethodType: paymentMethodType
+      }
+    }else if(fromCurrency=="USDT")
+    {
+      let query ={
+        id:1
+      }
+      const usdt = await findRecord(Usdt,query)
+      body = {
+        fromCurrency: "INR",
+        toCurrency: "USDT",
+        fromAmount: fromAmount*usdt.inrRate,
+        chain: chain,
+        paymentMethodType: paymentMethodType
+      }
     }
     const dataNet = networks
     let updatedData = []

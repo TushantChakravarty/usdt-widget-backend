@@ -144,11 +144,11 @@ export const getQuotes = {
         properties: {
             fromCurrency: {
                 type: "string",
-                enum: ["INR"]
+                enum: ["INR","USDT"]
             },
             toCurrency: {
                 type: "string",
-                enum: ["USDT"]
+                enum: ["USDT","INR"],
             },
             chain: { type: 'string', minLength: 1, maxLength: 10 },
             paymentMethodType: { type: 'string', minLength: 1, maxLength: 10 },
