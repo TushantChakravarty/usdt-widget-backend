@@ -65,8 +65,9 @@ export async function AddFiatAccountId(request, reply) {
 
         if (!response.ok) {
             // Handle HTTP errors, e.g., 404, 500, etc.
+            const errResponse = await response.json()
             console.log(await response.json())
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            throw new Error(`${errResponse.error}`);
         }
 
         const data = await response.json();
@@ -84,7 +85,7 @@ export async function AddFiatAccountId(request, reply) {
 
     } catch (error) {
         console.log("this is error", error.message)
-        return reply.status(500).send(responseMappingError(500, error.message.error))
+        return reply.status(500).send(responseMappingError(500, error.message))
     }
 }
 
