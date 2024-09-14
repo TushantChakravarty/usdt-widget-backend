@@ -66,7 +66,6 @@ export async function AddFiatAccountId(request, reply) {
         if (!response.ok) {
             // Handle HTTP errors, e.g., 404, 500, etc.
             const errResponse = await response.json()
-            console.log(await response.json())
             throw new Error(`${errResponse.error}`);
         }
 
@@ -163,8 +162,8 @@ export async function offRampRequest(request, reply) {
         });
         if (!response.ok) {
             // Handle HTTP errors, e.g., 404, 500, etc.
-            console.log("here", await response.json())
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            const errResponse = await response.json()
+            throw new Error(`${errResponse.error}`);
         }
         const data = await response.json();
         console.log("data check", data);
