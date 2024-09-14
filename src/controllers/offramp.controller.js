@@ -10,7 +10,7 @@ import {
 } from "../utils/responseMapper.js";
 import { Currencies } from "../utils/currencies.js";
 import { networks } from "../utils/networks.js";
-import { createNewRecord, findRecord } from "../Dao/dao.js";
+import { createNewRecord, findAllRecord, findRecord } from "../Dao/dao.js";
 
 const { User, Coin, OnRampTransaction, OffRampTransaction, FiatAccount } = db;
 
@@ -101,7 +101,7 @@ export async function getAllFiatAccount(request, reply) {
             offset: skip,
             order: [["createdAt", "DESC"]],
         }
-        const all_fiat_account = await findRecord(FiatAccount, obj)
+        const all_fiat_account = await findAllRecord(FiatAccount, obj)
         return reply.status(200).send(responseMappingWithData(200, "success", all_fiat_account))
 
     } catch (error) {
