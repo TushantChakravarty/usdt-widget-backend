@@ -50,7 +50,7 @@ const routes = async (route, options) => { // route = fastify instance
  * Route for getting all supported networks
  * Handles getting all supported networks data
  */
-  route.post('/getAllFiatAccount', {
+  route.get('/getAllFiatAccount', {
     //schema: validator.updatePhone,
     // onRequest: [
     //   route.authenticate
