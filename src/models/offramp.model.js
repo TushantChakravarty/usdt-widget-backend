@@ -33,6 +33,11 @@ export default (sequelize, DataTypes) => {
                 allowNull: false
 
             },
+            status:{
+                type: DataTypes.STRING,
+                allowNull: true,
+                defaultValue:"PENDING"
+            },
             chain: {
                 type: DataTypes.STRING,
                 allowNull: false
