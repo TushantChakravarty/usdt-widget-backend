@@ -21,15 +21,15 @@ export async function AddFiatAccountId(request, reply) {
 
         const { fiatAccount, ifsc, bankName } = request.body
 
-        if (!request.user.isKycCompleted) {
-            return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
-        }
+        // if (!request.user.isKycCompleted) {
+        //     return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
+        // }
 
         let body = {
             fiatAccount: fiatAccount,
             customerId: request.user.customerId,
             ifsc: ifsc,
-            bank_name:bankName
+           
         }
 
 
@@ -67,6 +67,7 @@ export async function AddFiatAccountId(request, reply) {
         if (!response.ok) {
             // Handle HTTP errors, e.g., 404, 500, etc.
             const errResponse = await response.json()
+            console.log(errResponse)
             throw new Error(`${errResponse.error}`);
         }
 
@@ -74,7 +75,7 @@ export async function AddFiatAccountId(request, reply) {
 
 
         console.log(data);
-        const create_fiat_account = { user_id: request.user.id, fiatAccountId: data.data.fiatAccountId, fiatAccount: fiatAccount, ifsc: ifsc }
+        const create_fiat_account = { user_id: request.user.id, fiatAccountId: data.data.fiatAccountId, fiatAccount: fiatAccount, ifsc: ifsc,  bank_name:bankName }
 
         if (data.code === 200) {
             await createNewRecord(FiatAccount, create_fiat_account)
