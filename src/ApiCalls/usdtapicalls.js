@@ -212,8 +212,9 @@ export async function getQuotes(details) {
 
     if (!response.ok) {
       // Handle HTTP errors, e.g., 404, 500, etc.
-      console.log(await response.json())
-      throw new Error(`HTTP error! Status: ${response.status}`);
+       const errResponse = await response.json()
+            console.log(errResponse)
+            throw new Error(`${errResponse.error}`);
     }
 
     const data = await response.json();

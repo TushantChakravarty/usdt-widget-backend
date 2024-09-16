@@ -21,9 +21,9 @@ export async function AddFiatAccountId(request, reply) {
 
         const { fiatAccount, ifsc, bankName } = request.body
 
-        // if (!request.user.isKycCompleted) {
-        //     return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
-        // }
+        if (!request.user.isKycCompleted) {
+            return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
+        }
 
         let body = {
             fiatAccount: fiatAccount,

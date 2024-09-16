@@ -487,8 +487,9 @@ export async function onRampRequest(request, reply) {
 
     if (!response.ok) {
       // Handle HTTP errors, e.g., 404, 500, etc.
-      console.log(await response.json())
-      throw new Error(`HTTP error! Status: ${response.status}`);
+       const errResponse = await response.json()
+            console.log(errResponse)
+            throw new Error(`${errResponse.error}`);
     }
 
     const data = await response.json();
@@ -531,31 +532,37 @@ export async function getQuotes(request, reply) {
     const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } = request.body
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
-    let body
-    if(fromCurrency=="INR")
-    {
-
-      body = {
-        fromCurrency: fromCurrency,
-        toCurrency: toCurrency,
-        fromAmount: fromAmount,
-        chain: chain,
-        paymentMethodType: paymentMethodType
-      }
-    }else if(fromCurrency=="USDT")
-    {
-      let query ={
-        id:1
-      }
-      const usdt = await findRecord(Usdt,query)
-      body = {
-        fromCurrency: "INR",
-        toCurrency: "USDT",
-        fromAmount: fromAmount*usdt.inrRate,
-        chain: chain,
-        paymentMethodType: paymentMethodType
-      }
+    let body ={
+      fromCurrency: fromCurrency,
+      toCurrency: toCurrency,
+      fromAmount: fromAmount,
+      chain: chain,
+      paymentMethodType: paymentMethodType
     }
+    // if(fromCurrency=="INR")
+    // {
+
+    //   body = {
+    //     fromCurrency: fromCurrency,
+    //     toCurrency: toCurrency,
+    //     fromAmount: fromAmount,
+    //     chain: chain,
+    //     paymentMethodType: paymentMethodType
+    //   }
+    // }else if(fromCurrency=="USDT")
+    // {
+    //   let query ={
+    //     id:1
+    //   }
+    //   const usdt = await findRecord(Usdt,query)
+    //   body = {
+    //     fromCurrency: "INR",
+    //     toCurrency: "USDT",
+    //     fromAmount: fromAmount*usdt.inrRate,
+    //     chain: chain,
+    //     paymentMethodType: paymentMethodType
+    //   }
+    // }
     const dataNet = networks
     let updatedData = []
     const coinData = await Coin.findOne({
@@ -589,8 +596,8 @@ export async function getQuotes(request, reply) {
     }
     const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
     console.log(minWithdrawl)
-    if(minWithdrawl.minBuyInRupee>fromAmount)
-    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
+    // if(minWithdrawl.minBuyInRupee>fromAmount)
+    // return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
     const timestamp = Date.now().toString();
     const obj = {
       body,
@@ -625,8 +632,10 @@ export async function getQuotes(request, reply) {
 
     if (!response.ok) {
       // Handle HTTP errors, e.g., 404, 500, etc.
-      console.log(await response.json())
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      const errResponse = await response.json()
+      console.log(errResponse)
+      throw new Error(`${errResponse.error}`);
+      
     }
 
     let data = await response.json();
