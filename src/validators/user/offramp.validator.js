@@ -41,8 +41,10 @@ export const addFiatAccount = {
         properties: {
             fiatAccount: { type: 'string', minLength: 1, maxLength: 20 },
             ifsc: { type: 'string', minLength: 1, maxLength: 16 },
+            bank_name: { type: 'string', minLength: 1, maxLength: 20 },
+
         },
-        required: ["fiatAccount", "ifsc"],
+        required: ["fiatAccount", "ifsc", "bank_name"],
         additionalProperties: false,
     }
 }

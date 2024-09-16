@@ -27,6 +27,9 @@ export default (sequelize, DataTypes) => {
             },
             ifsc: {
                 type: DataTypes.STRING,
+            },
+            bank_name: {
+                type: DataTypes.STRING,
             }
         },
         {
