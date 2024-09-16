@@ -19,7 +19,7 @@ export async function AddFiatAccountId(request, reply) {
         const apiKey = process.env.apiKey;
         const secret = process.env.secret;
 
-        const { fiatAccount, ifsc, bank_name } = request.body
+        const { fiatAccount, ifsc, bankName } = request.body
 
         if (!request.user.isKycCompleted) {
             return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
@@ -29,7 +29,7 @@ export async function AddFiatAccountId(request, reply) {
             fiatAccount: fiatAccount,
             customerId: request.user.customerId,
             ifsc: ifsc,
-            bank_name:bank_name
+            bank_name:bankName
         }
 
 
