@@ -1,6 +1,6 @@
 import db from "../models/index.js";
 
-const { User, OnRampTransaction } = db;
+const { User, OnRampTransaction,OffRampTransaction } = db;
 
 /**
  * get otp callback kyc.
@@ -221,6 +221,61 @@ export async function callbackHandler(request, reply) {
                 reply.status(400).send({ error: "transaction not found" });
             }
         }
+    }
+
+    if(details.eventType ==="OFFRAMP"){
+        let transaction = await OffRampTransaction.findOne({
+            where: {
+                reference_id: details.referenceId.toString(),
+            },
+        });
+        if(!transaction){
+            reply.status(400).send({ error: "transaction not found" });
+        }
+        if (details.status ==="ON_CHAIN_DEPOSIT_RECEIVED"){
+            transaction.status =details.status                
+            // Save the updated transaction object
+            const updated = await transaction.save();
+            console.log('updated',updated)
+           return reply.status(200).send({ message: "success" });
+
+        }
+        if(details.status ==="TRADE_COMPLETED"){
+            transaction.status =details.status                
+            // Save the updated transaction object
+            const updated = await transaction.save();
+            console.log('updated',updated)
+           return reply.status(200).send({ message: "success" });
+
+        }
+
+        if(details.status ==="FIAT_TRANSFER_INITIATED"){
+            transaction.status =details.status                
+            // Save the updated transaction object
+            const updated = await transaction.save();
+            console.log('updated',updated)
+           return reply.status(200).send({ message: "success" });
+            
+
+        }     
+        
+        if(details.status ==="FIAT_TRANSFER_COMPLETED"){
+            transaction.status ="SUCCESS"               
+            // Save the updated transaction object
+            const updated = await transaction.save();
+            console.log('updated',updated)
+           return reply.status(200).send({ message: "success" });
+        
+        }
+        if(details.status ==="FAILED"){
+            transaction.status =details.status                
+            // Save the updated transaction object
+            const updated = await transaction.save();
+            console.log('updated',updated)
+          return  reply.status(200).send({ message: "success" });
+
+        }
+
     }
        
     } catch (error) {
