@@ -205,7 +205,7 @@ export async function getAllOffRamp(request, reply) {
 
 export async function getQuotes(request, reply) {
     try {
-        const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } = request.body
+        const { fromCurrency, toCurrency, fromAmount, chain } = request.body
         const apiKey = process.env.apiKey;
         const secret = process.env.secret;
 
@@ -214,7 +214,7 @@ export async function getQuotes(request, reply) {
             toCurrency: toCurrency,
             fromAmount: fromAmount,
             chain: chain,
-            paymentMethodType: paymentMethodType
+            // paymentMethodType: paymentMethodType
         }
         //   const dataNet = networks
         //   let updatedData = []

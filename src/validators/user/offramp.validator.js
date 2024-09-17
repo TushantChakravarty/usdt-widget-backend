@@ -63,10 +63,10 @@ export const getQuotesOfframp = {
                 enum: ["INR"]
             },
             chain: { type: 'string', minLength: 1, maxLength: 10 },
-            paymentMethodType: { type: 'string', minLength: 1, maxLength: 10 },
+            // paymentMethodType: { type: 'string', minLength: 1, maxLength: 10 },
             fromAmount: { type: 'number', minimum: 0 }
         },
-        required: ["fromCurrency", "toCurrency", "chain", "paymentMethodType", "fromAmount"],
+        required: ["fromCurrency", "toCurrency", "chain", "fromAmount"],
         additionalProperties: false,
     },
     // response: {
