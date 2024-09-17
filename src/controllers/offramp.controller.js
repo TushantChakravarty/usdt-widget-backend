@@ -208,7 +208,11 @@ export async function getQuotes(request, reply) {
         const { fromCurrency, toCurrency, fromAmount, chain } = request.body
         const apiKey = process.env.apiKey;
         const secret = process.env.secret;
-
+        if(fromAmount<10)
+        {
+           
+          return reply.status(500).send(responseMappingError(400, `Amount should be greater than or equal to 10`))
+        }
         const body = {
             fromCurrency: fromCurrency,
             toCurrency: toCurrency,
