@@ -256,7 +256,6 @@ export async function getQuotesOfframp(details) {
       toCurrency: toCurrency,
       fromAmount: fromAmount,
       chain: chain,
-      paymentMethodType: paymentMethodType
     }
     console.log(body)
 
