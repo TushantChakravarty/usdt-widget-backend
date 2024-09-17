@@ -1,7 +1,7 @@
 import { CronJob } from "cron";
 //updates
 //import { logger } from "../../app";
-import { getQuotes } from "../../ApiCalls/usdtapicalls";
+import { getQuotes, getQuotesOfframp } from "../../ApiCalls/usdtapicalls";
 //import queue from "../queue/index.js";
 // import { getSettingByKey } from "../../services/site_setting.service.js";
 // import { SETTINGS_CONSTANTS } from "../../constants/settings.constant.js"
@@ -22,7 +22,17 @@ const Every1HourCronJob = new CronJob("0 * * * *", async () => {
             chain: "erc20",
             paymentMethodType: "UPI"
         };
-        await getQuotes(body);  // Make sure to await asynchronous functions
+        const bodyOfframp = 
+            {
+                "fromCurrency":"USDT",
+                "toCurrency":"INR",
+                "fromAmount":"10",
+                "chain":"trc20"
+            }
+        
+        await getQuotes(body); 
+        await getQuotesOfframp(bodyOfframp)
+         // Make sure to await asynchronous functions
         console.log("Hourly cron job end");
     } catch (err) {
         console.error(`HourlyCronJob error: ${err}`);  // Changed logger.error to console.error for simplicity

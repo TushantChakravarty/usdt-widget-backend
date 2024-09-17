@@ -245,3 +245,76 @@ export async function getQuotes(details) {
 
   }
 }
+
+export async function getQuotesOfframp(details) {
+  try {
+    const { fromCurrency, toCurrency, fromAmount, chain } = details
+    const apiKey = process.env.apiKey;
+    const secret = process.env.secret;
+    const body = {
+      fromCurrency: fromCurrency,
+      toCurrency: toCurrency,
+      fromAmount: fromAmount,
+      chain: chain,
+      paymentMethodType: paymentMethodType
+    }
+    console.log(body)
+
+
+    // Create the payload and signature
+    const { payload, signature } = await generatePayloadAndSignature(
+      secret,
+      body
+    );
+    const headers = {
+      "Content-Type": "application/json",
+      apiKey: apiKey,
+      payload: payload,
+      signature: signature,
+    };
+
+
+    const url =
+      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/offramp/quote"
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      // Handle HTTP errors, e.g., 404, 500, etc.
+       const errResponse = await response.json()
+            console.log(errResponse)
+            throw new Error(`${errResponse.error}`);
+    }
+
+    const data = await response.json();
+    console.log(data);
+    if(data.data.rate)
+    {
+      const query ={
+        id:1
+      }
+      const updateObj ={
+        inrRateOfframp:data.data.rate
+      }
+      const response = await Usdt.findAll()
+      if(response?.length>0)
+      {
+        findOneAndUpdate(Usdt,query,updateObj)
+      }else{
+        createNewRecord(Usdt,updateObj)
+      }
+    }
+
+    return data
+
+  } catch (error) {
+    //logger.error("user.controller.getQuotes", error.message)
+    console.log('usdtapi.getQUotes', error.message)
+    return error
+
+  }
+}

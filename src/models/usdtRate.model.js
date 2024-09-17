@@ -15,6 +15,11 @@ export default (sequelize, DataTypes) => {
                 allowNull: true,
                 //defaultValue:0.0
             },
+            inrRateOfframp: {
+                type: DataTypes.FLOAT,
+                allowNull: true,
+                //defaultValue:0.0
+            },
         },
         {
             sequelize,
