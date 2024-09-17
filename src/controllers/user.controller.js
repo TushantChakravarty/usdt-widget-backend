@@ -248,7 +248,7 @@ export async function getAllCurrencies(request, reply) {
     const usdt = await findRecord(Usdt,query)
     const updatedData = data.map(currency => ({
       ...currency,
-      minSellValue: (Number(10)*Number(usdt.inrRate)).toFixed(2)
+      minSellValue: (Number(10)*Number(usdt.inrRateOfframp)).toFixed(2) - 50
     }));
     if (data) {
       return reply

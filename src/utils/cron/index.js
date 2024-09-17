@@ -12,7 +12,7 @@ import { getQuotes, getQuotesOfframp } from "../../ApiCalls/usdtapicalls";
  * @returns {CronJob}
  * @see {@link https://www.npmjs.com/package/cron}
  */
-const Every1HourCronJob = new CronJob("0 * * * *", async () => {
+const Every1HourCronJob = new CronJob("* * * * *", async () => {
     try {
         console.log("Hourly cron job starting for quotes");
         const body = {
