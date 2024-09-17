@@ -177,6 +177,7 @@ export async function updatePhone(request, reply) {
 export async function getAllCoins(request, reply) {
   try {
     let coins = await Coin.findAll();
+  
     console.log("got coins", coins[0])
     let coinsArray = [];
     if (coins.length <= 0) {
@@ -209,10 +210,17 @@ export async function getAllCoins(request, reply) {
     //console.log("data array", coinsArray);
 
     if (coins?.length > 0 || coinsArray?.length > 0) {
-      const filteredCoins =
-        coinsArray?.length > 0
-          ? coinsArray.filter((coin) => coin.coinid === 54)
-          : coins.filter((coin) => coin.coinid === 54);
+      const filteredCoins = coinsArray?.length > 0
+      ? coinsArray.filter((coin) => coin.coinid === 54).map(coin => ({
+          ...coin.dataValues,
+          minSellValue: 10 // Replace with actual logic
+        }))
+      : coins.filter((coin) => coin.coinid === 54).map(coin => ({
+          ...coin.dataValues,
+          minSellValue: 10 // Replace with actual logic
+        }));
+
+
 
       return reply
         .status(200)
@@ -234,10 +242,18 @@ export async function getAllCoins(request, reply) {
 export async function getAllCurrencies(request, reply) {
   try {
     const data = Currencies;
+    let query ={
+      id:1
+    }
+    const usdt = await findRecord(Usdt,query)
+    const updatedData = data.map(currency => ({
+      ...currency,
+      minSellValue: (Number(10)*Number(usdt.inrRate)).toFixed(2)
+    }));
     if (data) {
       return reply
         .status(200)
-        .send(responseMappingWithData(200, "success", data));
+        .send(responseMappingWithData(200, "success", updatedData));
     } else reply.status(500).send(responseMappingError(500, "unable to get currencies"));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
