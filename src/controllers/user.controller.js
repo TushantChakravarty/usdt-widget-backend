@@ -287,7 +287,8 @@ export async function getAllNetworks(request, reply) {
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
             minBuy: networkData[0]?.minimumWithdrawal,
-            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
+            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal),
+            inSync:true
           })
         }
       })
@@ -589,15 +590,14 @@ export async function getQuotes(request, reply) {
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
             minBuy: networkData[0]?.minimumWithdrawal,
-            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
-          })
+            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)          })
         }
       })
     }
     const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
     console.log(minWithdrawl)
-    // if(minWithdrawl.minBuyInRupee>fromAmount)
-    // return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
+    if(minWithdrawl.minBuyInRupee>fromAmount)
+    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
     const timestamp = Date.now().toString();
     const obj = {
       body,
