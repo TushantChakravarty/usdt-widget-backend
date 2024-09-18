@@ -50,6 +50,29 @@ export const signup = {
     },
 }
 
+
+export const changePassword = {
+    body: {
+        type: 'object',
+        properties: {
+            newPassword: { type: 'string', minLength: 8, maxLength: 40 },
+            oldPassword: { type: 'string', minLength: 8, maxLength: 56 },
+        },
+        required: ['newPassword', 'oldPassword'],
+        additionalProperties: false,
+    },
+    // response: {
+    //     200: {
+    //         type: 'object',
+    //         properties: {
+    //             message: { type: 'string' },
+    //         },
+    //     },
+    //     ...commonSchemas.errorResponse,
+    // },
+}
+
+
 export const profile = {
     body: {
         type: 'object',
