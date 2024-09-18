@@ -29,7 +29,7 @@ export async function signup(request, reply) {
     if (userExists)
       return reply.status(409).send({ error: "Username already taken" });
     // encrypt password
-    const encryptedPassword = encrypt(password);
+    const encryptedPassword = await  encrypt(password);
     // create user
     const user = await User.create({
       email: emailId,
@@ -722,9 +722,9 @@ export async function changePassword(request,reply){
   try{
     const {newPassword,oldPassword} = request.body
     const user = await  User.scope("private").findOne({where:{id:request.user.id}})
-    const match = compare(oldPassword, user.password);
+    const match =await compare(oldPassword, user.password);
     if (!match) return reply.status(401).send(responseMappingError(500, `Wrong password`)); // generic error to prevent bruteforce
-    const encryptedPassword = encrypt(newPassword);
+    const encryptedPassword =await encrypt(newPassword);
     user.password = encryptedPassword
     await user.save()
     return reply
