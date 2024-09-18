@@ -51,6 +51,7 @@ const routes = async (route, options) => { // route = fastify instance
       request.body.newPassword = request.body.newPassword.trim();
     },
     schema: validator.changePassword,
+    preValidation: validateToken,
     handler: user.changePassword,
   });
 
