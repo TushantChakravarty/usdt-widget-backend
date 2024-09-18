@@ -732,6 +732,6 @@ export async function changePassword(request,reply){
     .send(responseMappingWithData(200, "success", "success"));
   }catch(error){
     console.log('user.controller.changePassword', error.message)
-    return reply.status(500).send(responseMappingError(500, `Internal server error`))
+    return reply.status(500).send(responseMappingError(500, `${error.message}`))
   }
 }
