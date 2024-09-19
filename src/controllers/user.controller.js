@@ -343,6 +343,10 @@ export async function getKycUrl(request, reply) {
     if (!user) {
       return reply.status(400).send(responseMappingError(200, "User not found"));
     }
+    if(!user.phone)
+    {
+      return reply.status(400).send(responseMappingError(200, "please add phone number"));
+    }
     if (user.kycUrl) {
       return reply.status(200).send({ status: 200, kyc_url: user.kycUrl });
     }

@@ -166,6 +166,8 @@ export async function offRampRequest(request, reply) {
         if (!response.ok) {
             // Handle HTTP errors, e.g., 404, 500, etc.
             const errResponse = await response.json()
+            console.log("data check", errResponse);
+
             throw new Error(`${errResponse.error}`);
         }
         const data = await response.json();
