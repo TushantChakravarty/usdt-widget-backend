@@ -408,7 +408,7 @@ export async function getKycUrl(request, reply) {
     console.log(response);
     return reply
       .status(200)
-      .send({ status: 200, kyc_url: response.data.kycUrl });
+      .send(responseMappingWithData(200,"success",{kyc_url: response.data.kycUrl }));
   } catch (error) {
     reply.status(500).send({ status: 500, error: error.message });
   }
