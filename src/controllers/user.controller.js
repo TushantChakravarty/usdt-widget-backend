@@ -348,7 +348,7 @@ export async function getKycUrl(request, reply) {
       return reply.status(400).send(responseMappingError(200, "please add phone number"));
     }
     if (user.kycUrl) {
-      return reply.status(200).send({ status: 200, kyc_url: user.kycUrl });
+      return reply.status(200).send(responseMappingWithData(200,"success",{kyc_url: user.kycUrl }));
     }
     const body = {
       email: user.email,
