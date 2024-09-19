@@ -29,7 +29,7 @@ export async function signup(request, reply) {
     if (userExists)
       return reply.status(409).send({ error: "Username already taken" });
     // encrypt password
-    const encryptedPassword = await encrypt(password);
+    const encryptedPassword = await  encrypt(password);
     // create user
     const user = await User.create({
       email: emailId,
@@ -718,5 +718,24 @@ export async function getUsdtRate(request, reply) {
     console.log('user.controller.getQUotes', error.message)
     return reply.status(500).send(responseMappingError(500, `Internal server error`))
 
+  }
+}
+
+
+export async function changePassword(request,reply){
+  try{
+    const {newPassword,oldPassword} = request.body
+    const user = await  User.scope("private").findOne({where:{id:request.user.id}})
+    const match =await compare(oldPassword, user.password);
+    if (!match) return reply.status(401).send(responseMappingError(500, `Wrong password`)); // generic error to prevent bruteforce
+    const encryptedPassword =await encrypt(newPassword);
+    user.password = encryptedPassword
+    await user.save()
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", "success"));
+  }catch(error){
+    console.log('user.controller.changePassword', error.message)
+    return reply.status(500).send(responseMappingError(500, `${error.message}`))
   }
 }

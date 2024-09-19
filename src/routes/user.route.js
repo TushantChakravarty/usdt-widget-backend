@@ -41,6 +41,20 @@ const routes = async (route, options) => { // route = fastify instance
     handler: user.signup,
   });
 
+  /**
+   * Route for user signup.
+   * Handles the user signup functionality.
+   */
+  route.post('/changePassword', {
+    preHandler: async (request, reply) => {
+      request.body.oldPassword = request.body.oldPassword.trim();
+      request.body.newPassword = request.body.newPassword.trim();
+    },
+    schema: validator.changePassword,
+    preValidation: validateToken,
+    handler: user.changePassword,
+  });
+
 
   /**
   * Route for user kyc.
