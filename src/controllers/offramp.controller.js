@@ -174,13 +174,32 @@ export async function offRampRequest(request, reply) {
         console.log("data check", data);
 
         body.user_id = request.user.id,
-            body.reference_id = data.data.transactionId
+         body.reference_id = data.data.transactionId
 
         const transaction = await OffRampTransaction.create(body)
-
+        let dataCrypto = {...data?.data,
+        cryptoNotes:[
+            {
+                "type": -1,
+                "msg": "Transfers via bank accounts are not allowed for this wallet."
+            },
+            {
+                "type": 1,
+                "msg": "Please transfer funds to the wallet address listed above."
+            },
+            {
+                "type": 1,
+                "msg": "Cryptocurrency transfers like Bitcoin and Ethereum are accepted."
+            },
+            {
+                "type": -1,
+                "msg": "Transfers via credit or debit cards are not supported for this wallet."
+            }
+        ]
+        }
         return reply
             .status(200)
-            .send(responseMappingWithData(200, "success", data.data));
+            .send(responseMappingWithData(200, "success", dataCrypto));
     } catch (error) {
         console.log("this is error", error.message)
         return reply.status(500).send(responseMappingError(500, `${error.message}`))
