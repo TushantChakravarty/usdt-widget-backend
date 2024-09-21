@@ -19,18 +19,20 @@ import Network from './network.model.js';
 import Usdt from './usdtRate.model.js';
 import OffRampTransaction from "./offramp.model.js"
 import FiatAccount from "./fiat.account.model.js"
+import Otp from "./otp.model.js"
 
 // Initialize the Sequelize instance
 const sequelize = new Sequelize(config);
 
-const db = {
+let db = {
     User: User(sequelize, Sequelize.DataTypes),
     Coin: Coin(sequelize, Sequelize.DataTypes),
     OnRampTransaction: OnRampTransaction(sequelize, Sequelize.DataTypes),
     Network: Network(sequelize, Sequelize.DataTypes),
     FiatAccount: FiatAccount(sequelize, Sequelize.DataTypes),
     Usdt: Usdt(sequelize, Sequelize.DataTypes),
-    OffRampTransaction: OffRampTransaction(sequelize, Sequelize.DataTypes)
+    OffRampTransaction: OffRampTransaction(sequelize, Sequelize.DataTypes),
+    Otp:Otp(sequelize,Sequelize.DataTypes)
 };
 
 // Initialize model associations
@@ -52,6 +54,7 @@ initializeModels();
 // }).catch((error) => {
 //     console.error("Error syncing database:", error);
 // });
+
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

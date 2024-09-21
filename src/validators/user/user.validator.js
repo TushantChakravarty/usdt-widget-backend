@@ -190,3 +190,30 @@ export const getQuotes = {
     //     ...commonSchemas.errorResponse,
     // },
 }
+
+
+export const forgetPassword ={
+    querystring: {
+        type: 'object',
+        properties: {
+            email: {
+                type: "string", format: 'email'}
+        },
+        required: ["email"],
+        additionalProperties: false,
+    },
+
+}
+
+export const changeForgetPassword = {
+    body:{
+        type: 'object',
+        properties: {
+            email: {type: "string", format: 'email'},
+            otp: { type: 'string', minLength: 4, maxLength: 4 },
+            newPassword: { type: 'string', minLength: 8, maxLength: 40 },
+        },
+        required: ["email","otp","newPassword"],
+        additionalProperties: false,
+    },
+}
