@@ -66,6 +66,9 @@ export default (sequelize, DataTypes) => {
         {
             sequelize,
             modelName: "OffRampTransaction",
+            timestamps: true,
+            createdAt: 'date',  // Rename createdAt to 'date'
+            updatedAt: 'time',  // Rename updatedAt to 'time'
             // timestamps: false, // if you don't need timestamps
         }
     );
