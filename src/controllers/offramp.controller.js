@@ -207,19 +207,40 @@ export async function offRampRequest(request, reply) {
         if (!response.ok) {
             // Handle HTTP errors, e.g., 404, 500, etc.
             const errResponse = await response.json()
+            console.log("data check", errResponse);
+
             throw new Error(`${errResponse.error}`);
         }
         const data = await response.json();
         console.log("data check", data);
 
         body.user_id = request.user.id,
-            body.reference_id = data.data.transactionId
+         body.reference_id = data.data.transactionId
 
         const transaction = await OffRampTransaction.create(body)
-
+        let dataCrypto = {...data?.data,
+        cryptoNotes:[
+            {
+                "type": -1,
+                "msg": "Transfers via bank accounts are not allowed for this wallet."
+            },
+            {
+                "type": 1,
+                "msg": "Please transfer funds to the wallet address listed above."
+            },
+            {
+                "type": 1,
+                "msg": "Cryptocurrency transfers like Bitcoin and Ethereum are accepted."
+            },
+            {
+                "type": -1,
+                "msg": "Transfers via credit or debit cards are not supported for this wallet."
+            }
+        ]
+        }
         return reply
             .status(200)
-            .send(responseMappingWithData(200, "success", data.data));
+            .send(responseMappingWithData(200, "success", dataCrypto));
     } catch (error) {
         console.log("this is error", error.message)
         return reply.status(500).send(responseMappingError(500, `${error.message}`))
@@ -235,7 +256,10 @@ export async function getAllOffRamp(request, reply) {
             },
             limit: limit,
             offset: skip,
-            order: [["createdAt", "DESC"]],
+            attributes: { exclude: ['time'] },  // Exclude 'time' property from the response
+            // order: [["date", "DESC"]], // Use 'date' if needed for sorting
+        
+            order: [["date", "DESC"]],
         })
         return reply.status(200).send(responseMappingWithData(200, "Success", all_off_ramp))
     } catch (error) {

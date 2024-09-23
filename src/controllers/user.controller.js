@@ -1,7 +1,9 @@
 import cryptoJs from "crypto-js";
 import db from "../models/index.js";
 import { compare, encrypt } from "../utils/password.util.js";
+import { Op } from "sequelize"
 import logger from "../utils/logger.util.js";
+import nodemailer from "nodemailer"
 import { getAllCoinsData, getAllNetworkData, getWithdrawFee } from "../ApiCalls/usdtapicalls.js";
 import {
   responseMapping,
@@ -11,8 +13,9 @@ import {
 import { Currencies } from "../utils/currencies.js";
 import { networks } from "../utils/networks.js";
 import { findRecord } from "../Dao/dao.js";
+import { Sequelize } from "sequelize";
 
-const { User, Coin, OnRampTransaction, Usdt } = db;
+const { User, Coin, OnRampTransaction, Usdt,Otp } = db;
 /**
  * Registers a new user.
  * @controller user
@@ -29,7 +32,7 @@ export async function signup(request, reply) {
     if (userExists)
       return reply.status(409).send({ error: "Username already taken" });
     // encrypt password
-    const encryptedPassword = encrypt(password);
+    const encryptedPassword = await  encrypt(password);
     // create user
     const user = await User.create({
       email: emailId,
@@ -343,8 +346,12 @@ export async function getKycUrl(request, reply) {
     if (!user) {
       return reply.status(400).send(responseMappingError(200, "User not found"));
     }
+    if(!user.phone)
+    {
+      return reply.status(400).send(responseMappingError(200, "please add phone number"));
+    }
     if (user.kycUrl) {
-      return reply.status(200).send({ status: 200, kyc_url: user.kycUrl });
+      return reply.status(200).send(responseMappingWithData(200,"success",{kyc_url: user.kycUrl }));
     }
     const body = {
       email: user.email,
@@ -404,7 +411,7 @@ export async function getKycUrl(request, reply) {
     console.log(response);
     return reply
       .status(200)
-      .send({ status: 200, kyc_url: response.data.kycUrl });
+      .send(responseMappingWithData(200,"success",{kyc_url: response.data.kycUrl }));
   } catch (error) {
     reply.status(500).send({ status: 500, error: error.message });
   }
@@ -722,9 +729,9 @@ export async function changePassword(request,reply){
   try{
     const {newPassword,oldPassword} = request.body
     const user = await  User.scope("private").findOne({where:{id:request.user.id}})
-    const match = compare(oldPassword, user.password);
+    const match =await compare(oldPassword, user.password);
     if (!match) return reply.status(401).send(responseMappingError(500, `Wrong password`)); // generic error to prevent bruteforce
-    const encryptedPassword = encrypt(newPassword);
+    const encryptedPassword =await encrypt(newPassword);
     user.password = encryptedPassword
     await user.save()
     return reply
@@ -732,6 +739,121 @@ export async function changePassword(request,reply){
     .send(responseMappingWithData(200, "success", "success"));
   }catch(error){
     console.log('user.controller.changePassword', error.message)
+    return reply.status(500).send(responseMappingError(500, `${error.message}`))
+  }
+}
+
+
+export async function sendForgetPasswordOtp(request,reply){
+  try{
+    const email = request.query.email;
+    const existingUser = await User.findOne({
+      where: {
+        email,
+      }
+    });
+
+    if(!existingUser){
+      return reply.status(500).send(responseMappingError(500, `Email doesn't exist`))
+
+    }
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: "tshubhanshu007@gmail.com",
+        pass: "zrni hfym gthq upiu"
+      }
+    })
+    const otp = await generateOTP(email)
+    const mailOptions = {
+      from: {
+        name: "GSX solutions",
+        address: "tshubhanshu007@gmail.com"
+      },
+      to: email,
+      subject: "Forget password otp",
+      text: `Hello, your forget password otp is  ${otp}`,
+        html: `<h1>Hello, Your forget password otp is${otp}</h1>`,
+    }
+    await transporter.sendMail(mailOptions)
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", "please check otp on the given email"));
+  }catch(error){
+    console.log('user.controller.changePassword', error.message)
     return reply.status(500).send(responseMappingError(500, `Internal server error`))
+
+  }
+}
+
+
+export async function changeForgetPassword (request,reply){
+  try{
+
+    const { email,otp,newPassword} = request.body
+    const activeOtp = await Otp.findOne({
+      where: {
+        email,
+        otp,
+        sent_at: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+
+    if (!activeOtp)  return reply.status(500).send(responseMappingError(500, `Incorrect otp or your otp is expired`))
+
+    let user = await User.findOne({where:{email:email}})
+    if (!user){
+      return reply.status(500).send(responseMappingError(500, `Email doesn't exist`))
+    }
+    const encryptedPassword =await encrypt(newPassword);
+    user.password = encryptedPassword
+    await user.save()
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", "success"));
+
+
+  }catch(error){
+    console.log('user.controller.changePassword', error.message)
+    return reply.status(500).send(responseMappingError(500, `Internal server error`))
+  }
+}
+
+
+
+/**
+ * Generates a one-time password (OTP) for the given phone number.
+ * @param {string} phone - The phone number for which to generate the OTP.
+ * @returns {Promise<string>} - A promise that resolves to the generated OTP.
+ * @throws {Error} - If there is an error while generating the OTP.
+*/
+export async function generateOTP(email) {
+  try {
+    let otp;
+
+    const last_otp = await Otp.findOne({
+      where: {
+        email,
+        createdAt: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // created within 5 mins
+        },
+      },
+    });
+    // if otp is already generated (within 5 mins) then return that otp, else generate new otp
+    if (last_otp) {
+      otp = last_otp.otp;
+    } else {
+      otp = Math.floor(1000 + Math.random() * 9000).toString(); // 4 digit otp (string)
+      await Otp.create({ email, otp });
+    }
+    return otp;
+  } catch (err) {
+    logger.error(`generateOTP: ${err}`);
+    throw err;
   }
 }

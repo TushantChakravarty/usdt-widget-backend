@@ -51,6 +51,7 @@ const routes = async (route, options) => { // route = fastify instance
       request.body.newPassword = request.body.newPassword.trim();
     },
     schema: validator.changePassword,
+    preValidation: validateToken,
     handler: user.changePassword,
   });
 
@@ -176,6 +177,33 @@ const routes = async (route, options) => { // route = fastify instance
     // ],
     // preValidation: validateToken,
     handler: user.getUsdtRate,
+  });
+
+
+   /**
+ * Route for getting usdtRate
+ * Handles getting current usdt rate
+ */
+   route.get('/forgetOtp', {
+    schema: validator.forgetPassword,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    // preValidation: validateToken,
+    handler: user.sendForgetPasswordOtp,
+  });
+
+  /**
+ * Route for getting usdtRate
+ * Handles getting current usdt rate
+ */
+  route.post('/changeForgetPassword', {
+    schema: validator.changeForgetPassword,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    // preValidation: validateToken,
+    handler: user.changeForgetPassword,
   });
 
 };
