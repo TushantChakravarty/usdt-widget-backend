@@ -30,6 +30,11 @@ export default (sequelize, DataTypes) => {
             },
             bank_name: {
                 type: DataTypes.STRING,
+            },
+            delete:{
+                type: DataTypes.BOOLEAN,
+                allowNull:true,
+                defaultValue:false
             }
         },
         {

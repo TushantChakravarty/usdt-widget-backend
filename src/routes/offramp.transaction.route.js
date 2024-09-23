@@ -46,6 +46,23 @@ const routes = async (route, options) => { // route = fastify instance
   });
 
 
+  
+  /**
+ * Route for getting all supported networks
+ * Handles getting all supported networks data
+ */
+  route.get('/deleteFiatAccount/:id', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    schema: validator.deleteFiatAccount,
+    preValidation: validateToken,
+    handler: offramp.deleteAccount,
+  });
+
+
+
   /**
  * Route for getting all supported networks
  * Handles getting all supported networks data

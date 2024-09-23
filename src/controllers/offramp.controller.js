@@ -18,21 +18,37 @@ export async function AddFiatAccountId(request, reply) {
     try {
         const apiKey = process.env.apiKey;
         const secret = process.env.secret;
-
         const { fiatAccount, ifsc, bankName } = request.body
-
         if (!request.user.isKycCompleted) {
             return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
         }
-
+        const fiat_account_exist = await FiatAccount.findOne({where:{fiatAccount:fiatAccount}})
+        if(fiat_account_exist && (request.user.id === fiat_account_exist.user_id && fiat_account_exist.delete === false)){
+            return reply.status(500).send(responseMappingError(500, "You already have a fiat account with this"))
+        }
+        if(fiat_account_exist && (request.user.id === fiat_account_exist.user_id && fiat_account_exist.delete === true)){
+            fiat_account_exist.delete = false
+            await fiat_account_exist.save()
+            return reply
+             .status(200)
+             .send(responseMappingWithData(200, "success", "success"));
+        }
+        if(fiat_account_exist && fiat_account_exist.delete === false){
+            return reply.status(500).send(responseMappingError(500, "This account already in use"))
+        }
+        if(fiat_account_exist && fiat_account_exist.delete === true){
+           fiat_account_exist.delete = false
+           fiat_account_exist.user_id = request.user.id
+           await fiat_account_exist.save()
+           return reply
+            .status(200)
+            .send(responseMappingWithData(200, "success", "success"));
+        }
         let body = {
             fiatAccount: fiatAccount,
             customerId: request.user.customerId,
             ifsc: ifsc,
-           
         }
-
-
         const timestamp = Date.now().toString();
         const obj = {
             body,
@@ -73,8 +89,6 @@ export async function AddFiatAccountId(request, reply) {
 
         const data = await response.json();
 
-
-        console.log(data);
         const create_fiat_account = { user_id: request.user.id, fiatAccountId: data.data.fiatAccountId, fiatAccount: fiatAccount, ifsc: ifsc,  bank_name:bankName }
 
         if (data.code === 200) {
@@ -85,7 +99,34 @@ export async function AddFiatAccountId(request, reply) {
             .send(responseMappingWithData(200, "success", data.data));
 
     } catch (error) {
-        console.log("this is error", error.message)
+        return reply.status(500).send(responseMappingError(500, error.message))
+    }
+}
+
+
+export async function deleteAccount(request, reply) {
+    try {
+        const {id} = request.params 
+
+        const account = await FiatAccount.findOne({where:{id:id}})
+
+        if(account.user_id !== request.user.id){
+            return reply.status(403).send(responseMappingError(403, "Not your account"))
+        }
+
+        if(!account){
+            return reply.status(404).send(responseMappingError(500, error.message))
+        }
+
+        account.delete = true
+        await account.save()
+
+
+ return reply
+            .status(200)
+            .send(responseMappingWithData(200, "success", "success"));
+
+    } catch (error) {
         return reply.status(500).send(responseMappingError(500, error.message))
     }
 }
@@ -93,11 +134,11 @@ export async function AddFiatAccountId(request, reply) {
 
 export async function getAllFiatAccount(request, reply) {
     try {
-        const user_id = request.user.id
         const { limit, skip } = request.query
         const obj = {
             where: {
-                user_id: request.user.id
+                user_id: request.user.id,
+                delete:false
             },
             limit: limit,
             offset: skip,

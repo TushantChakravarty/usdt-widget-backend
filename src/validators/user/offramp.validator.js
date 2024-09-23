@@ -50,6 +50,19 @@ export const addFiatAccount = {
 }
 
 
+export const deleteFiatAccount = {
+    params: {
+        type: 'object',
+        properties: {
+            id: { type: 'integer' },
+        },
+        required: ['id'],
+    }
+}
+
+
+
+
 export const getQuotesOfframp = {
     body: {
         type: 'object',
