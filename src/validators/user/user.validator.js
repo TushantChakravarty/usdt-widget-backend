@@ -205,25 +205,61 @@ export const forgetPassword ={
 
 }
 
+// export const changeForgetPassword = {
+//     body:{
+//         type: 'object',
+//         properties: {
+//             email: {type: "string", format: 'email'},
+//             otp: { type: 'string', minLength: 4, maxLength: 4 },
+//             newPassword: { 
+//                 type: 'string', 
+//                 minLength: 8, 
+//                 maxLength: 40,
+//                 pattern: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,40}$',
+//                 errorMessage: {
+//                     pattern: 'Password must contain at least one uppercase letter, one number, and one special symbol (!@#$%^&*).',
+//                     minLength: 'Password should be at least 8 characters long.',
+//                     maxLength: 'Password should not exceed 40 characters.'
+//                   }
+//               }
+//         },
+//         required: ["email","otp","newPassword"],
+//         additionalProperties: false,
+//     },
+// }
+
 export const changeForgetPassword = {
-    body:{
-        type: 'object',
-        properties: {
-            email: {type: "string", format: 'email'},
-            otp: { type: 'string', minLength: 4, maxLength: 4 },
-            newPassword: { 
-                type: 'string', 
-                minLength: 8, 
-                maxLength: 40,
-                pattern: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,40}$',
-                errorMessage: {
-                    pattern: 'Password must contain at least one uppercase letter, one number, and one special symbol (!@#$%^&*).',
-                    minLength: 'Password should be at least 8 characters long.',
-                    maxLength: 'Password should not exceed 40 characters.'
-                  }
-              }
+    body: {
+      type: 'object',
+      properties: {
+        email: { type: "string", format: 'email' },
+        otp: { type: 'string', minLength: 4, maxLength: 4 },
+        newPassword: {
+          type: 'string',
+          minLength: 8,
+          maxLength: 40,
+          pattern: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,40}$',
+          errorMessage: {
+            pattern: 'Password must contain at least one uppercase letter, one number, and one special symbol (!@#$%^&*).',
+            minLength: 'Password should be at least 8 characters long.',
+            maxLength: 'Password should not exceed 40 characters.'
+          }
+        }
+      },
+      required: ["email", "otp", "newPassword"],
+      additionalProperties: false,
+      errorMessage: {
+        required: {
+          email: "Email is required",
+          otp: "OTP is required",
+          newPassword: "New password is required"
         },
-        required: ["email","otp","newPassword"],
-        additionalProperties: false,
-    },
-}
+        properties: {
+          email: "Please provide a valid email address",
+          otp: "OTP must be a 4-digit string",
+          newPassword: "Please provide a valid password"
+        },
+        additionalProperties: "No additional properties are allowed"
+      }
+    }
+  };
