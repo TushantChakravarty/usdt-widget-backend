@@ -215,7 +215,12 @@ export const changeForgetPassword = {
                 type: 'string', 
                 minLength: 8, 
                 maxLength: 40,
-                pattern: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,40}$'
+                pattern: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,40}$',
+                errorMessage: {
+                    pattern: 'Password must contain at least one uppercase letter, one number, and one special symbol (!@#$%^&*).',
+                    minLength: 'Password should be at least 8 characters long.',
+                    maxLength: 'Password should not exceed 40 characters.'
+                  }
               }
         },
         required: ["email","otp","newPassword"],
