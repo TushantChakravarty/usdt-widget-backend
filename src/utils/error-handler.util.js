@@ -7,7 +7,8 @@ export default function handleErrors(fastify) {
         if (error.validation) {
             const details = error.validation.map(e => ({
                 message: e.message,
-                param: e.schemaPath
+                param: e.schemaPath,
+                e
             }));
             reply.status(400).send({
                 code: 400,
