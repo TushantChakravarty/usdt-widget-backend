@@ -775,9 +775,21 @@ export async function sendForgetPasswordOtp(request,reply){
       },
       to: email,
       subject: "Forget password otp",
-      text: `Hello, your forget password otp is  ${otp}`,
-        html: `<h1>Hello, Your forget password otp is${otp}</h1>`,
-    }
+      text: `Hello, Here is your forget password ${otp}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+          <h2 style="color: #0056b3;">USDT Marketplace</h2>
+          <p>Hello,</p>
+          <p>Your One-Time Password (OTP) for accessing USDT Marketplace is:</p>
+          <p style="font-size: 24px; font-weight: bold; color: #0056b3;">${otp}</p>
+          <p>Please enter this OTP to complete your verification process. This OTP is valid for 10 minutes.</p>
+          <p>If you did not request this OTP, please contact our support team immediately.</p>
+          <p>Thank you,</p>
+          <p>The USDT Marketplace Team</p>
+          <hr>
+          <small>If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com">support@usdtmarketplace.com</a></small>
+        </div>`
+    };
     await transporter.sendMail(mailOptions)
     return reply
     .status(200)
@@ -813,6 +825,10 @@ export async function changeForgetPassword (request,reply){
     const encryptedPassword =await encrypt(newPassword);
     user.password = encryptedPassword
     await user.save()
+
+    await Otp.destroy({
+      where: { email },
+    });
     return reply
     .status(200)
     .send(responseMappingWithData(200, "success", "success"));
