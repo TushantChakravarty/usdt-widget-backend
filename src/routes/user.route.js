@@ -6,12 +6,12 @@
  * @category routes
  * @subcategory user
  */
-import Ajv from "ajv";
-import AjvErrors from "ajv-errors";
+// import Ajv from "ajv";
+// import AjvErrors from "ajv-errors";
 
-// Initialize Ajv with allErrors enabled and custom error messages support
-const ajv = new Ajv({ allErrors: true });
-AjvErrors(ajv);
+// // Initialize Ajv with allErrors enabled and custom error messages support
+// const ajv = new Ajv({ allErrors: true });
+// AjvErrors(ajv);
 import Controller from "../controllers"
 import { validateToken } from "../utils/jwt.util";
 import Validator from "../validators";
@@ -209,8 +209,8 @@ const routes = async (route, options) => { // route = fastify instance
     // ],
     // preValidation: validateToken,
     handler: user.changeForgetPassword,
-    validatorCompiler: ({ schema }) => ajv.compile(schema),
-    schemaErrorFormatter: (errors) => new Error(errors[0].message),
+    // validatorCompiler: ({ schema }) => ajv.compile(schema),
+    // schemaErrorFormatter: (errors) => new Error(errors[0].message),
   });
 
 };
