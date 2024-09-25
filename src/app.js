@@ -30,6 +30,7 @@ import logger from './utils/logger.util.js'
 import migrateDb from './utils/db.util.js'
 import amqp from 'amqplib'
 import cron from './utils/cron/index.js'
+import { responseMappingError } from './utils/responseMapper.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
 /**
@@ -39,7 +40,21 @@ process.env.TZ = "Asia/Kolkata" // set timezone
 export const server = Fastify({
     logger
 })
-
+server.setErrorHandler(function (error, request, reply) {
+    if (error.validation) {
+      // Customize the validation error response
+      reply.status(400).send(
+        responseMappingError(400,error.validation[0].message)
+        // statusCode: 400,
+        // error: 'Bad Request',
+        // message: 'Validation failed',
+        // details: error.validation
+      );
+    } else {
+      // Default error handler behavior
+      reply.send(error);
+    }
+  });
 
 server.register(fastifyJwt, {
     secret: process.env.JWT_SECRET,
@@ -47,7 +62,7 @@ server.register(fastifyJwt, {
 /**
  * Register custom error handler
  */
-handleErrors(server)
+//handleErrors(server)
 
 /**
  * Multipart form data plugin (for file uploads)
