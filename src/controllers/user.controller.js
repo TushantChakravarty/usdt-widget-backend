@@ -88,7 +88,7 @@ export async function login(request, reply) {
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 days
       path: "/",
     });
-    return reply.status(200).send({ message: "Logged in", token });
+    return reply.status(200).send(responseMappingWithData(200, "Logged in", token ));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
@@ -120,7 +120,7 @@ export async function getProfile(request, reply) {
 
     if (!user) return reply.status(404).send(responseMappingError(404, "Invalid User details")); // generic error to prevent bruteforce
 
-    return reply.status(200).send({ message: "Success", user });
+    return reply.status(200).send(responseMappingWithData(200, "Success", user ));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
