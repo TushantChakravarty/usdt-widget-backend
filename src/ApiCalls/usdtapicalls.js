@@ -30,8 +30,8 @@ export async function usdtMarketPlace() {
     };
 
     // 2.this is header
-    const apiKey = "mMAbfMAMWqSDWnnxLFmqNMclaDwiSgd";
-    const secret = "WBEraoLeiTgorLlXpIDpuKFRwAecdJSM";
+    const apiKey = process.env.apiKey;
+    const secret = process.env.secret;
     // 3. making signature
     const { payload, signature } = await generatePayloadAndSignature(
       secret,
@@ -93,8 +93,8 @@ export async function getAllNetworkData() {
 
         return data
     }
-    const apiKey = "mMAbfMAMWqSDWnnxLFmqNMclaDwiIsgd";
-    const secret = "WBEraoLeiTgorLlXpIDpuKFRwAecdJSM";
+    const apiKey = process.env.apiKey;
+    const secret = process.env.secret;
     let body = {};
     // 3. making signature
     const { payload, signature } = await generatePayloadAndSignature(
@@ -107,7 +107,7 @@ export async function getAllNetworkData() {
       signature: signature,
     };
     const response = await fetch(
-      "https://api-test.onramp.money/onramp/api/v2/common/transaction/allGasFee",
+      "https://api.onramp.money/onramp/api/v2/common/transaction/allGasFee",
       {
         method: "POST",
         headers: {
@@ -202,7 +202,7 @@ export async function getQuotes(details) {
 
 
     const url =
-      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
+      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
 
     const response = await fetch(url, {
       method: "POST",
@@ -274,7 +274,7 @@ export async function getQuotesOfframp(details) {
 
 
     const url =
-      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/offramp/quote"
+      "https://api.onramp.money/onramp/api/v2/whiteLabel/offramp/quote"
 
     const response = await fetch(url, {
       method: "POST",

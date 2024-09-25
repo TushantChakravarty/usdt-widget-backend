@@ -385,7 +385,7 @@ export async function getKycUrl(request, reply) {
 
     // Make the fetch request
     const url =
-      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/kyc/url";
+      "https://api.onramp.money/onramp/api/v2/whiteLabel/kyc/url";
 
     const response = await fetch(url, {
       method: "POST",
@@ -501,7 +501,7 @@ export async function onRampRequest(request, reply) {
 
 
     const url =
-      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/onramp/createTransaction"
+      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/createTransaction"
 
     const response = await fetch(url, {
       method: "POST",
@@ -645,7 +645,7 @@ export async function getQuotes(request, reply) {
 
 
     const url =
-      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
+      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
 
     const response = await fetch(url, {
       method: "POST",
