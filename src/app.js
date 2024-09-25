@@ -44,13 +44,19 @@ server.setErrorHandler(function (error, request, reply) {
   // Check if it's a validation error
   if (error.validation && error.validation.length > 0) {
     const validationError = error.validation[0]; // Get the first validation error
-
+    console.log(error)
     // Extract the field name and ensure the message is present
-    const field = validationError.instancePath.replace('/', '') || 'unknown field';
+    let field =""
+    let message =""
+    if(validationError.instancePath.length>0)
+    field = validationError.instancePath.replace('/', '') || 'unknown field';
     const validationMessage = validationError.message || 'Validation error';
 
     // Construct a custom message like 'password: must NOT have fewer than 8 characters'
-    const message = `${field}: ${validationMessage}`;
+    if(validationError.instancePath.length>0)
+     message = `${field}: ${validationMessage}`
+    else
+    message = `${validationMessage}`
 
     // Log the error to debug if needed
     console.log("Validation Error:", validationError);
