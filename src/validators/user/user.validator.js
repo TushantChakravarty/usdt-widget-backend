@@ -25,7 +25,7 @@ export const login = {
                 token: { type: 'string' },
             },
         },
-        ...commonSchemas.errorResponse,
+       
     },
 };
 
@@ -46,7 +46,6 @@ export const signup = {
                 message: { type: 'string' },
             },
         },
-        ...commonSchemas.errorResponse,
     },
 }
 

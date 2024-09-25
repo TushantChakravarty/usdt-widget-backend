@@ -41,20 +41,32 @@ export const server = Fastify({
     logger
 })
 server.setErrorHandler(function (error, request, reply) {
-    if (error.validation) {
-      // Customize the validation error response
-      reply.status(400).send(
-        responseMappingError(400,error.validation[0].message)
-        // statusCode: 400,
-        // error: 'Bad Request',
-        // message: 'Validation failed',
-        // details: error.validation
-      );
-    } else {
-      // Default error handler behavior
-      reply.send(error);
-    }
-  });
+  // Check if it's a validation error
+  if (error.validation && error.validation.length > 0) {
+    const validationError = error.validation[0]; // Get the first validation error
+
+    // Extract the field name and ensure the message is present
+    const field = validationError.instancePath.replace('/', '') || 'unknown field';
+    const validationMessage = validationError.message || 'Validation error';
+
+    // Construct a custom message like 'password: must NOT have fewer than 8 characters'
+    const message = `${field}: ${validationMessage}`;
+
+    // Log the error to debug if needed
+    console.log("Validation Error:", validationError);
+
+    // Send a custom response
+    reply.status(400).send(
+      responseMappingError(400, message) 
+    );
+  } else {
+    // Handle other errors (non-validation errors)
+    reply.status(400).send(
+      responseMappingError(400, error.message || 'Unknown error')
+    );
+  }
+});
+
 
 server.register(fastifyJwt, {
     secret: process.env.JWT_SECRET,
