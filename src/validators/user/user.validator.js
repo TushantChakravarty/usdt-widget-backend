@@ -17,16 +17,16 @@ export const login = {
         },
         required: ['emailId', 'password'],
     },
-    response: {
-        200: {
-            type: 'object',
-            properties: {
-                message: { type: 'string' },
-                token: { type: 'string' },
-            },
-        },
+    // response: {
+    //     200: {
+    //         type: 'object',
+    //         properties: {
+    //             message: { type: 'string' },
+    //             token: { type: 'string' },
+    //         },
+    //     },
        
-    },
+    // },
 };
 
 export const signup = {
