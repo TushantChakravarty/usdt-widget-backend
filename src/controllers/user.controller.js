@@ -26,24 +26,132 @@ const { User, Coin, OnRampTransaction, Usdt,Otp } = db;
  */
 export async function signup(request, reply) {
   try {
-    const { emailId, password } = request.body;
+    const { emailId, otp,password } = request.body;
+    const activeOtp = await Otp.findOne({
+      where: {
+        email:emailId,
+        otp,
+        sent_at: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+    if (!activeOtp)  return reply.status(500).send(responseMappingError(500, `Incorrect otp or your otp is expired`))
     // check if emailId exists. although we have checked above that no users exist, still this check is good for future additions to this route
     const userExists = await User.findOne({ where: { email: emailId } });
     if (userExists)
-      return reply.status(409).send({ error: "Username already taken" });
+      return reply.status(409).send(responseMappingError(500, `User already exist`));
     // encrypt password
     const encryptedPassword = await  encrypt(password);
+    await Otp.destroy({
+      where: { email:emailId },
+    });
     // create user
     const user = await User.create({
       email: emailId,
       password: encryptedPassword,
     });
-    if (user) return reply.status(200).send({ message: "Signup Successful" });
-    else return reply.status(400).send({ message: "Signup failed" });
+   
+    if (user) return reply.status(200).send(responseMappingWithData(200, "success", "Signup success"));
+    else return reply.status(500).send(responseMappingError(500, `Signup failed`));
   } catch (error) {
-    reply.status(500).send({ error: error.message });
+  return reply.status(500).send(responseMappingError(500, `Signup failed`));
   }
 }
+
+
+export async function sendSignUpOtp(request,reply){
+  try{
+    const email = request.query.email;
+    const existingUser = await User.findOne({
+      where: {
+        email,
+      }
+    });
+
+    if(existingUser){
+      return reply.status(500).send(responseMappingError(500, `Account already exist`))
+    }
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 587,
+      secure: false,
+      auth: {
+        user: "tshubhanshu007@gmail.com",
+        pass: "zrni hfym gthq upiu"
+      }
+    })
+    const otp = await generateOTP(email)
+    // const mailOptions = {
+    //   from: {
+    //     name: "GSX solutions",
+    //     address: "tshubhanshu007@gmail.com"
+    //   },
+    //   to: email,
+    //   subject: "Forget password otp",
+    //   text: `Hello, Here is your forget password ${otp}`,
+    //   html: `
+    //     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+    //       <h2 style="color: #0056b3;">USDT Marketplace</h2>
+    //       <p>Hello,</p>
+    //       <p>Your One-Time Password (OTP) for accessing USDT Marketplace is:</p>
+    //       <p style="font-size: 24px; font-weight: bold; color: #0056b3;">${otp}</p>
+    //       <p>Please enter this OTP to complete your verification process. This OTP is valid for 10 minutes.</p>
+    //       <p>If you did not request this OTP, please contact our support team immediately.</p>
+    //       <p>Thank you,</p>
+    //       <p>The USDT Marketplace Team</p>
+    //       <hr>
+    //       <small>If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com">support@usdtmarketplace.com</a></small>
+    //     </div>`
+    // };
+    const mailOptions = {
+      from: {
+        name: "GSX solutions",
+        address: "tshubhanshu007@gmail.com"
+      },
+      to: email,
+      subject: "Sign-up OTP",
+      text: `Hello, your sign-up OTP is ${otp}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            
+            <h2 style="text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">USDT Marketplace</h2>
+            
+            <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
+            <p style="font-size: 16px; line-height: 1.5;">Your One-Time Password (OTP) for Sign up in USDT Marketplace is:</p>
+    
+            <div style="text-align: center; padding: 20px; margin: 20px 0; background-color: #f1f1f1; border-radius: 8px;">
+              <p style="font-size: 36px; font-weight: bold; color: #007bff; margin: 0;">${otp}</p>
+            </div>
+    
+            <p style="font-size: 16px; line-height: 1.5;">Please enter this OTP to complete your sign up process. This OTP is valid for <strong>10 minutes</strong>.</p>
+    
+            <div style="background-color: #007bff; color: white; padding: 10px; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <p>If you did not request this OTP, please <a href="mailto:support@usdtmarketplace.com" style="color: white; text-decoration: underline;">contact our support team</a> immediately.</p>
+            </div>
+    
+            <p style="font-size: 16px; line-height: 1.5;">Thank you,</p>
+            <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
+    
+            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+            <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
+          </div>
+        </div>
+      `
+    };
+    await transporter.sendMail(mailOptions)
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", "please check otp on the given email"));
+  }catch(error){
+    console.log('user.controller.changePassword', error.message)
+    return reply.status(500).send(responseMappingError(500, `Internal server error`))
+
+  }
+}
+
 
 /**
  * Authenticates an  user and generates a login token.

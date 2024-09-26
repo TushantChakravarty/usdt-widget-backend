@@ -50,6 +50,15 @@ const routes = async (route, options) => { // route = fastify instance
    * Route for user signup.
    * Handles the user signup functionality.
    */
+  route.get('/signupOtp', {
+    schema: validator.signupOtp,
+    handler: user.sendSignUpOtp,
+  });
+
+  /**
+   * Route for user signup.
+   * Handles the user signup functionality.
+   */
   route.post('/changePassword', {
     preHandler: async (request, reply) => {
       request.body.oldPassword = request.body.oldPassword.trim();

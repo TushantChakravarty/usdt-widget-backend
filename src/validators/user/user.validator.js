@@ -6,6 +6,7 @@
  * @subcategory user
  */
 
+import { format } from 'sequelize/lib/utils';
 import commonSchemas from '../common.validator.js';
 
 export const login = {
@@ -34,20 +35,22 @@ export const signup = {
         type: 'object',
         properties: {
             emailId: { type: 'string', minLength: 3, maxLength: 40 },
+            otp:{ type: 'string', minLength: 4, maxLength: 4 },
             password: { type: 'string', minLength: 8, maxLength: 56 },
         },
-        required: ['emailId', 'password'],
+        required: ['emailId','otp', 'password'],
         additionalProperties: false,
-    },
-    response: {
-        200: {
-            type: 'object',
-            properties: {
-                message: { type: 'string' },
-            },
+    }
+}
+export const signupOtp = {
+    querystring: {
+        type: 'object',
+        properties: {
+            email: { type: 'string', format:"email",minLength:5, maxLength: 40 },
         },
-        ...commonSchemas.errorResponse,
-    },
+        required: ['email'],
+        additionalProperties: false,
+    }
 }
 
 
@@ -55,8 +58,8 @@ export const changePassword = {
     body: {
         type: 'object',
         properties: {
-            newPassword: { type: 'string', minLength: 8, maxLength: 40 },
-            oldPassword: { type: 'string', minLength: 8, maxLength: 56 },
+            newPassword: { type: 'string', minLength: 8, maxLength: 40,  pattern: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,40}$',},
+            oldPassword: { type: 'string', minLength: 8, maxLength: 56, pattern: '^(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*]).{8,40}$', },
         },
         required: ['newPassword', 'oldPassword'],
         additionalProperties: false,
