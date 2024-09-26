@@ -30,6 +30,7 @@ import logger from './utils/logger.util.js'
 import migrateDb from './utils/db.util.js'
 import amqp from 'amqplib'
 import cron from './utils/cron/index.js'
+import { responseMappingError } from './utils/responseMapper.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
 /**
@@ -39,6 +40,38 @@ process.env.TZ = "Asia/Kolkata" // set timezone
 export const server = Fastify({
     logger
 })
+server.setErrorHandler(function (error, request, reply) {
+  // Check if it's a validation error
+  if (error.validation && error.validation.length > 0) {
+    const validationError = error.validation[0]; // Get the first validation error
+    console.log(error)
+    // Extract the field name and ensure the message is present
+    let field =""
+    let message =""
+    if(validationError.instancePath.length>0)
+    field = validationError.instancePath.replace('/', '') || 'unknown field';
+    const validationMessage = validationError.message || 'Validation error';
+
+    // Construct a custom message like 'password: must NOT have fewer than 8 characters'
+    if(validationError.instancePath.length>0)
+     message = `${field}: ${validationMessage}`
+    else
+    message = `${validationMessage}`
+
+    // Log the error to debug if needed
+    console.log("Validation Error:", validationError);
+
+    // Send a custom response
+    reply.status(400).send(
+      responseMappingError(400, message) 
+    );
+  } else {
+    // Handle other errors (non-validation errors)
+    reply.status(400).send(
+      responseMappingError(400, error.message || 'Unknown error')
+    );
+  }
+});
 
 
 server.register(fastifyJwt, {
@@ -47,7 +80,7 @@ server.register(fastifyJwt, {
 /**
  * Register custom error handler
  */
-handleErrors(server)
+//handleErrors(server)
 
 /**
  * Multipart form data plugin (for file uploads)
