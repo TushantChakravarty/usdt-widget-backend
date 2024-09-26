@@ -27,6 +27,11 @@ const { User, Coin, OnRampTransaction, Usdt,Otp } = db;
 export async function signup(request, reply) {
   try {
     const { emailId, otp,password } = request.body;
+    // check if emailId exists. although we have checked above that no users exist, still this check is good for future additions to this route
+    const userExists = await User.findOne({ where: { email: emailId } });
+    if (userExists)
+      return reply.status(409).send(responseMappingError(500, `User already exist`));
+
     const activeOtp = await Otp.findOne({
       where: {
         email:emailId,
@@ -37,10 +42,6 @@ export async function signup(request, reply) {
       },
     });
     if (!activeOtp)  return reply.status(500).send(responseMappingError(500, `Incorrect otp or your otp is expired`))
-    // check if emailId exists. although we have checked above that no users exist, still this check is good for future additions to this route
-    const userExists = await User.findOne({ where: { email: emailId } });
-    if (userExists)
-      return reply.status(409).send(responseMappingError(500, `User already exist`));
     // encrypt password
     const encryptedPassword = await  encrypt(password);
     await Otp.destroy({
