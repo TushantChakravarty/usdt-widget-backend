@@ -12,9 +12,9 @@ import { getQuotes, getQuotesOfframp } from "../../ApiCalls/usdtapicalls";
  * @returns {CronJob}
  * @see {@link https://www.npmjs.com/package/cron}
  */
-const Every1MinuteCronJob = new CronJob("*/1 * * * *", async () => {
+const Every1HourCronJob = new CronJob("0 * * * *", async () => {
     try {
-        console.log("1-minute cron job starting for quotes");
+        console.log("Hourly cron job starting for quotes");
         const body = {
             fromCurrency: "INR",
             toCurrency: "USDT",
@@ -31,18 +31,17 @@ const Every1MinuteCronJob = new CronJob("*/1 * * * *", async () => {
             }
         
         await getQuotes(body); 
-        await getQuotesOfframp(bodyOfframp);
-        // Make sure to await asynchronous functions
-        console.log("1-minute cron job end");
+        await getQuotesOfframp(bodyOfframp)
+         // Make sure to await asynchronous functions
+        console.log("Hourly cron job end");
     } catch (err) {
-        console.error(`1MinuteCronJob error: ${err}`);  // Changed logger.error to console.error for simplicity
+        console.error(`HourlyCronJob error: ${err}`);  // Changed logger.error to console.error for simplicity
     }
 }, null, true, "Asia/Kolkata");
 
 
-
 // export all cron jobs
 export default () => {
-    Every1MinuteCronJob;
+    Every1HourCronJob;
  
 };
