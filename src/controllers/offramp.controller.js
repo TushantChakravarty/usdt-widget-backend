@@ -209,7 +209,7 @@ export async function offRampRequest(request, reply) {
             const errResponse = await response.json()
             console.log("data check", errResponse);
 
-            throw new Error(`${errResponse.error}`);
+            throw new Error(errResponse.error);
         }
         const data = await response.json();
         console.log("data check", data);
@@ -242,8 +242,8 @@ export async function offRampRequest(request, reply) {
             .status(200)
             .send(responseMappingWithData(200, "success", dataCrypto));
     } catch (error) {
-        console.log("this is error", error.message)
-        return reply.status(500).send(responseMappingError(500, `${error.message}`))
+        console.log("this is error", error)
+        return reply.status(500).send(responseMappingError(500, `internal server error`))
     }
 }
 
