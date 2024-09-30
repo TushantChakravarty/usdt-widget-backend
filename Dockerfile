@@ -38,5 +38,7 @@ COPY .env ./
 CMD [ "npm", "run", "widget" ]
 
 # Expose the necessary ports
-EXPOSE 3007
+EXPOSE 3000
 
+#htL2E/JcjVsYy6BSU2DDUBuPwUm64fPZSiudlLCQ
+#AKIA32XEDI6ECYXQZNFW

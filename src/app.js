@@ -243,7 +243,7 @@ const start = async () => {
     try {
         server.listen({
             port: 3000,
-            host: "127.0.0.1",
+            host: '0.0.0.0',
         })
     } catch (err) {
         logger.error(`server error: ${err}`)
