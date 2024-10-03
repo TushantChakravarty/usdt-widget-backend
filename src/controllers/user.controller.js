@@ -45,6 +45,19 @@ export async function signup(request, reply) {
   }
 }
 
+export async function logout(request, reply) {
+  try {
+    const user = await User.findOne({where:{id:request.user.id}})
+    user.token = null
+    await user.save()
+     reply.clearCookie("token");
+    return reply.status(200).send({ message: "Logged out" })
+  } catch (error) {
+    logger.error(`users.controller.logout: ${error}`)
+    return reply.status(500).send({ error: error.message })
+  }
+}
+
 /**
  * Authenticates an  user and generates a login token.
  * @controller admin
