@@ -46,6 +46,16 @@ const routes = async (route, options) => { // route = fastify instance
     handler: user.signup,
   });
 
+   /**
+   * Route for user logout.
+   * Handles the user logout functionality.
+   * Requires authentication.
+   */
+   route.get("/logout", {
+    preValidation: validateToken,
+    handler: user.logout,
+  });
+
   /**
    * Route for user signup.
    * Handles the user signup functionality.
