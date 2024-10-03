@@ -278,6 +278,22 @@ export async function updatePhone(request, reply) {
   }
 }
 
+export async function logout(request, reply) {
+  try {
+    const user = await User.findOne({where:{id:request.user.id}})
+    if(!user){
+      return reply.status(400).send(responseMappingError(400, "Invalid token"));
+    }
+    user.token = null
+    await user.save()
+     reply.clearCookie("token");
+    return reply.status(200).send({ message: "Logged out" })
+  } catch (error) {
+    logger.error(`users.controller.logout: ${error}`)
+    return reply.status(500).send({ error: error.message })
+  }
+}
+
 /**
  * gets all crypto coins for user.
  * @controller user
