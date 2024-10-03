@@ -61,15 +61,6 @@ const routes = async (route, options) => { // route = fastify instance
     handler: offramp.deleteAccount,
   });
 
-  /**
- * Route for getting all supported networks
- * Handles getting all supported networks data
- */
-  route.get('/redisTest', {
-    handler: offramp.redisTest,
-  });
-
-
 
 
   /**

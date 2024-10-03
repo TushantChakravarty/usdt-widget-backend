@@ -19,10 +19,10 @@ import routes from './routes'
 import fastifyStatic from '@fastify/static'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
-// import handleErrors from './utils/error-handler.util.js'
-// import jwtAuthPlugin from "./plugins/jwt-auth.plugin.js"
+import handleErrors from './utils/error-handler.util.js'
+import jwtAuthPlugin from "./plugins/jwt-auth.plugin.js"
 import RBAMPlugin from "./plugins/rbam.plugin.js"
- import redisPlugin from './plugins/redis.plugin.js'
+// import redisPlugin from './plugins/redis.plugin.js'
 import multipart from '@fastify/multipart'
 import fastifyJwt from '@fastify/jwt'
 import path from 'path'
@@ -98,7 +98,7 @@ await server.register(cookie, {
 /**
  * Register redis caching plugin
  */
- await server.register(redisPlugin)
+// await server.register(redisPlugin)
 
 // await server.register(fastifyJwt, {
 //     secret: 'hereismysecretkey'
