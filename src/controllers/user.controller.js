@@ -688,30 +688,6 @@ export async function getQuotes(request, reply) {
       chain: chain,
       paymentMethodType: paymentMethodType
     }
-    // if(fromCurrency=="INR")
-    // {
-
-    //   body = {
-    //     fromCurrency: fromCurrency,
-    //     toCurrency: toCurrency,
-    //     fromAmount: fromAmount,
-    //     chain: chain,
-    //     paymentMethodType: paymentMethodType
-    //   }
-    // }else if(fromCurrency=="USDT")
-    // {
-    //   let query ={
-    //     id:1
-    //   }
-    //   const usdt = await findRecord(Usdt,query)
-    //   body = {
-    //     fromCurrency: "INR",
-    //     toCurrency: "USDT",
-    //     fromAmount: fromAmount*usdt.inrRate,
-    //     chain: chain,
-    //     paymentMethodType: paymentMethodType
-    //   }
-    // }
     const dataNet = networks
     let updatedData = []
     const coinData = await Coin.findOne({
@@ -721,8 +697,7 @@ export async function getQuotes(request, reply) {
     })
     const networkData = await getAllNetworkData()
     const filteredNetworks = networkData.filter(item => item.coinid == 54)
-    //console.log("network data",filteredNetworks)
-    //console.log(coinData)
+  
     let query ={
       id:1
     }
@@ -743,7 +718,6 @@ export async function getQuotes(request, reply) {
       })
     }
     const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-    console.log(minWithdrawl)
     if(minWithdrawl.minBuyInRupee>fromAmount)
     return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
     const timestamp = Date.now().toString();
@@ -768,8 +742,7 @@ export async function getQuotes(request, reply) {
       signature: signature,
     };
 
-
-    const cachedData = request.server.redis.get(`${apiKey}-${payload}-${signature}`)
+    const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`)
 
     if(cachedData){
       let data_cache = await JSON.parse(cachedData);
@@ -801,10 +774,10 @@ export async function getQuotes(request, reply) {
       
     }
 
-    await request.server.redis.set(`${apiKey}-${payload}-${signature}`,JSON.stringify(response.json()),'EX',7200)
-
     let data = await response.json();
     console.log(data);
+
+   const enter = await request.server.redis.set(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`,JSON.stringify(data), 'EX', 7200);
     if(data.data)
     {
       let updatedData = data.data
