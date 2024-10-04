@@ -769,6 +769,21 @@ export async function getQuotes(request, reply) {
     };
 
 
+    const cachedData = request.server.redis.get(`${apiKey}-${payload}-${signature}`)
+
+    if(cachedData){
+      let data_cache = await JSON.parse(cachedData);
+      console.log(data_cache);
+      if(data_cache.data)
+      {
+        let updatedData = data_cache.data
+        updatedData.feeInUsdt = Number(data_cache?.data?.fees[0]?.gasFee)/Number(data_cache?.data?.rate)
+        return reply
+        .status(200)
+        .send(responseMappingWithData(200, "success", updatedData));
+    }
+    }
+
     const url =
       "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
 
@@ -785,6 +800,8 @@ export async function getQuotes(request, reply) {
       throw new Error(`${errResponse.error}`);
       
     }
+
+    await request.server.redis.set(`${apiKey}-${payload}-${signature}`,JSON.stringify(response.json()),'EX',7200)
 
     let data = await response.json();
     console.log(data);
