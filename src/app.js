@@ -19,10 +19,10 @@ import routes from './routes'
 import fastifyStatic from '@fastify/static'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
-// import handleErrors from './utils/error-handler.util.js'
-// import jwtAuthPlugin from "./plugins/jwt-auth.plugin.js"
+import handleErrors from './utils/error-handler.util.js'
+import jwtAuthPlugin from "./plugins/jwt-auth.plugin.js"
 import RBAMPlugin from "./plugins/rbam.plugin.js"
- import redisPlugin from './plugins/redis.plugin.js'
+// import redisPlugin from './plugins/redis.plugin.js'
 import multipart from '@fastify/multipart'
 import fastifyJwt from '@fastify/jwt'
 import path from 'path'
@@ -30,7 +30,6 @@ import logger from './utils/logger.util.js'
 import migrateDb from './utils/db.util.js'
 import amqp from 'amqplib'
 import cron from './utils/cron/index.js'
-// import migrateDb from './utils/db.util.js'
 import { responseMappingError } from './utils/responseMapper.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
@@ -99,7 +98,7 @@ await server.register(cookie, {
 /**
  * Register redis caching plugin
  */
- await server.register(redisPlugin)
+// await server.register(redisPlugin)
 
 // await server.register(fastifyJwt, {
 //     secret: 'hereismysecretkey'
