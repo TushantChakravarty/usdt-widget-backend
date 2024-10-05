@@ -19,9 +19,9 @@ export async function AddFiatAccountId(request, reply) {
         const apiKey = process.env.apiKey;
         const secret = process.env.secret;
         const { fiatAccount, ifsc, bankName } = request.body
-        if (!request.user.isKycCompleted) {
-            return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
-        }
+        // if (!request.user.isKycCompleted) {
+        //     return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
+        // }
         const fiat_account_exist = await FiatAccount.findOne({where:{fiatAccount:fiatAccount}})
         if(fiat_account_exist && (request.user.id === fiat_account_exist.user_id && fiat_account_exist.delete === false)){
             return reply.status(500).send(responseMappingError(500, "You already have a fiat account with this"))
