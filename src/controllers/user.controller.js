@@ -821,7 +821,15 @@ export async function getUsdtRate(request, reply) {
     let query ={
       id:1
     }
+    const cachedData = await request.server.redis.get(`${query.id}-getUsdtRate`)
+    if(cachedData){
+      const data = await JSON.parse(cachedData)
+      return reply
+      .status(200)
+      .send(responseMappingWithData(200, "success", data.inrRate));
+    }
     const usdt = await findRecord(Usdt,query)
+    const enter = await request.server.redis.set(`${query.id}-getUsdtRate`,JSON.stringify({inrRate:usdt.inrRate}), 'EX', 10);
     if(usdt)
     {
       return reply

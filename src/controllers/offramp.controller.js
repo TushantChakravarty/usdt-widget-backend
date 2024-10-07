@@ -275,7 +275,6 @@ export async function getQuotes(request, reply) {
         const secret = process.env.secret;
         if(fromAmount<10)
         {
-           
           return reply.status(500).send(responseMappingError(400, `Amount should be greater than or equal to 10`))
         }
         const body = {
@@ -342,6 +341,20 @@ export async function getQuotes(request, reply) {
             signature: signature,
         };
 
+        const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`)
+
+        if(cachedData){
+            let data_cache = await JSON.parse(cachedData);
+            console.log(data_cache);
+            if(data_cache.data)
+            {
+              let updatedData = data_cache.data
+              updatedData.feeInUsdt = (Number(data_cache?.data?.fees[0]?.tdsFee) / Number(data_cache?.data?.rate)).toFixed(2)
+              return reply
+                  .status(200)
+                  .send(responseMappingWithData(200, "success", updatedData));
+          }
+       }
 
         const url =
             "https://api.onramp.money/onramp/api/v2/whiteLabel/offramp/quote"
@@ -359,6 +372,8 @@ export async function getQuotes(request, reply) {
         }
 
         let data = await response.json();
+        const enter = await request.server.redis.set(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`,JSON.stringify(data), 'EX', 7200);
+
         console.log(data);
         console.log(data?.data?.fees, data?.data?.rate)
         if (data.data) {
