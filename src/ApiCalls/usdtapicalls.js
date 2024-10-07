@@ -52,7 +52,7 @@ export async function usdtMarketPlace() {
     };
     console.log(headers2);
     const response = await fetch(
-      "https://api.onramp.money/onramp/api/v2/whiteLabel/kyc/url",
+      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/kyc/url",
       {
         method: "POST",
         headers: {
@@ -74,7 +74,7 @@ export async function usdtMarketPlace() {
 export async function getAllCoinsData() {
   try {
     const response = await fetch(
-      "https://api.onramp.money/onramp/api/v3/buy/public/listAllCoins"
+      "https://api-test.onramp.money/onramp/api/v3/buy/public/listAllCoins"
     );
     const coins = response.json();
     if (coins) return coins;
@@ -107,7 +107,7 @@ export async function getAllNetworkData() {
       signature: signature,
     };
     const response = await fetch(
-      "https://api.onramp.money/onramp/api/v2/common/transaction/allGasFee",
+      "https://api-test.onramp.money/onramp/api/v2/common/transaction/allGasFee",
       {
         method: "POST",
         headers: {
@@ -202,7 +202,7 @@ export async function getQuotes(details) {
 
 
     const url =
-      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
+      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
 
     const response = await fetch(url, {
       method: "POST",
@@ -274,7 +274,7 @@ export async function getQuotesOfframp(details) {
 
 
     const url =
-      "https://api.onramp.money/onramp/api/v2/whiteLabel/offramp/quote"
+      "https://api-test.onramp.money/onramp/api/v2/whiteLabel/offramp/quote"
 
     const response = await fetch(url, {
       method: "POST",

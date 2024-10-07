@@ -73,7 +73,7 @@ export async function AddFiatAccountId(request, reply) {
 
 
         const url =
-            "https://api.onramp.money/onramp/api/v2/whiteLabel/bank/addFiatAccount"
+            "https://api-test.onramp.money/onramp/api/v2/whiteLabel/bank/addFiatAccount"
         const response = await fetch(url, {
             method: "POST",
             headers: headers,
@@ -198,7 +198,7 @@ export async function offRampRequest(request, reply) {
             signature: signature,
         };
         const url =
-            "https://api.onramp.money/onramp/api/v2/whiteLabel/offramp/createTransaction"
+            "https://api-test.onramp.money/onramp/api/v2/whiteLabel/offramp/createTransaction"
         const response = await fetch(url, {
             method: "POST",
             headers: headers,
@@ -344,7 +344,7 @@ export async function getQuotes(request, reply) {
 
 
         const url =
-            "https://api.onramp.money/onramp/api/v2/whiteLabel/offramp/quote"
+            "https://api-test.onramp.money/onramp/api/v2/whiteLabel/offramp/quote"
 
         const response = await fetch(url, {
             method: "POST",
