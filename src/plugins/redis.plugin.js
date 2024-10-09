@@ -16,7 +16,7 @@ async function redisMiddleware(request, reply) {
         if (request.user?.role === "admin") return; // Don't reply admin with cached data
         const { redis } = this; // "this" = fastify instance
         const app_port = process.env.APP_PORT || 3000; // unique port so that redis caches dont clash between dev, staging and prod
-        const key = `${app_port}-${request.user?.role || "public"}-${request.method}-${request.url?.replace(/[^a-z0-9]/gi, '')}-${JSON.stringify(request.query).replace(/[^a-z0-9]/gi, '')}-${JSON.stringify(request.params).replace(/[^a-z0-9]/gi, '')}`; // generate a unique key for each route
+        const key = `${app_port}-${request.user.id}-${request.user?.role || "public"}-${request.method}-${request.url?.replace(/[^a-z0-9]/gi, '')}-${JSON.stringify(request.query).replace(/[^a-z0-9]/gi, '')}-${JSON.stringify(request.params).replace(/[^a-z0-9]/gi, '')}`; // generate a unique key for each route
         request.redis_key = key;
 
         const cachedData = await redis.get(key);
