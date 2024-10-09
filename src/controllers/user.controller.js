@@ -30,6 +30,7 @@ export async function signup(request, reply) {
     const { emailId, otp,password } = request.body;
     // check if emailId exists. although we have checked above that no users exist, still this check is good for future additions to this route
     const userExists = await User.findOne({ where: { email: emailId } });
+    console.log(userExists)
     if (userExists)
       return reply.status(409).send(responseMappingError(500, `User already exist`));
 
