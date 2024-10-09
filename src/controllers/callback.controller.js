@@ -115,11 +115,35 @@ export async function callbackHandler(request, reply) {
             console.log("user",user)
             if (user) {
                 // Update the otp field in the kyc object
-                user.isKycCompleted = true
+                //user.isKycCompleted = true
                 user.kyc = {
                     ...user.kyc,
                     completed: true,
                 };
+                console.log('updated check',user)
+                
+                // Save the updated user object
+                const updated = await user.save();
+                console.log('updated',updated)
+                reply.status(200).send({ message: "success" });
+            }else{
+                reply.status(400).send({ error: "User not found" });
+            }
+        }
+        if (details.status === "EDD_COMPLETED") {
+            let user = await User.scope("private").findOne({
+                where: {
+                    customerId: details.metadata.customerId,
+                },
+            });
+            console.log("user",user)
+            if (user) {
+                // Update the otp field in the kyc object
+                user.isKycCompleted = true
+                // user.kyc = {
+                //     ...user.kyc,
+                //     completed: true,
+                // };
                 console.log('updated check',user)
                 
                 // Save the updated user object
