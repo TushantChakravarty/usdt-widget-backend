@@ -71,7 +71,7 @@ export async function sendSignUpOtp(request,reply){
         email,
       }
     });
-
+    console.log(email)
     if(existingUser){
       return reply.status(500).send(responseMappingError(500, `Account already exist`))
     }
