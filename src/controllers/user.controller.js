@@ -14,6 +14,7 @@ import { Currencies } from "../utils/currencies.js";
 import { networks } from "../utils/networks.js";
 import { findRecord } from "../Dao/dao.js";
 import { Sequelize } from "sequelize";
+import { countryCodes } from "../utils/countryCodes.js";
 
 const { User, Coin, OnRampTransaction, Usdt,Otp } = db;
 /**
@@ -234,6 +235,28 @@ export async function getProfile(request, reply) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
 }
+
+/**
+ * gets user profile data.
+ * @controller admin
+ * @route GET /api/v1/user/getCountryCodes
+ * @param {Object} request - The request object.
+ * @param {Object} reply - The reply object.
+ * @throws {Error} If an error occurs while get codes
+ */
+export async function getCountryCodes(request, reply) {
+  
+  try {
+    console.log('here')
+    const CountryCodes = countryCodes
+    if (!CountryCodes) return reply.status(404).send(responseMappingError(200, [])); // generic error to prevent bruteforce
+
+    return reply.status(200).send(responseMappingWithData(200, "Success", CountryCodes ));
+  } catch (error) {
+    reply.status(500).send(responseMappingError(500, error.message));
+  }
+}
+
 
 /**
  * updates user phone number.

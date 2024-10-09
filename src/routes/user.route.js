@@ -114,6 +114,23 @@ const routes = async (route, options) => { // route = fastify instance
   });
 
   /**
+   * Route for user profile.
+   * Handles the user profile
+   */
+  route.get('/getCountryCodes', {
+    //schema: validator.profile,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    preValidation: validateToken,
+
+    //   preHandler: async (request, reply) => {
+    //       request.body.email_id = request.body.email_id.trim();
+    //   },
+    handler: user.getCountryCodes,
+  });
+
+  /**
 * Route for adding  user phone number.
 * Handles the user phone number update
 */
