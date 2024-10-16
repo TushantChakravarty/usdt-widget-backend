@@ -31,6 +31,7 @@ import migrateDb from './utils/db.util.js'
 import amqp from 'amqplib'
 import cron from './utils/cron/index.js'
 import { responseMappingError } from './utils/responseMapper.js'
+import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
 /**
@@ -40,6 +41,9 @@ process.env.TZ = "Asia/Kolkata" // set timezone
 export const server = Fastify({
     logger
 })
+//generateTransaction()
+//createTronWallet()
+verifyTransaction()
 server.setErrorHandler(function (error, request, reply) {
   // Check if it's a validation error
   if (error.validation && error.validation.length > 0) {

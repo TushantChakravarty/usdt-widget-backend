@@ -34,6 +34,7 @@
     "cron": "^3.1.7",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.3.1",
+    "ethers": "^6.13.4",
     "fastify": "^4.27.0",
     "fastify-jwt": "^4.2.0",
     "fastify-plugin": "^4.5.1",
@@ -43,7 +44,9 @@
     "nodemailer": "^6.9.15",
     "pg": "^8.11.3",
     "pg-hstore": "^2.3.4",
+    "qrcode": "^1.5.4",
     "sequelize": "^6.33.0",
+    "tronweb": "^6.0.0",
     "yarn": "^1.22.22"
   },
   "devDependencies": {

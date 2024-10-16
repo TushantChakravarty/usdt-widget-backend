@@ -11,8 +11,19 @@ import {
 import { Currencies } from "../utils/currencies.js";
 import { networks } from "../utils/networks.js";
 import { createNewRecord, findAllRecord, findRecord } from "../Dao/dao.js";
+import { ethers } from 'ethers';
+import { TronWeb, utils as TronWebUtils, Trx, TransactionBuilder, Contract, Event, Plugin } from 'tronweb';
+import QRCode from 'qrcode';
 
 const { User, Coin, OnRampTransaction, OffRampTransaction, FiatAccount } = db;
+const walletAddress = "TEkUyYL3pGnSErbWPZXnYrJYPUoTci2nrF"
+const txHash ="d246ad2a360c39e82e95355a62523ea21333b315ba3ab8200d170a8faddab52e"
+const tronWeb = new TronWeb({
+    fullHost: 'https://nile.trongrid.io', // Mainnet or https://nile.trongrid.io for testnet
+    privateKey: 'A9D80CD6CF2BAFA93743244977306EADC2C78CDC07ECEF98E671DCD4B3AD3A1E', // Private key of the wallet to receive the payment
+});
+
+
 
 export async function AddFiatAccountId(request, reply) {
     try {
@@ -103,6 +114,52 @@ export async function AddFiatAccountId(request, reply) {
     }
 }
 
+export async function AddFiatAccountOfframp(request, reply) {
+    try {
+        const apiKey = process.env.apiKey;
+        const secret = process.env.secret;
+        const { fiatAccount, ifsc, bankName } = request.body
+        // if (!request.user.isKycCompleted) {
+        //     return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
+        // }
+        const fiat_account_exist = await FiatAccount.findOne({where:{fiatAccount:fiatAccount}})
+        if(fiat_account_exist && (request.user.id === fiat_account_exist.user_id && fiat_account_exist.delete === false)){
+            return reply.status(500).send(responseMappingError(500, "You already have a fiat account with this"))
+        }
+        if(fiat_account_exist && (request.user.id === fiat_account_exist.user_id && fiat_account_exist.delete === true)){
+            fiat_account_exist.delete = false
+            await fiat_account_exist.save()
+            return reply
+             .status(200)
+             .send(responseMappingWithData(200, "success", "success"));
+        }
+        if(fiat_account_exist && fiat_account_exist.delete === false){
+            return reply.status(500).send(responseMappingError(500, "This account already in use"))
+        }
+        if(fiat_account_exist && fiat_account_exist.delete === true){
+           fiat_account_exist.delete = false
+           fiat_account_exist.user_id = request.user.id
+           await fiat_account_exist.save()
+           return reply
+            .status(200)
+            .send(responseMappingWithData(200, "success", "success"));
+        }
+     
+      
+
+        const create_fiat_account = { user_id: request.user.id, fiatAccountId: data.data.fiatAccountId, fiatAccount: fiatAccount, ifsc: ifsc,  bank_name:bankName }
+
+        if (data.code === 200) {
+            await createNewRecord(FiatAccount, create_fiat_account)
+        }
+        return reply
+            .status(200)
+            .send(responseMappingWithData(200, "success", data.data));
+
+    } catch (error) {
+        return reply.status(500).send(responseMappingError(500, error.message))
+    }
+}
 
 export async function deleteAccount(request, reply) {
     try {
@@ -215,7 +272,7 @@ export async function offRampRequest(request, reply) {
         console.log("data check", data);
 
         body.user_id = request.user.id,
-         body.reference_id = data.data.transactionId
+        body.reference_id = data.data.transactionId
 
         const transaction = await OffRampTransaction.create(body)
         let dataCrypto = {...data?.data,
@@ -395,4 +452,124 @@ export async function getQuotes(request, reply) {
 
     }
 }
+
+export async function createTronWallet()
+{
+    const tronWeb = new TronWeb({
+        fullHost: 'https://nile.trongrid.io', // Use https://nile.trongrid.io for testnet
+    });
+    
+    // Generate a new random Tron wallet
+    const wallet = tronWeb.createAccount();
+    
+    wallet.then(account => {
+        console.log('Address:', account.address.base58);
+        console.log('Private Key:', account.privateKey);
+    }).catch(error => {
+        console.error('Error creating Tron wallet:', error);
+    });
+}
+
+
+
+// Pre-generate the transaction (do not broadcast it yet)
+async function preGenerateTransaction(toAddress, amount) {
+    try {
+        // Create an unsigned transaction (not broadcasted yet)
+        const transaction = await tronWeb.transactionBuilder.sendTrx(toAddress, amount, tronWeb.defaultAddress.base58);
+
+        // Get the transaction hash (txID) before signing
+        const txHash = transaction.txID; // Transaction hash without signing
+        console.log('Pre-generated txHash:', txHash);
+
+        return { transaction, txHash };
+    } catch (error) {
+        console.error('Error pre-generating transaction:', error);
+        throw error;
+    }
+}
+
+async function generateQRCode(walletAddress) {
+   // const walletAddress = 'TEkUyYL3pGnSErbWPZXnYrJYPUoTci2nrF'; // Replace with your recipient's wallet address
+    const amountInTrx = 10; // Example: 10 TRX
+    const amountInSun = amountInTrx * 1000000; // Convert TRX to SUN
+    
+    // Tron URI format
+     const tronUri = `${walletAddress}`;
+    
+    // Generate the QR code
+    const url = QRCode.toDataURL(tronUri, { errorCorrectionLevel: 'L' }, (err, qrCodeUrl) => {
+        if (err) {
+            console.error('Error generating QR code:', err);
+        } else {
+            console.log('QR Code Data URL:', qrCodeUrl);
+            // You can now display or send this QR code to users
+        }
+    });
+    return url
+}
+
+export async function generateTransaction() {
+    // const transactionHash = await preGenerateTransaction("TN7Nh9nNHW9he4mP7FXwEcDM6jMeY7i3vp",10)
+    // console.log(transactionHash)
+    const tronQrCode = await generateQRCode(walletAddress)
+    
+    try {
+      
+        console.log('QR Code Data:', tronQrCode);
+        // Send this data to the frontend to display the QR code, or save it as an image file
+    } catch (error) {
+        console.error('Error generating QR code:', error);
+    }
+}
+
+export async function verifyTransaction() {
+    try {
+        const { fromCurrency, toCurrency, chain, fiatAccountId, fromAmount, toAmount, rate } = request.body
+        const expectedTrxAmount = 10
+        // Fetch the transaction info from Tron blockchain using the txHash
+        const transactionInfo = await tronWeb.trx.getTransaction(txHash);
+        console.log(transactionInfo)
+        if (transactionInfo) {
+            const actualAmount = transactionInfo.raw_data.contract[0].parameter.value.amount;
+
+            // Convert the expected amount from TRX to SUN (1 TRX = 1,000,000 SUN)
+            const expectedAmountInSun = expectedTrxAmount * 1000000;
+
+            // Check if the transaction was successful
+            const transactionStatus = transactionInfo.ret[0].contractRet;
+
+            // Verify that the amount matches the expected value in SUN and the transaction was successful
+            if (actualAmount === expectedAmountInSun && transactionStatus === 'SUCCESS') {
+                console.log('Transaction is valid, amount matches, and the transaction was successful.');
+                let body = {
+                    fromCurrency: fromCurrency,
+                    toCurrency: toCurrency,
+                    chain: chain,
+                    fiatAccountId: fiatAccountId,
+                    customerId: request.user.id,
+                    fromAmount: fromAmount,
+                    toAmount: toAmount,
+                    rate: rate
+                }
+
+                body.user_id = request.user.id,
+                body.reference_id = transactionInfo.txID
+        
+                const transaction = await OffRampTransaction.create(body)
+                // Mark payment as successful in your system
+            } else if (actualAmount !== expectedAmountInSun) {
+                console.log('Transaction amount does not match the expected value.');
+            } else if (transactionStatus !== 'SUCCESS') {
+                console.log('Transaction was not successful.');
+            }
+        } else {
+            console.log('Transaction not found.');
+        }
+    } catch (error) {
+        console.error('Error verifying transaction:', error);
+    }
+}
+
+
 
