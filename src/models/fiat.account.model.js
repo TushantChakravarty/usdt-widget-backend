@@ -18,6 +18,10 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.INTEGER,
                 allowNull: false,
             },
+            account_name:{
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
             fiatAccountId: {
                 type: DataTypes.STRING,
                 allowNull: false,

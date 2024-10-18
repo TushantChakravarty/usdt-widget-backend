@@ -15,6 +15,7 @@ import { networks } from "../utils/networks.js";
 import { findRecord } from "../Dao/dao.js";
 import { Sequelize } from "sequelize";
 import { countryCodes } from "../utils/countryCodes.js";
+import { generateRandomCustomerId } from "../utils/utils.js";
 
 const { User, Coin, OnRampTransaction, Usdt,Otp } = db;
 /**
@@ -53,6 +54,7 @@ export async function signup(request, reply) {
     const user = await User.create({
       email: emailId,
       password: encryptedPassword,
+      customerId:generateRandomCustomerId()
     });
    
     if (user) return reply.status(200).send(responseMappingWithData(200, "success", "Signup success"));
@@ -86,6 +88,7 @@ export async function sendSignUpOtp(request,reply){
       }
     })
     const otp = await generateOTP(email)
+    console.log(otp)
     // const mailOptions = {
     //   from: {
     //     name: "GSX solutions",

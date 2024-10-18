@@ -62,6 +62,16 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.FLOAT,
                 allowNull: false
             },
+            txHash: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            processed:{
+                type: DataTypes.BOOLEAN,
+                allowNull:true,
+                defaultValue:false
+            }
+
         },
         {
             sequelize,

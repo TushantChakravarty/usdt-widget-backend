@@ -10,10 +10,12 @@ import {
 } from "../utils/responseMapper.js";
 import { Currencies } from "../utils/currencies.js";
 import { networks } from "../utils/networks.js";
-import { createNewRecord, findAllRecord, findRecord } from "../Dao/dao.js";
+import { createNewRecord, findAllRecord, findOneAndUpdate, findRecord } from "../Dao/dao.js";
 import { ethers } from 'ethers';
 import { TronWeb, utils as TronWebUtils, Trx, TransactionBuilder, Contract, Event, Plugin } from 'tronweb';
 import QRCode from 'qrcode';
+import { generateRandomFiatId, generateTransactionId } from "../utils/utils.js";
+import { createPayoutBankRequest, generateToken } from "../ApiCalls/globalpay.js";
 
 const { User, Coin, OnRampTransaction, OffRampTransaction, FiatAccount } = db;
 const walletAddress = "TEkUyYL3pGnSErbWPZXnYrJYPUoTci2nrF"
@@ -118,7 +120,7 @@ export async function AddFiatAccountOfframp(request, reply) {
     try {
         const apiKey = process.env.apiKey;
         const secret = process.env.secret;
-        const { fiatAccount, ifsc, bankName } = request.body
+        const { fiatAccount, ifsc, bankName, accountName } = request.body
         // if (!request.user.isKycCompleted) {
         //     return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
         // }
@@ -147,14 +149,14 @@ export async function AddFiatAccountOfframp(request, reply) {
      
       
 
-        const create_fiat_account = { user_id: request.user.id, fiatAccountId: data.data.fiatAccountId, fiatAccount: fiatAccount, ifsc: ifsc,  bank_name:bankName }
+        const create_fiat_account = { user_id: request.user.id, fiatAccountId: generateRandomFiatId(), fiatAccount: fiatAccount, ifsc: ifsc,  bank_name:bankName , account_name:accountName}
 
-        if (data.code === 200) {
+       
             await createNewRecord(FiatAccount, create_fiat_account)
-        }
+     
         return reply
             .status(200)
-            .send(responseMappingWithData(200, "success", data.data));
+            .send(responseMappingWithData(200, "success", "success"));
 
     } catch (error) {
         return reply.status(500).send(responseMappingError(500, error.message))
@@ -490,43 +492,98 @@ async function preGenerateTransaction(toAddress, amount) {
 }
 
 async function generateQRCode(walletAddress) {
-   // const walletAddress = 'TEkUyYL3pGnSErbWPZXnYrJYPUoTci2nrF'; // Replace with your recipient's wallet address
-    const amountInTrx = 10; // Example: 10 TRX
-    const amountInSun = amountInTrx * 1000000; // Convert TRX to SUN
-    
-    // Tron URI format
-     const tronUri = `${walletAddress}`;
-    
-    // Generate the QR code
-    const url = QRCode.toDataURL(tronUri, { errorCorrectionLevel: 'L' }, (err, qrCodeUrl) => {
-        if (err) {
-            console.error('Error generating QR code:', err);
-        } else {
-            console.log('QR Code Data URL:', qrCodeUrl);
-            // You can now display or send this QR code to users
-        }
-    });
-    return url
-}
+    try {
+        const amountInTrx = 10; // Example: 10 TRX
+        const amountInSun = amountInTrx * 1000000; // Convert TRX to SUN
 
-export async function generateTransaction() {
+        // Tron URI format (only wallet address as discussed earlier)
+        const tronUri = `${walletAddress}`;
+
+        // Generate the QR code with async/await
+        const qrCodeUrl = await QRCode.toDataURL(tronUri, { errorCorrectionLevel: 'L' });
+
+        // Return the QR code URL
+        //console.log('QR Code Data URL:', qrCodeUrl);
+        return qrCodeUrl;
+    } catch (err) {
+        console.error('Error generating QR code:', err);
+        return null; // Return null in case of an error
+    }
+}
+export async function generateTransaction(request, reply) {
     // const transactionHash = await preGenerateTransaction("TN7Nh9nNHW9he4mP7FXwEcDM6jMeY7i3vp",10)
     // console.log(transactionHash)
+    const { fromCurrency, toCurrency, chain, fiatAccountId, fromAmount, toAmount, rate } = request.body
+
+    if (!request.user) {
+        return reply.status(500).send(responseMappingError(500, "Invalid request"))
+    }
     const tronQrCode = await generateQRCode(walletAddress)
     
     try {
       
-        console.log('QR Code Data:', tronQrCode);
+        //console.log('QR Code Data:', tronQrCode);
+        const transactionId = generateTransactionId()
+        let body = {
+            fromCurrency: fromCurrency,
+            toCurrency: toCurrency,
+            chain: chain,
+            fiatAccountId: fiatAccountId,
+            fromAmount: fromAmount,
+            toAmount: toAmount,
+            reference_id:`${transactionId}`,
+            customerId:request.user.customerId,
+            rate: rate,
+            status:'pending',
+            processed:false
+        }
+
+        body.user_id = request.user.id
+
+        const transaction = await OffRampTransaction.create(body)
+        if(transaction)
+        {
+
+            let dataCrypto = {
+                reference_id:transactionId,
+                wallet:walletAddress,
+                qrCode:tronQrCode,
+                cryptoNotes:[
+                    {
+                        "type": -1,
+                        "msg": "Transfers via bank accounts are not allowed for this wallet."
+                    },
+                    {
+                        "type": 1,
+                        "msg": "Please transfer funds to the wallet address listed above."
+                    },
+                    {
+                        "type": 1,
+                        "msg": "Cryptocurrency transfers using tron is accepted."
+                    },
+                    {
+                        "type": -1,
+                        "msg": "Transfers via credit or debit cards are not supported for this wallet."
+                    }
+                ]
+            }
+            
+            return reply
+            .status(200)
+            .send(responseMappingWithData(200, "success", dataCrypto));
+            
+        }else{}
         // Send this data to the frontend to display the QR code, or save it as an image file
     } catch (error) {
         console.error('Error generating QR code:', error);
     }
 }
 
-export async function verifyTransaction() {
+export async function verifyTransaction(request, reply) {
     try {
-        const { fromCurrency, toCurrency, chain, fiatAccountId, fromAmount, toAmount, rate } = request.body
-        const expectedTrxAmount = 10
+        const { fromCurrency, toCurrency, chain, fromAmount,reference_id, txHash } = request.body
+       // const expectedTrxAmount = 10
+        //console.log(txHash)
         // Fetch the transaction info from Tron blockchain using the txHash
         const transactionInfo = await tronWeb.trx.getTransaction(txHash);
         console.log(transactionInfo)
@@ -534,7 +591,7 @@ export async function verifyTransaction() {
             const actualAmount = transactionInfo.raw_data.contract[0].parameter.value.amount;
 
             // Convert the expected amount from TRX to SUN (1 TRX = 1,000,000 SUN)
-            const expectedAmountInSun = expectedTrxAmount * 1000000;
+            const expectedAmountInSun = fromAmount * 1000000;
 
             // Check if the transaction was successful
             const transactionStatus = transactionInfo.ret[0].contractRet;
@@ -542,21 +599,52 @@ export async function verifyTransaction() {
             // Verify that the amount matches the expected value in SUN and the transaction was successful
             if (actualAmount === expectedAmountInSun && transactionStatus === 'SUCCESS') {
                 console.log('Transaction is valid, amount matches, and the transaction was successful.');
-                let body = {
-                    fromCurrency: fromCurrency,
-                    toCurrency: toCurrency,
-                    chain: chain,
-                    fiatAccountId: fiatAccountId,
-                    customerId: request.user.id,
-                    fromAmount: fromAmount,
-                    toAmount: toAmount,
-                    rate: rate
+                let updateDetails = {
+                    txHash:transactionInfo.txID,
+                    status:'success',
+                }
+                let query ={
+                    reference_id:reference_id.toString()
                 }
 
-                body.user_id = request.user.id,
-                body.reference_id = transactionInfo.txID
-        
-                const transaction = await OffRampTransaction.create(body)
+                 const transaction = await findOneAndUpdate(OffRampTransaction,query,updateDetails)
+                 if(transaction)
+                 {
+                    if(transaction.user_id!==request.user.id)
+                    {
+                        console.log('transaction belongs to other user')
+                    }
+                    const response = await generateToken()
+                    if(response.token)
+                    {
+                        const fiatAccount = await findRecord(FiatAccount,{
+                            fiatAccountId:transaction.fiatAccountId
+                        })
+                        console.log(fiatAccount)
+                        console.log("token",response.token)
+                        console.log(request.user)
+                        const phone = request.user.phone.replace("+91-", "");
+                        const body ={
+
+                            "name":fiatAccount.account_name,
+                            "email":request.user.email,
+                            "phone":phone,
+                            "amount":transaction.fromAmount,
+                            "account_number":fiatAccount.fiatAccount,
+                            "ifsc":fiatAccount.ifsc,
+                            "bank_name":fiatAccount.ifsc,
+                            "method":"IMPS",
+                            "customer_id":request.user.customerId
+                        }
+                        console.log(body)
+                        const payoutRequest = await createPayoutBankRequest(response.token,body)
+                        console.log(payoutRequest)
+                    }
+                   // console.log(transaction)
+                 }else{
+                    console.log('transaction doesnt belong to our system')
+                 }
+                //const transaction = await OffRampTransaction.create(body)
                 // Mark payment as successful in your system
             } else if (actualAmount !== expectedAmountInSun) {
                 console.log('Transaction amount does not match the expected value.');

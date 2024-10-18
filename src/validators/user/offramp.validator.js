@@ -34,6 +34,31 @@ export const createOfframp = {
     // },
 }
 
+export const verifyTransaction = {
+    body: {
+        type: 'object',
+        properties: {
+            fromCurrency: { type: 'string', minLength: 1, maxLength: 10 },
+            toCurrency: { type: 'string', minLength: 1, maxLength: 10 },
+            chain: { type: 'string', minLength: 1, maxLength: 10 },
+            fromAmount: { type: 'number', },
+            txHash :{ type: 'string'},
+            reference_id: {type: 'number'}
+        },
+        required: ["fromCurrency", "toCurrency", "chain",  "fromAmount", "txHash", "reference_id"],
+        additionalProperties: false,
+    },
+    // response: {
+    //     200: {
+    //         type: 'object',
+    //         properties: {
+    //             message: { type: 'string' },
+    //         },
+    //     },
+    //     ...commonSchemas.errorResponse,
+    // },
+}
+
 
 export const addFiatAccount = {
     body: {
@@ -42,9 +67,10 @@ export const addFiatAccount = {
             fiatAccount: { type: 'string', minLength: 1, maxLength: 20 },
             ifsc: { type: 'string', minLength: 1, maxLength: 16 },
             bankName: { type: 'string', minLength: 1, maxLength: 20 },
+            accountName :{type:'string'}
 
         },
-        required: ["fiatAccount", "ifsc", "bankName"],
+        required: ["fiatAccount", "ifsc", "bankName", "accountName"],
         additionalProperties: false,
     }
 }

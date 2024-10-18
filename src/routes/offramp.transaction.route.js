@@ -30,6 +30,20 @@ const routes = async (route, options) => { // route = fastify instance
     handler: offramp.offRampRequest,
   });
 
+  /**
+ * Route for getting all supported networks
+ * Handles getting all supported networks data
+ */
+  route.post('/createOfframpTransaction', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    schema: validator.createOfframp,
+    preValidation: validateToken,
+    handler: offramp.generateTransaction,
+  });
+
 
   /**
  * Route for getting all supported networks
@@ -43,6 +57,34 @@ const routes = async (route, options) => { // route = fastify instance
     schema: validator.addFiatAccount,
     preValidation: validateToken,
     handler: offramp.AddFiatAccountId,
+  });
+
+  /**
+ * Route for getting all supported networks
+ * Handles getting all supported networks data
+ */
+  route.post('/addFiatAccountOfframp', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    schema: validator.addFiatAccount,
+    preValidation: validateToken,
+    handler: offramp.AddFiatAccountOfframp,
+  });
+
+/**
+ * Route for handling transaction verification
+ * Handles  transaction verification
+ */
+  route.post('/verifyTransaction', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    schema: validator.verifyTransaction,
+    preValidation: validateToken,
+    handler: offramp.verifyTransaction,
   });
 
 

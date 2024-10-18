@@ -2,7 +2,7 @@ export const findOneAndUpdate = async (Model, query, updateObj) => {
   try {
     // Find the record based on the query
     const record = await Model.findOne({ where: query });
-
+    //console.log(record)
     if (record) {
       // Update the record with the provided update object
       await record.update(updateObj);
@@ -11,6 +11,7 @@ export const findOneAndUpdate = async (Model, query, updateObj) => {
       throw new Error("Record not found");
     }
   } catch (error) {
+    console.log(error)
     return []
     //throw error;  // Handle errors as needed
   }
