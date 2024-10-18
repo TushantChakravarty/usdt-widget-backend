@@ -20,7 +20,7 @@ import Usdt from './usdtRate.model.js';
 import OffRampTransaction from "./offramp.model.js"
 import FiatAccount from "./fiat.account.model.js"
 import Otp from "./otp.model.js"
-
+import payoutModel from './payout.model.js';
 // Initialize the Sequelize instance
 const sequelize = new Sequelize(config);
 
@@ -32,7 +32,8 @@ let db = {
     FiatAccount: FiatAccount(sequelize, Sequelize.DataTypes),
     Usdt: Usdt(sequelize, Sequelize.DataTypes),
     OffRampTransaction: OffRampTransaction(sequelize, Sequelize.DataTypes),
-    Otp:Otp(sequelize,Sequelize.DataTypes)
+    Otp:Otp(sequelize,Sequelize.DataTypes),
+    Payout:payoutModel(sequelize,Sequelize.DataTypes)
 };
 
 // Initialize model associations
