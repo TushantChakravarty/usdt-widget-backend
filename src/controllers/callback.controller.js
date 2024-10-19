@@ -308,7 +308,7 @@ export async function callbackHandler(request, reply) {
     }
 }
 
-export async function offrampCallbackGsx()
+export async function offrampCallbackGsx(request, reply)
 {
     console.log(req.body)
 }
