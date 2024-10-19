@@ -308,6 +308,10 @@ export async function callbackHandler(request, reply) {
     }
 }
 
+export async function offrampCallbackGsx()
+{
+    console.log(req.body)
+}
 // /**
 //  * callback for onramp transactionsa=
 //  * @controller user
