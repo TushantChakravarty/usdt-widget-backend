@@ -21,6 +21,11 @@ const routes = async (route, options) => { // route = fastify instance
         handler: callback.callbackHandler,
     });
 
+    route.post('/offrampTransaction', {
+        handler: callback.offrampCallbackGsx,
+    });
+
+
 
 };
 

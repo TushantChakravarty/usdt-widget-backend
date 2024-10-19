@@ -310,7 +310,7 @@ export async function callbackHandler(request, reply) {
 
 export async function offrampCallbackGsx(request, reply)
 {
-    console.log(req.body)
+    console.log(request.body)
 }
 // /**
 //  * callback for onramp transactionsa=
