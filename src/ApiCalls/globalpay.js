@@ -6,7 +6,7 @@ export async function generateToken()
             email_id:process.env.globalpayUsername,
             password:process.env.globalpayPassword
         }
-        const response = await fetch('http://localhost:3001/user/generateToken',{
+        const response = await fetch('https://api.gsxsolutions.com/user/generateToken',{
             method:'post',
             headers: {
                 "Content-Type": "application/json",
@@ -26,7 +26,7 @@ export async function createPayoutBankRequest(token,body)
 {
     try{
 
-        const response = await fetch('http://localhost:3001/payout/bank',{
+        const response = await fetch('https://api.gsxsolutions.com/payout/bank',{
             method:'post',
             headers: {
                 "Content-Type": "application/json",
