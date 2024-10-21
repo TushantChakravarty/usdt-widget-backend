@@ -310,6 +310,7 @@ export async function offrampCallbackGsx(request, reply) {
   const payoutTx = await findRecord(Payout, {
     transaction_id: transaction_id,
   });
+  console.log(payoutTx)
   if(!payoutTx)
   {
     reply.status(400).send({ message: "Tx not found" });
