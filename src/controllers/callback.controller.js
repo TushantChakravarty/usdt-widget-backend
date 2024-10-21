@@ -311,7 +311,18 @@ export async function callbackHandler(request, reply) {
 export async function offrampCallbackGsx(request, reply)
 {
     console.log(request.body)
+    const json ={
+         transaction_id: 'payout_46468f9163bdf25',
+         amount: 100,
+        status: 'success',
+       transaction_date: '1729490200662',
+         utr: '20241021112701',
+         usdtRate: 83,
+          customer_id: '1234554321',
+          usdtValue: 1.2048192771084338
+      }
 }
+
 // /**
 //  * callback for onramp transactionsa=
 //  * @controller user

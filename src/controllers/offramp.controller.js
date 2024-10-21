@@ -704,6 +704,7 @@ export async function verifyTransaction(request, reply) {
      // txHash: txHash,
       reference_id: reference_id.toString(),
     });
+ 
     const payoutTx = await findRecord(Payout, {
       reference_id: reference_id.toString(),
     });
@@ -719,6 +720,14 @@ export async function verifyTransaction(request, reply) {
         .send(
           responseMappingError(400, `transaction doesnt belong to our system`)
         );
+    }
+    if(transaction.fromAmount!==fromAmount )
+    {
+      return reply
+      .status(400)
+      .send(
+        responseMappingError(400, `invalid amount`)
+      );
     }
     if(payoutHash.transaction_id)
     {
@@ -767,7 +776,14 @@ export async function verifyTransaction(request, reply) {
 
       // Convert the expected amount from TRX to SUN (1 TRX = 1,000,000 SUN)
       const expectedAmountInSun = fromAmount * 1000000;
-
+      if(fromAmount!==expectedAmountInSun)
+      {
+        return reply
+        .status(400)
+        .send(
+          responseMappingError(400, `invalid amount`)
+        );
+      }
       // Check if the transaction was successful
       const transactionStatus = transactionInfo.ret[0].contractRet;
       const rawData = transactionInfo.raw_data;
