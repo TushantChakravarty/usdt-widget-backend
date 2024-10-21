@@ -307,44 +307,44 @@ export async function offrampCallbackGsx(request, reply) {
     customer_id,
     usdtValue,
   } = request.body;
-  if (status == "success") {
-    const payoutTx = await findRecord(Payout, {
-      transaction_id: transaction_id,
-    });
-    const transaction = await findRecord(OffRampTransaction, {
-      reference_id: payoutTx.reference_id,
-    });
-    console.log("payout found", payoutTx);
-    console.log("offramp tx found", transaction);
-    if (payoutTx && transaction) {
-      
-      transaction.processed = "SUCCESS"
-      payoutTx.status = "SUCCESS"
-      payoutTx.utr = utr
-      const updatedOfframp = await transaction.save()
-      const updatedPayout = await payoutTx.save()
-      console.log('updated tx', updatedOfframp)
-      console.log('updated payout', updatedPayout)
-    }
-
-   
-  } else {
-
-  }
-
   const payoutTx = await findRecord(Payout, {
-    reference_id: reference_id.toString(),
+    transaction_id: transaction_id,
   });
-  // const json ={
-  //      transaction_id: 'payout_46468f9163bdf25',
-  //      amount: 100,
-  //     status: 'success',
-  //       transaction_date: '1729490200662',
-  //      utr: '20241021112701',
-  //      usdtRate: 83,
-  //       customer_id: '1234554321',
-  //       usdtValue: 1.2048192771084338
-  //   }
+  const transaction = await findRecord(OffRampTransaction, {
+    reference_id: payoutTx.reference_id,
+  });
+  if (payoutTx && transaction) {
+    if (status == "success") {
+      console.log("payout found", payoutTx);
+      console.log("offramp tx found", transaction);
+
+      transaction.processed = "SUCCESS";
+      payoutTx.status = "SUCCESS";
+      payoutTx.utr = utr;
+      const updatedOfframp = await transaction.save();
+      const updatedPayout = await payoutTx.save();
+      console.log("updated tx", updatedOfframp);
+      console.log("updated payout", updatedPayout);
+      if (updatedOfframp && updatedPayout) {
+        reply.status(200).send({ message: "success" });
+      }
+    } else {
+      transaction.processed = "FAILED";
+      payoutTx.status = "FAILED";
+      payoutTx.utr = utr;
+      const updatedOfframp = await transaction.save();
+      const updatedPayout = await payoutTx.save();
+      console.log("updated tx", updatedOfframp);
+      console.log("updated payout", updatedPayout);
+      if (updatedOfframp && updatedPayout) {
+        reply.status(200).send({ message: "success" });
+      }
+    }
+  } else {
+    if (updatedOfframp && updatedPayout) {
+      reply.status(400).send({ message: "Tx not found" });
+    }
+  }
 }
 
 // /**
