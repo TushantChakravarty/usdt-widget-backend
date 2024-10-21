@@ -311,7 +311,7 @@ export async function offrampCallbackGsx(request, reply) {
     transaction_id: transaction_id,
   });
   console.log(payoutTx)
-  if(!payoutTx)
+  if(!payoutTx.transaction_id)
   {
     reply.status(400).send({ message: "Tx not found" });
   }
@@ -319,7 +319,7 @@ export async function offrampCallbackGsx(request, reply) {
     reference_id: payoutTx.reference_id,
   });
   if (payoutTx && transaction) {
-    if (status == "success") {
+    if (status?.toLowerCase() == "success") {
       console.log("payout found", payoutTx);
       console.log("offramp tx found", transaction);
 
