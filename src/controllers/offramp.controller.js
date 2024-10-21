@@ -811,7 +811,7 @@ export async function verifyTransaction(request, reply) {
       console.log(recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
       if (
-        fromAmount === expectedAmountInSun &&
+        actualAmount === expectedAmountInSun &&
         transactionStatus === "SUCCESS" &&
         recipientAddress == walletAddress
       ) {
