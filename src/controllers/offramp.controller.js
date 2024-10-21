@@ -820,7 +820,8 @@ export async function verifyTransaction(request, reply) {
         );
         let updateDetails = {
           txHash: transactionInfo.txID,
-          status: "success",
+          status: "SUCCESS",
+          processed:"PENDING"
         };
         let query = {
           reference_id: reference_id.toString(),
@@ -832,9 +833,7 @@ export async function verifyTransaction(request, reply) {
           updateDetails
         );
         if (transaction) {
-          if (transaction.user_id !== request.user.id) {
-            console.log("transaction belongs to other user");
-          }
+          
           const response = await generateToken();
           if (response.token) {
             const fiatAccount = await findRecord(FiatAccount, {
@@ -871,6 +870,8 @@ export async function verifyTransaction(request, reply) {
               body.user_id = request.user.id;
               body.txHash = txHash
               const payoutsData = await createNewRecord(Payout, body);
+              transaction.payout_id = payoutRequest.responseData.transaction_id.toString()
+              transaction.save()
               console.log(payoutsData);
               return reply
                 .status(200)

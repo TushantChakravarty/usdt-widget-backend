@@ -68,9 +68,13 @@ export default (sequelize, DataTypes) => {
                 allowNull: true,
             },
             processed:{
-                type: DataTypes.BOOLEAN,
+                type: DataTypes.STRING,
                 allowNull:true,
-                defaultValue:false
+                defaultValue:"PENDING"
+            },
+            payout_id:{
+                type: DataTypes.STRING,
+                allowNull: true,
             }
 
         },

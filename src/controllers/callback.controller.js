@@ -1,6 +1,7 @@
+import { findOneAndUpdate, findRecord } from "../Dao/dao.js";
 import db from "../models/index.js";
 
-const { User, OnRampTransaction,OffRampTransaction } = db;
+const { User, OnRampTransaction, OffRampTransaction, Payout } = db;
 
 /**
  * get otp callback kyc.
@@ -11,316 +12,339 @@ const { User, OnRampTransaction,OffRampTransaction } = db;
  * @throws {Error} If an error occurs while signing up.
  */
 export async function callbackHandler(request, reply) {
-    try {
-        const details = request.body
-        console.log(details)
-        if (details.status === "OTP_COMPLETED") {
-            let user = await User.scope("private").findOne({
-                where: {
-                    customerId: details.metadata.customerId,
-                },
-            });
-            console.log("user",user)
-            if (user) {
-                // Update the otp field in the kyc object
-                user.kyc = {
-                    ...user.kyc,
-                    otp: true,
-                };
-                console.log('updated check',user)
-                
-                // Save the updated user object
-                const updated = await user.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "User not found" });
-            }
-        }
-        if (details.status === "BASIC_KYC_COMPLETED") {
-            let user = await User.scope("private").findOne({
-                where: {
-                    customerId: details.metadata.customerId,
-                },
-            });
-            console.log("user",user)
-            if (user) {
-                // Update the otp field in the kyc object
-                user.kyc = {
-                    ...user.kyc,
-                    basic: true,
-                };
-                console.log('updated check',user)
-                
-                // Save the updated user object
-                const updated = await user.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "User not found" });
-            }
-        }
-        if (details.status === "INTERMEDIATE_KYC_COMPLETED") {
-            let user = await User.scope("private").findOne({
-                where: {
-                    customerId: details.metadata.customerId,
-                },
-            });
-            console.log("user",user)
-            if (user) {
-                // Update the otp field in the kyc object
-                user.kyc = {
-                    ...user.kyc,
-                    intermediate: true,
-                };
-                console.log('updated check',user)
-                
-                // Save the updated user object
-                const updated = await user.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "User not found" });
-            }
-        }
-        if (details.status === "ADVANCE_KYC_COMPLETED") {
-            let user = await User.scope("private").findOne({
-                where: {
-                    customerId: details.metadata.customerId,
-                },
-            });
-            console.log("user",user)
-            if (user) {
-                // Update the otp field in the kyc object
-                user.kyc = {
-                    ...user.kyc,
-                    advanced: true,
-                };
-                console.log('updated check',user)
-                
-                // Save the updated user object
-                const updated = await user.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "User not found" });
-            }
-        }
-        if (details.status === "COMPLETED") {
-            let user = await User.scope("private").findOne({
-                where: {
-                    customerId: details.metadata.customerId,
-                },
-            });
-            console.log("user",user)
-            if (user) {
-                // Update the otp field in the kyc object
-                //user.isKycCompleted = true
-                user.kyc = {
-                    ...user.kyc,
-                    completed: true,
-                };
-                console.log('updated check',user)
-                
-                // Save the updated user object
-                const updated = await user.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "User not found" });
-            }
-        }
-        if (details.status === "EDD_COMPLETED") {
-            let user = await User.scope("private").findOne({
-                where: {
-                    customerId: details.metadata.customerId,
-                },
-            });
-            console.log("user",user)
-            if (user) {
-                // Update the otp field in the kyc object
-                user.isKycCompleted = true
-                // user.kyc = {
-                //     ...user.kyc,
-                //     completed: true,
-                // };
-                console.log('updated check',user)
-                
-                // Save the updated user object
-                const updated = await user.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "User not found" });
-            }
-        }
-        if(details.eventType =="ONRAMP")
-        {
-            let transaction = await OnRampTransaction.findOne({
-                where: {
-                    reference_id: details.referenceId.toString(),
-                },
-            });
-            if (details.status === "FIAT_DEPOSIT_RECEIVED") {
-                
-                if (transaction) {
-                    // Update the status field in the transaction 
-                    transaction.status = details.status                
-                    // Save the updated transaction object
-                    const updated = await transaction.save();
-                    console.log('updated',updated)
-                    reply.status(200).send({ message: "success" });
-                }else{
-                    reply.status(400).send({ error: "transaction not found" });
-                }
-            }
-            if (details.status === "TRADE COMPLETED") {
-               
-                if (transaction) {
-                    // Update the status field in the transaction 
-                    transaction.status =details.status                
-                    // Save the updated transaction object
-                    const updated = await transaction.save();
-                    console.log('updated',updated)
-                    reply.status(200).send({ message: "success" });
-                }else{
-                    reply.status(400).send({ error: "transaction not found" });
-                }
-            }
-            if (details.status === "ON_CHAIN_INITIATED") {
-                
-                if (transaction) {
-                    // Update the status field in the transaction 
-                    transaction.status =details.status                
-                    // Save the updated transaction object
-                    const updated = await transaction.save();
-                    console.log('updated',updated)
-                    reply.status(200).send({ message: "success" });
-                }else{
-                    reply.status(400).send({ error: "transaction not found" });
-                }
-            }
-        
-            // if (details.status === "ON_CHAIN_COMPLETED") {
-                //     let transaction = await OnRampTransaction.findOne({
-                    //         where: {
-                        //             reference_id: details.referenceId,
-                        //         },
-                        //     });
-                        //     if (transaction) {
-                            //         // Update the status field in the transaction 
-                            //         transaction.status =details.status                
-                            //         // Save the updated transaction object
-                            //         const updated = await transaction.save();
-        //         console.log('updated',updated)
-        //         reply.status(200).send({ message: "success" });
-        //     }else{
-        //         reply.status(400).send({ error: "transaction not found" });
-        //     }
-        // }
-        if (details.status === "ON_CHAIN_COMPLETED") {
-           
-            if (transaction) {
-                // Update the status field in the transaction 
-                transaction.status ="SUCCESS"               
-                // Save the updated transaction object
-                const updated = await transaction.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "transaction not found" });
-            }
-        }
+  try {
+    const details = request.body;
+    console.log(details);
+    if (details.status === "OTP_COMPLETED") {
+      let user = await User.scope("private").findOne({
+        where: {
+          customerId: details.metadata.customerId,
+        },
+      });
+      console.log("user", user);
+      if (user) {
+        // Update the otp field in the kyc object
+        user.kyc = {
+          ...user.kyc,
+          otp: true,
+        };
+        console.log("updated check", user);
 
-        if (details.status === "FAILED") {
-           
-            if (transaction) {
-                // Update the status field in the transaction 
-                transaction.status ="FAILED"               
-                // Save the updated transaction object
-                const updated = await transaction.save();
-                console.log('updated',updated)
-                reply.status(200).send({ message: "success" });
-            }else{
-                reply.status(400).send({ error: "transaction not found" });
-            }
+        // Save the updated user object
+        const updated = await user.save();
+        console.log("updated", updated);
+        reply.status(200).send({ message: "success" });
+      } else {
+        reply.status(400).send({ error: "User not found" });
+      }
+    }
+    if (details.status === "BASIC_KYC_COMPLETED") {
+      let user = await User.scope("private").findOne({
+        where: {
+          customerId: details.metadata.customerId,
+        },
+      });
+      console.log("user", user);
+      if (user) {
+        // Update the otp field in the kyc object
+        user.kyc = {
+          ...user.kyc,
+          basic: true,
+        };
+        console.log("updated check", user);
+
+        // Save the updated user object
+        const updated = await user.save();
+        console.log("updated", updated);
+        reply.status(200).send({ message: "success" });
+      } else {
+        reply.status(400).send({ error: "User not found" });
+      }
+    }
+    if (details.status === "INTERMEDIATE_KYC_COMPLETED") {
+      let user = await User.scope("private").findOne({
+        where: {
+          customerId: details.metadata.customerId,
+        },
+      });
+      console.log("user", user);
+      if (user) {
+        // Update the otp field in the kyc object
+        user.kyc = {
+          ...user.kyc,
+          intermediate: true,
+        };
+        console.log("updated check", user);
+
+        // Save the updated user object
+        const updated = await user.save();
+        console.log("updated", updated);
+        reply.status(200).send({ message: "success" });
+      } else {
+        reply.status(400).send({ error: "User not found" });
+      }
+    }
+    if (details.status === "ADVANCE_KYC_COMPLETED") {
+      let user = await User.scope("private").findOne({
+        where: {
+          customerId: details.metadata.customerId,
+        },
+      });
+      console.log("user", user);
+      if (user) {
+        // Update the otp field in the kyc object
+        user.kyc = {
+          ...user.kyc,
+          advanced: true,
+        };
+        console.log("updated check", user);
+
+        // Save the updated user object
+        const updated = await user.save();
+        console.log("updated", updated);
+        reply.status(200).send({ message: "success" });
+      } else {
+        reply.status(400).send({ error: "User not found" });
+      }
+    }
+    if (details.status === "COMPLETED") {
+      let user = await User.scope("private").findOne({
+        where: {
+          customerId: details.metadata.customerId,
+        },
+      });
+      console.log("user", user);
+      if (user) {
+        // Update the otp field in the kyc object
+        //user.isKycCompleted = true
+        user.kyc = {
+          ...user.kyc,
+          completed: true,
+        };
+        console.log("updated check", user);
+
+        // Save the updated user object
+        const updated = await user.save();
+        console.log("updated", updated);
+        reply.status(200).send({ message: "success" });
+      } else {
+        reply.status(400).send({ error: "User not found" });
+      }
+    }
+    if (details.status === "EDD_COMPLETED") {
+      let user = await User.scope("private").findOne({
+        where: {
+          customerId: details.metadata.customerId,
+        },
+      });
+      console.log("user", user);
+      if (user) {
+        // Update the otp field in the kyc object
+        user.isKycCompleted = true;
+        // user.kyc = {
+        //     ...user.kyc,
+        //     completed: true,
+        // };
+        console.log("updated check", user);
+
+        // Save the updated user object
+        const updated = await user.save();
+        console.log("updated", updated);
+        reply.status(200).send({ message: "success" });
+      } else {
+        reply.status(400).send({ error: "User not found" });
+      }
+    }
+    if (details.eventType == "ONRAMP") {
+      let transaction = await OnRampTransaction.findOne({
+        where: {
+          reference_id: details.referenceId.toString(),
+        },
+      });
+      if (details.status === "FIAT_DEPOSIT_RECEIVED") {
+        if (transaction) {
+          // Update the status field in the transaction
+          transaction.status = details.status;
+          // Save the updated transaction object
+          const updated = await transaction.save();
+          console.log("updated", updated);
+          reply.status(200).send({ message: "success" });
+        } else {
+          reply.status(400).send({ error: "transaction not found" });
         }
+      }
+      if (details.status === "TRADE COMPLETED") {
+        if (transaction) {
+          // Update the status field in the transaction
+          transaction.status = details.status;
+          // Save the updated transaction object
+          const updated = await transaction.save();
+          console.log("updated", updated);
+          reply.status(200).send({ message: "success" });
+        } else {
+          reply.status(400).send({ error: "transaction not found" });
+        }
+      }
+      if (details.status === "ON_CHAIN_INITIATED") {
+        if (transaction) {
+          // Update the status field in the transaction
+          transaction.status = details.status;
+          // Save the updated transaction object
+          const updated = await transaction.save();
+          console.log("updated", updated);
+          reply.status(200).send({ message: "success" });
+        } else {
+          reply.status(400).send({ error: "transaction not found" });
+        }
+      }
+
+      // if (details.status === "ON_CHAIN_COMPLETED") {
+      //     let transaction = await OnRampTransaction.findOne({
+      //         where: {
+      //             reference_id: details.referenceId,
+      //         },
+      //     });
+      //     if (transaction) {
+      //         // Update the status field in the transaction
+      //         transaction.status =details.status
+      //         // Save the updated transaction object
+      //         const updated = await transaction.save();
+      //         console.log('updated',updated)
+      //         reply.status(200).send({ message: "success" });
+      //     }else{
+      //         reply.status(400).send({ error: "transaction not found" });
+      //     }
+      // }
+      if (details.status === "ON_CHAIN_COMPLETED") {
+        if (transaction) {
+          // Update the status field in the transaction
+          transaction.status = "SUCCESS";
+          // Save the updated transaction object
+          const updated = await transaction.save();
+          console.log("updated", updated);
+          reply.status(200).send({ message: "success" });
+        } else {
+          reply.status(400).send({ error: "transaction not found" });
+        }
+      }
+
+      if (details.status === "FAILED") {
+        if (transaction) {
+          // Update the status field in the transaction
+          transaction.status = "FAILED";
+          // Save the updated transaction object
+          const updated = await transaction.save();
+          console.log("updated", updated);
+          reply.status(200).send({ message: "success" });
+        } else {
+          reply.status(400).send({ error: "transaction not found" });
+        }
+      }
     }
 
-    if(details.eventType ==="OFFRAMP"){
-        let transaction = await OffRampTransaction.findOne({
-            where: {
-                reference_id: details.referenceId.toString(),
-            },
-        });
-        if(!transaction){
-            reply.status(400).send({ error: "transaction not found" });
-        }
-        if (details.status ==="ON_CHAIN_DEPOSIT_RECEIVED"){
-            transaction.status =details.status                
-            // Save the updated transaction object
-            const updated = await transaction.save();
-            console.log('updated',updated)
-           return reply.status(200).send({ message: "success" });
+    if (details.eventType === "OFFRAMP") {
+      let transaction = await OffRampTransaction.findOne({
+        where: {
+          reference_id: details.referenceId.toString(),
+        },
+      });
+      if (!transaction) {
+        reply.status(400).send({ error: "transaction not found" });
+      }
+      if (details.status === "ON_CHAIN_DEPOSIT_RECEIVED") {
+        transaction.status = details.status;
+        // Save the updated transaction object
+        const updated = await transaction.save();
+        console.log("updated", updated);
+        return reply.status(200).send({ message: "success" });
+      }
+      if (details.status === "TRADE_COMPLETED") {
+        transaction.status = details.status;
+        // Save the updated transaction object
+        const updated = await transaction.save();
+        console.log("updated", updated);
+        return reply.status(200).send({ message: "success" });
+      }
 
-        }
-        if(details.status ==="TRADE_COMPLETED"){
-            transaction.status =details.status                
-            // Save the updated transaction object
-            const updated = await transaction.save();
-            console.log('updated',updated)
-           return reply.status(200).send({ message: "success" });
+      if (details.status === "FIAT_TRANSFER_INITIATED") {
+        transaction.status = details.status;
+        // Save the updated transaction object
+        const updated = await transaction.save();
+        console.log("updated", updated);
+        return reply.status(200).send({ message: "success" });
+      }
 
-        }
-
-        if(details.status ==="FIAT_TRANSFER_INITIATED"){
-            transaction.status =details.status                
-            // Save the updated transaction object
-            const updated = await transaction.save();
-            console.log('updated',updated)
-           return reply.status(200).send({ message: "success" });
-            
-
-        }     
-        
-        if(details.status ==="FIAT_TRANSFER_COMPLETED"){
-            transaction.status ="SUCCESS"               
-            // Save the updated transaction object
-            const updated = await transaction.save();
-            console.log('updated',updated)
-           return reply.status(200).send({ message: "success" });
-        
-        }
-        if(details.status ==="FAILED"){
-            transaction.status =details.status                
-            // Save the updated transaction object
-            const updated = await transaction.save();
-            console.log('updated',updated)
-          return  reply.status(200).send({ message: "success" });
-
-        }
-
+      if (details.status === "FIAT_TRANSFER_COMPLETED") {
+        transaction.status = "SUCCESS";
+        // Save the updated transaction object
+        const updated = await transaction.save();
+        console.log("updated", updated);
+        return reply.status(200).send({ message: "success" });
+      }
+      if (details.status === "FAILED") {
+        transaction.status = details.status;
+        // Save the updated transaction object
+        const updated = await transaction.save();
+        console.log("updated", updated);
+        return reply.status(200).send({ message: "success" });
+      }
     }
-       
-    } catch (error) {
-        console.error("Error updating callback status:", error);
-        reply.status(500).send({ error: "Internal server error" });
-    }
+  } catch (error) {
+    console.error("Error updating callback status:", error);
+    reply.status(500).send({ error: "Internal server error" });
+  }
 }
 
-export async function offrampCallbackGsx(request, reply)
-{
-    console.log(request.body)
-    const json ={
-         transaction_id: 'payout_46468f9163bdf25',
-         amount: 100,
-        status: 'success',
-       transaction_date: '1729490200662',
-         utr: '20241021112701',
-         usdtRate: 83,
-          customer_id: '1234554321',
-          usdtValue: 1.2048192771084338
-      }
+export async function offrampCallbackGsx(request, reply) {
+  console.log(request.body);
+  const {
+    transaction_id,
+    amount,
+    status,
+    transaction_date,
+    utr,
+    usdtRate,
+    customer_id,
+    usdtValue,
+  } = req.body;
+  if (status == "success") {
+    const payoutTx = await findRecord(Payout, {
+      transaction_id: transaction_id,
+    });
+    const transaction = await findRecord(OffRampTransaction, {
+      reference_id: payoutTx.reference_id,
+    });
+    console.log("payout found", payoutTx);
+    console.log("offramp tx found", transaction);
+    if (payoutTx && transaction) {
+      
+      transaction.processed = "SUCCESS"
+      payoutTx.status = "SUCCESS"
+      payoutTx.utr = utr
+      const updatedOfframp = await transaction.save()
+      const updatedPayout = await payoutTx.save()
+      console.log('updated tx', updatedOfframp)
+      console.log('updated payout', updatedPayout)
+    }
+
+   
+  } else {
+
+  }
+
+  const payoutTx = await findRecord(Payout, {
+    reference_id: reference_id.toString(),
+  });
+  // const json ={
+  //      transaction_id: 'payout_46468f9163bdf25',
+  //      amount: 100,
+  //     status: 'success',
+  //       transaction_date: '1729490200662',
+  //      utr: '20241021112701',
+  //      usdtRate: 83,
+  //       customer_id: '1234554321',
+  //       usdtValue: 1.2048192771084338
+  //   }
 }
 
 // /**
@@ -335,7 +359,7 @@ export async function offrampCallbackGsx(request, reply)
 //     try {
 //         const details = request.body
 //         console.log(details)
-      
+
 //     } catch (error) {
 //         console.error("Error updating onramp tx status:", error);
 //         reply.status(500).send({ error: "Internal server error" });

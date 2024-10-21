@@ -72,9 +72,13 @@ export default (sequelize, DataTypes) => {
                 allowNull: true
             },
             status:{
-                type: DataTypes.BOOLEAN,
+                type: DataTypes.STRING,
                 allowNull: true,
-                defaultValue:false
+                defaultValue:"PENDING"
+            },
+            utr:{
+                type: DataTypes.STRING,
+                allowNull: true,
             }
         },
         {
