@@ -296,7 +296,7 @@ export async function callbackHandler(request, reply) {
 }
 
 export async function offrampCallbackGsx(request, reply) {
-  console.log(request.body);
+  //console.log(request.body);
   const {
     transaction_id,
     amount,
@@ -310,7 +310,7 @@ export async function offrampCallbackGsx(request, reply) {
   const payoutTx = await findRecord(Payout, {
     transaction_id: transaction_id,
   });
-  console.log(payoutTx)
+//   console.log(payoutTx)
   if(!payoutTx.transaction_id)
   {
     reply.status(400).send({ message: "Tx not found" });
@@ -320,16 +320,16 @@ export async function offrampCallbackGsx(request, reply) {
   });
   if (payoutTx && transaction) {
     if (status?.toLowerCase() == "success") {
-      console.log("payout found", payoutTx);
-      console.log("offramp tx found", transaction);
+    //   console.log("payout found", payoutTx);
+    //   console.log("offramp tx found", transaction);
 
       transaction.processed = "SUCCESS";
       payoutTx.status = "SUCCESS";
       payoutTx.utr = utr;
       const updatedOfframp = await transaction.save();
       const updatedPayout = await payoutTx.save();
-      console.log("updated tx", updatedOfframp);
-      console.log("updated payout", updatedPayout);
+    //   console.log("updated tx", updatedOfframp);
+    //   console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
         reply.status(200).send({ message: "success" });
       }
@@ -339,8 +339,8 @@ export async function offrampCallbackGsx(request, reply) {
       payoutTx.utr = utr;
       const updatedOfframp = await transaction.save();
       const updatedPayout = await payoutTx.save();
-      console.log("updated tx", updatedOfframp);
-      console.log("updated payout", updatedPayout);
+    //   console.log("updated tx", updatedOfframp);
+    //   console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
         reply.status(200).send({ message: "success" });
       }
