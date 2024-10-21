@@ -306,7 +306,7 @@ export async function offrampCallbackGsx(request, reply) {
     usdtRate,
     customer_id,
     usdtValue,
-  } = req.body;
+  } = request.body;
   if (status == "success") {
     const payoutTx = await findRecord(Payout, {
       transaction_id: transaction_id,
