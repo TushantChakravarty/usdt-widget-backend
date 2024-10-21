@@ -776,7 +776,7 @@ export async function verifyTransaction(request, reply) {
 
       // Convert the expected amount from TRX to SUN (1 TRX = 1,000,000 SUN)
       const expectedAmountInSun = fromAmount * 1000000;
-      if(fromAmount!==expectedAmountInSun)
+      if(fromAmount!==actualAmount)
       {
         return reply
         .status(400)
