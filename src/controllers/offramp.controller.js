@@ -644,8 +644,8 @@ export async function generateTransaction(request, reply) {
       reference_id: `${transactionId}`,
       customerId: request.user.customerId,
       rate: rate,
-      status: "pending",
-      processed: false,
+      status: "PENDING",
+      processed: "PENDING",
     };
 
     body.user_id = request.user.id;
