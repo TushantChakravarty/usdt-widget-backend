@@ -310,6 +310,10 @@ export async function offrampCallbackGsx(request, reply) {
   const payoutTx = await findRecord(Payout, {
     transaction_id: transaction_id,
   });
+  if(!payoutTx)
+  {
+    reply.status(400).send({ message: "Tx not found" });
+  }
   const transaction = await findRecord(OffRampTransaction, {
     reference_id: payoutTx.reference_id,
   });
@@ -341,9 +345,9 @@ export async function offrampCallbackGsx(request, reply) {
       }
     }
   } else {
-    if (updatedOfframp && updatedPayout) {
+   
       reply.status(400).send({ message: "Tx not found" });
-    }
+    
   }
 }
 
