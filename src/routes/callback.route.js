@@ -33,7 +33,7 @@ const routes = async (route, options) => { // route = fastify instance
      * Route for callback of onramp.
      */
 
-    route.post('/onramo', {
+    route.post('/onramp', {
         handler: callback.onrampCallback,
     });
 
