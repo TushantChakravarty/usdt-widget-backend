@@ -6,7 +6,7 @@ export async function generateToken()
             emailId:process.env.payhubUsername,
             password:process.env.payhubPasswrod
         }
-        const response = await fetch('http://localhost:2000/user/login',{
+        const response = await fetch('https://server.payhub.link/user/login',{
             method:'post',
             headers: {
                 "Content-Type": "application/json",
@@ -27,7 +27,7 @@ export async function createPayinBankRequest(userData,body)
 {
     try{
         console.log(userData)
-        const response = await fetch('http://localhost:2000/user/sendPayinRequestHosted',{
+        const response = await fetch('https://server.payhub.link/user/sendPayinRequestHosted',{
             method:'post',
             headers: {
                 "Content-Type": "application/json",
