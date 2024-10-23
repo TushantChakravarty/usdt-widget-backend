@@ -29,6 +29,33 @@ const routes = async (route, options) => { // route = fastify instance
         handler: onramp.getAllOnRampTransaction,
     });
 
+       /**
+   * Route for creating onramp request
+   * Handles creating onramp request
+   */
+       route.post('/createOnrampRequest', {
+        schema: validator.createOnramp,
+        // onRequest: [
+        //   route.authenticate
+        // ],
+        preValidation: validateToken,
+        handler: onramp.onRampRequest,
+    });
+
+       /**
+   * Route for verifying onramp transaction
+   * Handles verification of onramp transaction
+   */
+       route.post('/verifyTransaction', {
+        //schema: validator.createOnramp,
+        // onRequest: [
+        //   route.authenticate
+        // ],
+        preValidation: validateToken,
+        handler: onramp.verifyTransaction,
+    });
+
+
 
 };
 

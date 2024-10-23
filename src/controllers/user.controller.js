@@ -691,18 +691,6 @@ export async function onRampRequest(request, reply) {
   }
 }
 
-
-// {
-//   "status": 1,
-//   "code": 200,
-//   "data": {
-//       "kycUrl": "https://test.onramp.money/onramp/main/profile/?appId=1255377&kybData=d1450c0434fb0ea554b0470edbb011d05e1f16be0f8ba17466fed0e958e2aa51",
-//       "clientCustomerId": 1,
-//       "customerId": "1T7cEoPvMD_2144",
-//       "signature": "d1450c0434fb0ea554b0470edbb011d05e1f16be0f8ba17466fed0e958e2aa51"
-//   }
-// }
-
 export async function getQuotes(request, reply) {
   try {
     const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } = request.body

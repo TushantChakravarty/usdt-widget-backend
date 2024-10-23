@@ -65,6 +65,14 @@ export default (sequelize, DataTypes) => {
                 allowNull: false,
                 defaultValue: 'PENDING'
             },
+            phone:{
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            txHash:{
+                type: DataTypes.STRING,
+                allowNull: true,
+            }
         },
         {
             sequelize,

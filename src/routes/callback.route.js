@@ -21,8 +21,20 @@ const routes = async (route, options) => { // route = fastify instance
         handler: callback.callbackHandler,
     });
 
+     /**
+     * Route for callback of offramp.
+     */
+
     route.post('/offrampTransaction', {
         handler: callback.offrampCallbackGsx,
+    });
+
+      /**
+     * Route for callback of onramp.
+     */
+
+    route.post('/onramo', {
+        handler: callback.onrampCallback,
     });
 
 

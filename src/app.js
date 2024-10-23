@@ -43,7 +43,7 @@ export const server = Fastify({
 })
 //generateTransaction()
 //createTronWallet()
-verifyTransaction()
+//verifyTransaction()
 server.setErrorHandler(function (error, request, reply) {
   // Check if it's a validation error
   if (error.validation && error.validation.length > 0) {

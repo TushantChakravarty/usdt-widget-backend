@@ -352,6 +352,59 @@ export async function offrampCallbackGsx(request, reply) {
   }
 }
 
+export async function onrampCallback(request, reply) {
+  //console.log(request.body);
+  const {
+    transaction_id,
+    amount,
+    status,
+    transaction_date,
+    utr,
+    usdtRate,
+    customer_id,
+    usdtValue,
+  } = request.body;
+
+ 
+  const transaction = await findRecord(OnRampTransaction, {
+    reference_id: transaction_id,
+  });
+  if(!transaction.reference_id)
+  {
+    reply.status(400).send({ message: "Tx not found" });
+  }
+  if (transaction) {
+    if (status?.toLowerCase() == "success") {
+    //   console.log("payout found", payoutTx);
+    //   console.log("offramp tx found", transaction);
+
+      transaction.status = "SUCCESS";
+      transaction.utr = utr
+      transaction.amount
+      const updatedOfframp = await transaction.save();
+    //   console.log("updated tx", updatedOfframp);
+    //   console.log("updated payout", updatedPayout);
+      if (updatedOfframp) {
+        reply.status(200).send({ message: "success" });
+      }
+    } else {
+      transaction.status = "FAILED";
+      transaction.utr = utr
+      transaction.amount = amount
+      const updatedOfframp = await transaction.save();
+    //   console.log("updated tx", updatedOfframp);
+    //   console.log("updated payout", updatedPayout);
+      if (updatedOfframp) {
+        reply.status(200).send({ message: "success" });
+      }
+    }
+  } else {
+   
+      reply.status(400).send({ message: "Tx not found" });
+    
+  }
+}
+
 // /**
 //  * callback for onramp transactionsa=
 //  * @controller user
