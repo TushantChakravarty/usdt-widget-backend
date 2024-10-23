@@ -381,20 +381,20 @@ export async function onrampCallback(request, reply) {
       transaction.status = "SUCCESS";
       transaction.utr = utr
       transaction.amount
-      const updatedOfframp = await transaction.save();
-    //   console.log("updated tx", updatedOfframp);
+      const updatedOnramp = await transaction.save();
+      console.log("updated tx", updatedOnramp);
     //   console.log("updated payout", updatedPayout);
-      if (updatedOfframp) {
+      if (updatedOnramp) {
         reply.status(200).send({ message: "success" });
       }
     } else {
       transaction.status = "FAILED";
       transaction.utr = utr
       transaction.amount = amount
-      const updatedOfframp = await transaction.save();
+      const updatedOnramp = await transaction.save();
     //   console.log("updated tx", updatedOfframp);
     //   console.log("updated payout", updatedPayout);
-      if (updatedOfframp) {
+      if (updatedOnramp) {
         reply.status(200).send({ message: "success" });
       }
     }
