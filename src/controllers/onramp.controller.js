@@ -8,8 +8,9 @@ import {
   responseMappingWithData,
 } from "../utils/responseMapper.js";
 import { networks } from "../utils/networks.js";
-import { findRecord } from "../Dao/dao.js";
+import { findOneAndUpdate, findRecord } from "../Dao/dao.js";
 import { createPayinBankRequest, generateToken } from "../ApiCalls/payhub.js";
+import { transferUSDT, tronWeb} from "../utils/tronUtils.js";
 
 const { User, Coin, OnRampTransaction, Usdt } = db;
 
@@ -265,9 +266,61 @@ export async function onRampRequest(request, reply) {
         reference_id
       })
       console.log(data)
+      if(data?.status=="PENDING")
+      {
+        return reply.status(500).send(responseMappingError(500, "please complete the payment first"))
+
+      }
+      if(data?.status=="SUCCESS"&&data?.txHash)
+      {
+        return reply.status(500).send(responseMappingError(500, "Crypto has already been processed"))
+
+      }
+
+      if(data?.status=="FAILED")
+      {
+        return reply.status(500).send(responseMappingError(500, "Your payment hast failed"))
+
+      }
+
+
+
+      if(data?.status=='SUCCESS'&&!data?.txHash)
+      {
+        console.log('money transferred')
+        const amountInSun = tronWeb.toSun(data.fromAmount)
+        const transaction = await transferUSDT(data.depositAddress,amountInSun)
+        console.log('tx check', transaction)
+        if(transaction.status=="success"&&transaction.txHash)
+        {
+          const updateTx = await findOneAndUpdate(OnRampTransaction,{
+            reference_id
+          },{
+            txHash:transaction.txHash,
+            txStatus:"SUCCESS",
+            amountTransferred:transaction.amount
+          })
+          console.log(updateTx)
+
+          if(updateTx)
+          {
+
+            return reply
+            .status(200)
+            .send(responseMappingWithData(200, "success", {status:updateTx.txStatus, txHash:transaction.txHash, amountTransferred:transaction.amount}));
+          }
+        }else{
+          return reply
+            .status(200)
+            .send(responseMappingWithData(200, "success", {status:"failed", txHash:transaction.txHash}));
+        }
+      }else{
+        return reply.status(500).send(responseMappingError(500, "Unable to process your request at the moment"))
+      }
     }catch(error)
     {
-
+      console.log("on ramp verify", error.message)
+      return reply.status(500).send(responseMappingError(500, `internal server error`))
     }
   }
   

@@ -35,6 +35,7 @@ import {
   createPayoutBankRequest,
   generateToken,
 } from "../ApiCalls/globalpay.js";
+import { tronWeb, walletAddress } from "../utils/tronUtils.js";
 
 const {
   User,
@@ -44,14 +45,8 @@ const {
   FiatAccount,
   Payout,
 } = db;
-const walletAddress = "TEkUyYL3pGnSErbWPZXnYrJYPUoTci2nrF";
-const txHash =
-  "d246ad2a360c39e82e95355a62523ea21333b315ba3ab8200d170a8faddab52e";
-const tronWeb = new TronWeb({
-  fullHost: "https://nile.trongrid.io", // Mainnet or https://nile.trongrid.io for testnet
-  privateKey:
-    "A9D80CD6CF2BAFA93743244977306EADC2C78CDC07ECEF98E671DCD4B3AD3A1E", // Private key of the wallet to receive the payment
-});
+
+
 
 export async function AddFiatAccountId(request, reply) {
   try {

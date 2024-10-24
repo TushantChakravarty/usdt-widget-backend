@@ -72,7 +72,16 @@ export default (sequelize, DataTypes) => {
             txHash:{
                 type: DataTypes.STRING,
                 allowNull: true,
-            }
+            },
+            amountTransferred:{
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+            txStatus: {
+                type: DataTypes.STRING,
+                allowNull: true,
+                defaultValue: 'PENDING'
+            },
         },
         {
             sequelize,

@@ -1,0 +1,123 @@
+import {
+    TronWeb,
+    utils as TronWebUtils,
+    Trx,
+    TransactionBuilder,
+    Contract,
+    Event,
+    Plugin,
+  } from "tronweb";
+
+export const walletAddress = "TEkUyYL3pGnSErbWPZXnYrJYPUoTci2nrF";
+export const tronWeb = new TronWeb({
+  fullHost: "https://nile.trongrid.io", // Mainnet or https://nile.trongrid.io for testnet
+  privateKey:
+    "A9D80CD6CF2BAFA93743244977306EADC2C78CDC07ECEF98E671DCD4B3AD3A1E", // Private key of the wallet to receive the payment
+});
+
+const USDTaddress = 'TF17BgPaZYbz8oxbjhriubPDsA7ArKoLX3';
+
+  // Function to get or mint USDT (if the contract supports minting)
+export async function getUSDT() {
+    try {
+      // Load the USDT contract
+      const contract = await tronWeb.contract().at(usdtContractAddress);
+  
+      // Check if minting method is available on the contract
+      if (contract.methods.mint) {
+        // Mint 100 USDT (in its smallest unit, which is 6 decimals)
+        const amountToMint = tronWeb.toSun(100); // 100 USDT in smallest unit (like wei in Ethereum)
+  
+        const transaction = await contract.methods.mint(tronWeb.defaultAddress.base58, amountToMint).send({
+          from: tronWeb.defaultAddress.base58,
+        });
+  
+        console.log('Mint transaction:', transaction);
+      } else {
+        console.log("Minting method is not available on the USDT contract.");
+      }
+    } catch (error) {
+      console.error('Error during USDT transaction:', error);
+    }
+  }
+
+
+// Function to transfer JST tokens and confirm status
+export async function transferUSDT(receiverAddress, amount) {
+    try {
+      // Load the JST contract
+      const contract = await tronWeb.contract().at(USDTaddress);
+  
+      // Convert the amount to the smallest unit (JST uses 6 decimals)
+      const amountInSun = tronWeb.toSun(amount);
+  
+      // Initiate the transfer and get the transaction hash
+      const txHash = await contract.methods.transfer(receiverAddress, amountInSun).send({
+        from: tronWeb.defaultAddress.base58,
+      });
+  
+      console.log('Transaction initiated. TxHash:', txHash);
+  
+      // Now check the transaction status using the txHash
+      // Now check the transaction status using the txHash
+    const confirmation = await checkTransactionStatus(txHash);
+
+    if (confirmation.status === 'success') {
+      const actualAmount = confirmation.amount;
+      return {
+        txHash: txHash,
+        amount: actualAmount, // Return the actual amount transferred
+        status: 'success',
+      };
+      } else {
+        return {
+          txHash: txHash,
+          amount: amount,
+          status: 'failed',
+        };
+      }
+    } catch (error) {
+      console.error('Error during transaction:', error);
+  
+      return {
+        txHash: null,
+        amount: amount,
+        status: 'failed',
+      };
+    }
+  }
+  
+ // Function to check the status of the transaction and retrieve the amount
+async function checkTransactionStatus(txHash) {
+    try {
+      let receipt;
+      // Wait for the transaction to be confirmed
+      for (let i = 0; i < 10; i++) {  // Retry up to 10 times
+        receipt = await tronWeb.trx.getTransaction(txHash);
+  
+        // Check for the "ret" array and look for "contractRet" status
+        if (receipt && receipt.ret && receipt.ret[0].contractRet === 'SUCCESS') {
+          //console.log('Transaction confirmed:', receipt);
+  
+          // Extract the actual amount transferred from the raw data
+          const rawData = receipt.raw_data.contract[0].parameter.value.data;
+          const transferredAmountHex = rawData.substring(rawData.length - 16);
+          const transferredAmount = tronWeb.toDecimal('0x' + transferredAmountHex);
+  
+          // Convert the amount back to the normal unit (divide by 10^6 for JST decimals)
+          const actualAmount = tronWeb.fromSun(transferredAmount);
+  
+          return { status: 'success', amount: actualAmount };
+        }
+  
+        // Wait for a second before trying again
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+  
+      console.log('Transaction not confirmed yet.');
+      return { status: 'failed', amount: null };
+    } catch (error) {
+      console.error('Error checking transaction status:', error);
+      return { status: 'failed', amount: null };
+    }
+  }
