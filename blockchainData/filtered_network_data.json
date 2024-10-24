@@ -1,0 +1,5442 @@
+[
+  {
+    "coinid": 0,
+    "networkId": 0,
+    "withdrawalFee": 0.000098,
+    "minimumWithdrawal": 0.00022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 0,
+    "networkId": 1,
+    "withdrawalFee": 0.0000087,
+    "minimumWithdrawal": 0.0000187,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 0,
+    "networkId": 10002,
+    "withdrawalFee": 0.0001,
+    "minimumWithdrawal": 0.00022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 1,
+    "networkId": 0,
+    "withdrawalFee": 12,
+    "minimumWithdrawal": 26.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 1,
+    "networkId": 1,
+    "withdrawalFee": 1.11,
+    "minimumWithdrawal": 2.44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 1,
+    "networkId": 10007,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 11.33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 2,
+    "networkId": 10008,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 2,
+    "networkId": 10009,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 3,
+    "networkId": 10008,
+    "withdrawalFee": 0.005,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 3,
+    "networkId": 10009,
+    "withdrawalFee": 0.05,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 4,
+    "networkId": 1,
+    "withdrawalFee": 6.15,
+    "minimumWithdrawal": 13.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 4,
+    "networkId": 10010,
+    "withdrawalFee": 0.001,
+    "minimumWithdrawal": 27.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 0,
+    "withdrawalFee": 0.0017,
+    "minimumWithdrawal": 0.0033,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 1,
+    "withdrawalFee": 0.00023,
+    "minimumWithdrawal": 0.000506,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 13,
+    "withdrawalFee": 0.00004,
+    "minimumWithdrawal": 0.00088,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 16,
+    "withdrawalFee": 0.00003,
+    "minimumWithdrawal": 0.0055,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 17,
+    "withdrawalFee": 0.0005,
+    "minimumWithdrawal": 0.0006,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 18,
+    "withdrawalFee": 0.0005,
+    "minimumWithdrawal": 0.0006,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 19,
+    "withdrawalFee": 0.0005,
+    "minimumWithdrawal": 0.0006,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 20,
+    "withdrawalFee": 0.0005,
+    "minimumWithdrawal": 0.0006,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 21,
+    "withdrawalFee": 0.0017,
+    "minimumWithdrawal": 0.0019,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 10013,
+    "withdrawalFee": 0.00001,
+    "minimumWithdrawal": 0.0022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 10170,
+    "withdrawalFee": 0.00004,
+    "minimumWithdrawal": 0.011,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 10250,
+    "withdrawalFee": 0.0001,
+    "minimumWithdrawal": 0.0022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 6,
+    "networkId": 10335,
+    "withdrawalFee": 0.0001,
+    "minimumWithdrawal": 0.0011,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 10,
+    "networkId": 1,
+    "withdrawalFee": 0.0084,
+    "minimumWithdrawal": 0.0187,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 10,
+    "networkId": 10014,
+    "withdrawalFee": 0.0001,
+    "minimumWithdrawal": 0.0022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 13,
+    "networkId": 1,
+    "withdrawalFee": 4.12,
+    "minimumWithdrawal": 9,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 13,
+    "networkId": 10017,
+    "withdrawalFee": 4,
+    "minimumWithdrawal": 26,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 14,
+    "networkId": 1,
+    "withdrawalFee": 0.0017,
+    "minimumWithdrawal": 0.0037,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 14,
+    "networkId": 10018,
+    "withdrawalFee": 0.0002,
+    "minimumWithdrawal": 0.0022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 15,
+    "networkId": 10019,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 16,
+    "networkId": 1,
+    "withdrawalFee": 3.65,
+    "minimumWithdrawal": 8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 16,
+    "networkId": 2,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 18,
+    "networkId": 1,
+    "withdrawalFee": 3.15,
+    "minimumWithdrawal": 6.93,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 18,
+    "networkId": 10021,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 19,
+    "networkId": 1,
+    "withdrawalFee": 39,
+    "minimumWithdrawal": 86,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 19,
+    "networkId": 10022,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 20,
+    "networkId": 1,
+    "withdrawalFee": 1.25,
+    "minimumWithdrawal": 2.75,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 20,
+    "networkId": 8,
+    "withdrawalFee": 0.08,
+    "minimumWithdrawal": 0.18,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 22,
+    "networkId": 10024,
+    "withdrawalFee": 0.004,
+    "minimumWithdrawal": 0,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 24,
+    "networkId": 1,
+    "withdrawalFee": 1.66,
+    "minimumWithdrawal": 3.7,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 24,
+    "networkId": 10025,
+    "withdrawalFee": 0.8,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 26,
+    "networkId": 10026,
+    "withdrawalFee": 0.02,
+    "minimumWithdrawal": 0.04,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 27,
+    "networkId": 1,
+    "withdrawalFee": 25,
+    "minimumWithdrawal": 55,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 27,
+    "networkId": 10027,
+    "withdrawalFee": 3,
+    "minimumWithdrawal": 44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 29,
+    "networkId": 0,
+    "withdrawalFee": 68,
+    "minimumWithdrawal": 149.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 35,
+    "networkId": 10029,
+    "withdrawalFee": 0.005,
+    "minimumWithdrawal": 0.02,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 40,
+    "networkId": 0,
+    "withdrawalFee": 54,
+    "minimumWithdrawal": 118.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 40,
+    "networkId": 1,
+    "withdrawalFee": 4.88,
+    "minimumWithdrawal": 10.74,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 42,
+    "networkId": 0,
+    "withdrawalFee": 52,
+    "minimumWithdrawal": 114.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 43,
+    "networkId": 0,
+    "withdrawalFee": 6.67,
+    "minimumWithdrawal": 14.3,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 43,
+    "networkId": 3,
+    "withdrawalFee": 0.054,
+    "minimumWithdrawal": 0.12,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 46,
+    "networkId": 0,
+    "withdrawalFee": 19,
+    "minimumWithdrawal": 41.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 50,
+    "networkId": 0,
+    "withdrawalFee": 20,
+    "minimumWithdrawal": 44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 51,
+    "networkId": 10033,
+    "withdrawalFee": 0.05,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 52,
+    "networkId": 0,
+    "withdrawalFee": 756,
+    "minimumWithdrawal": 1663.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 52,
+    "networkId": 1,
+    "withdrawalFee": 67,
+    "minimumWithdrawal": 147.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 0,
+    "withdrawalFee": 5,
+    "minimumWithdrawal": 17.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 1,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 2,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 3,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 4,
+    "withdrawalFee": 1.5,
+    "minimumWithdrawal": 33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 8,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 10,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 11,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 13,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 15,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 10013,
+    "withdrawalFee": 0.025,
+    "minimumWithdrawal": 0.06,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 10042,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 10076,
+    "withdrawalFee": 0.11,
+    "minimumWithdrawal": 0.24,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 10084,
+    "withdrawalFee": 0.03,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 10116,
+    "withdrawalFee": 0.5,
+    "minimumWithdrawal": 1.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 10179,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 54,
+    "networkId": 10265,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 55,
+    "networkId": 1,
+    "withdrawalFee": 0.031,
+    "minimumWithdrawal": 0.0682,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 55,
+    "networkId": 10034,
+    "withdrawalFee": 0.004,
+    "minimumWithdrawal": 0.022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 56,
+    "networkId": 0,
+    "withdrawalFee": 7647,
+    "minimumWithdrawal": 16823,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 58,
+    "networkId": 1,
+    "withdrawalFee": 2.39,
+    "minimumWithdrawal": 5.26,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 58,
+    "networkId": 10035,
+    "withdrawalFee": 0.002,
+    "minimumWithdrawal": 0,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 69,
+    "networkId": 0,
+    "withdrawalFee": 4.95,
+    "minimumWithdrawal": 10.89,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 69,
+    "networkId": 10036,
+    "withdrawalFee": 0.00001,
+    "minimumWithdrawal": 1.65,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 72,
+    "networkId": 1,
+    "withdrawalFee": 0.0002,
+    "minimumWithdrawal": 0.001,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 72,
+    "networkId": 5,
+    "withdrawalFee": 0.0005,
+    "minimumWithdrawal": 0.011,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 72,
+    "networkId": 10265,
+    "withdrawalFee": 0.00002,
+    "minimumWithdrawal": 0.0055,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 76,
+    "networkId": 0,
+    "withdrawalFee": 2027,
+    "minimumWithdrawal": 4459,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 81,
+    "networkId": 0,
+    "withdrawalFee": 0.15,
+    "minimumWithdrawal": 0.33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 81,
+    "networkId": 1,
+    "withdrawalFee": 0.013,
+    "minimumWithdrawal": 0.0286,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 84,
+    "networkId": 0,
+    "withdrawalFee": 4.49,
+    "minimumWithdrawal": 9.88,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 84,
+    "networkId": 1,
+    "withdrawalFee": 0.4,
+    "minimumWithdrawal": 0.88,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 84,
+    "networkId": 10013,
+    "withdrawalFee": 0.017,
+    "minimumWithdrawal": 0.04,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 85,
+    "networkId": 0,
+    "withdrawalFee": 38,
+    "minimumWithdrawal": 83.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 85,
+    "networkId": 1,
+    "withdrawalFee": 3.39,
+    "minimumWithdrawal": 7.46,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 86,
+    "networkId": 0,
+    "withdrawalFee": 3.37,
+    "minimumWithdrawal": 7.41,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 86,
+    "networkId": 1,
+    "withdrawalFee": 0.3,
+    "minimumWithdrawal": 0.66,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 87,
+    "networkId": 0,
+    "withdrawalFee": 13,
+    "minimumWithdrawal": 28.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 87,
+    "networkId": 1,
+    "withdrawalFee": 1.16,
+    "minimumWithdrawal": 2.55,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 88,
+    "networkId": 0,
+    "withdrawalFee": 36,
+    "minimumWithdrawal": 79.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 88,
+    "networkId": 1,
+    "withdrawalFee": 3.28,
+    "minimumWithdrawal": 7.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 89,
+    "networkId": 0,
+    "withdrawalFee": 0.57,
+    "minimumWithdrawal": 1.25,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 89,
+    "networkId": 1,
+    "withdrawalFee": 0.051,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 90,
+    "networkId": 0,
+    "withdrawalFee": 0.000098,
+    "minimumWithdrawal": 0.00022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 90,
+    "networkId": 10179,
+    "withdrawalFee": 0.000001,
+    "minimumWithdrawal": 0.00022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 92,
+    "networkId": 0,
+    "withdrawalFee": 0.83,
+    "minimumWithdrawal": 1.83,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 92,
+    "networkId": 1,
+    "withdrawalFee": 0.074,
+    "minimumWithdrawal": 0.17,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 94,
+    "networkId": 0,
+    "withdrawalFee": 0.0013,
+    "minimumWithdrawal": 0.00286,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 94,
+    "networkId": 1,
+    "withdrawalFee": 0.00012,
+    "minimumWithdrawal": 0.000264,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 96,
+    "networkId": 0,
+    "withdrawalFee": 2.39,
+    "minimumWithdrawal": 5.26,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 97,
+    "networkId": 0,
+    "withdrawalFee": 0.044,
+    "minimumWithdrawal": 0.0968,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 97,
+    "networkId": 1,
+    "withdrawalFee": 0.0039,
+    "minimumWithdrawal": 0.0086,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 100,
+    "networkId": 0,
+    "withdrawalFee": 182,
+    "minimumWithdrawal": 400.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 104,
+    "networkId": 0,
+    "withdrawalFee": 4.77,
+    "minimumWithdrawal": 10.49,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 104,
+    "networkId": 1,
+    "withdrawalFee": 0.42,
+    "minimumWithdrawal": 0.92,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 108,
+    "networkId": 1,
+    "withdrawalFee": 130,
+    "minimumWithdrawal": 416,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 110,
+    "networkId": 1,
+    "withdrawalFee": 0.14,
+    "minimumWithdrawal": 0.308,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 110,
+    "networkId": 10037,
+    "withdrawalFee": 0.08,
+    "minimumWithdrawal": 1.43,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 110,
+    "networkId": 10163,
+    "withdrawalFee": 0.05,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 0,
+    "withdrawalFee": 5,
+    "minimumWithdrawal": 22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 1,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 3,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 4,
+    "withdrawalFee": 1.5,
+    "minimumWithdrawal": 33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 13,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 16,
+    "withdrawalFee": 0.15,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 10010,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 10013,
+    "withdrawalFee": 0.025,
+    "minimumWithdrawal": 0.06,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 10042,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 10076,
+    "withdrawalFee": 0.11,
+    "minimumWithdrawal": 0.24,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 10079,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 55,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 10084,
+    "withdrawalFee": 0.05,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 10163,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 116,
+    "networkId": 10170,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 117,
+    "networkId": 1,
+    "withdrawalFee": 0.16,
+    "minimumWithdrawal": 0.352,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 117,
+    "networkId": 10038,
+    "withdrawalFee": 0.0005,
+    "minimumWithdrawal": 0.011,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 118,
+    "networkId": 1,
+    "withdrawalFee": 0.22,
+    "minimumWithdrawal": 0.44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 118,
+    "networkId": 10039,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 119,
+    "networkId": 1,
+    "withdrawalFee": 0.022,
+    "minimumWithdrawal": 0.048,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 119,
+    "networkId": 10040,
+    "withdrawalFee": 0.0008,
+    "minimumWithdrawal": 0.011,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 120,
+    "networkId": 10207,
+    "withdrawalFee": 0.0003,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 121,
+    "networkId": 0,
+    "withdrawalFee": 3.56,
+    "minimumWithdrawal": 7.83,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 121,
+    "networkId": 1,
+    "withdrawalFee": 0.32,
+    "minimumWithdrawal": 0.7,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 121,
+    "networkId": 10112,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.02,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 122,
+    "networkId": 0,
+    "withdrawalFee": 40,
+    "minimumWithdrawal": 88,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 122,
+    "networkId": 3,
+    "withdrawalFee": 0.33,
+    "minimumWithdrawal": 0.73,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 122,
+    "networkId": 13,
+    "withdrawalFee": 0.62,
+    "minimumWithdrawal": 1.36,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 123,
+    "networkId": 10041,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.55,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 124,
+    "networkId": 1,
+    "withdrawalFee": 0.12,
+    "minimumWithdrawal": 0.26,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 124,
+    "networkId": 10042,
+    "withdrawalFee": 0.018,
+    "minimumWithdrawal": 0.66,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 125,
+    "networkId": 0,
+    "withdrawalFee": 24,
+    "minimumWithdrawal": 52.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 125,
+    "networkId": 1,
+    "withdrawalFee": 2.21,
+    "minimumWithdrawal": 4.86,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 126,
+    "networkId": 0,
+    "withdrawalFee": 13,
+    "minimumWithdrawal": 28.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 126,
+    "networkId": 1,
+    "withdrawalFee": 1.21,
+    "minimumWithdrawal": 2.66,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 127,
+    "networkId": 1,
+    "withdrawalFee": 0.13,
+    "minimumWithdrawal": 0.29,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 127,
+    "networkId": 10043,
+    "withdrawalFee": 0.02,
+    "minimumWithdrawal": 0.04,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 128,
+    "networkId": 1,
+    "withdrawalFee": 0.51,
+    "minimumWithdrawal": 1.12,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 128,
+    "networkId": 10044,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.02,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 129,
+    "networkId": 1,
+    "withdrawalFee": 0.56,
+    "minimumWithdrawal": 1.23,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 130,
+    "networkId": 0,
+    "withdrawalFee": 78,
+    "minimumWithdrawal": 171.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 130,
+    "networkId": 1,
+    "withdrawalFee": 6.93,
+    "minimumWithdrawal": 14.3,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 132,
+    "networkId": 0,
+    "withdrawalFee": 98,
+    "minimumWithdrawal": 215.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 134,
+    "networkId": 10046,
+    "withdrawalFee": 0.008,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 135,
+    "networkId": 10047,
+    "withdrawalFee": 0.15,
+    "minimumWithdrawal": 0.33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 137,
+    "networkId": 1,
+    "withdrawalFee": 6667,
+    "minimumWithdrawal": 14667,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 137,
+    "networkId": 2,
+    "withdrawalFee": 106,
+    "minimumWithdrawal": 2334,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 138,
+    "networkId": 1,
+    "withdrawalFee": 0.0034,
+    "minimumWithdrawal": 0.0075,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 138,
+    "networkId": 4,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.055,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 139,
+    "networkId": 0,
+    "withdrawalFee": 0.0057,
+    "minimumWithdrawal": 0.0121,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 139,
+    "networkId": 1,
+    "withdrawalFee": 0.0005,
+    "minimumWithdrawal": 0.0011,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 140,
+    "networkId": 0,
+    "withdrawalFee": 3.4,
+    "minimumWithdrawal": 7.48,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 141,
+    "networkId": 0,
+    "withdrawalFee": 21,
+    "minimumWithdrawal": 46.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 141,
+    "networkId": 1,
+    "withdrawalFee": 1.87,
+    "minimumWithdrawal": 4.114,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 142,
+    "networkId": 0,
+    "withdrawalFee": 25,
+    "minimumWithdrawal": 55,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 142,
+    "networkId": 13,
+    "withdrawalFee": 0.4,
+    "minimumWithdrawal": 0.88,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 142,
+    "networkId": 10013,
+    "withdrawalFee": 0.099,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 143,
+    "networkId": 0,
+    "withdrawalFee": 24,
+    "minimumWithdrawal": 52.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 143,
+    "networkId": 1,
+    "withdrawalFee": 2.21,
+    "minimumWithdrawal": 4.862,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 143,
+    "networkId": 3,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 0.44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 145,
+    "networkId": 10050,
+    "withdrawalFee": 0.0003,
+    "minimumWithdrawal": 0.0011,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 146,
+    "networkId": 0,
+    "withdrawalFee": 370867,
+    "minimumWithdrawal": 815907,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 146,
+    "networkId": 1,
+    "withdrawalFee": 32958,
+    "minimumWithdrawal": 72508,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 147,
+    "networkId": 1,
+    "withdrawalFee": 2.32,
+    "minimumWithdrawal": 5.104,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 149,
+    "networkId": 10051,
+    "withdrawalFee": 0.006,
+    "minimumWithdrawal": 0.022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 150,
+    "networkId": 10052,
+    "withdrawalFee": 0.15,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 153,
+    "networkId": 10021,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 154,
+    "networkId": 0,
+    "withdrawalFee": 4000,
+    "minimumWithdrawal": 8800,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 155,
+    "networkId": 0,
+    "withdrawalFee": 1345,
+    "minimumWithdrawal": 2959,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 155,
+    "networkId": 10053,
+    "withdrawalFee": 0.0001,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 156,
+    "networkId": 0,
+    "withdrawalFee": 546,
+    "minimumWithdrawal": 1201.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 156,
+    "networkId": 1,
+    "withdrawalFee": 48,
+    "minimumWithdrawal": 105.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 159,
+    "networkId": 10047,
+    "withdrawalFee": 3.2,
+    "minimumWithdrawal": 7.04,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 160,
+    "networkId": 10054,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 66,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 161,
+    "networkId": 0,
+    "withdrawalFee": 9.5,
+    "minimumWithdrawal": 20.9,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 161,
+    "networkId": 1,
+    "withdrawalFee": 0.84,
+    "minimumWithdrawal": 1.848,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 161,
+    "networkId": 10055,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 166,
+    "networkId": 0,
+    "withdrawalFee": 245,
+    "minimumWithdrawal": 539,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 166,
+    "networkId": 1,
+    "withdrawalFee": 21,
+    "minimumWithdrawal": 46.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 167,
+    "networkId": 0,
+    "withdrawalFee": 893,
+    "minimumWithdrawal": 1964.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 167,
+    "networkId": 1,
+    "withdrawalFee": 79,
+    "minimumWithdrawal": 173.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 169,
+    "networkId": 10405,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 173,
+    "networkId": 0,
+    "withdrawalFee": 1755,
+    "minimumWithdrawal": 3861,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 175,
+    "networkId": 0,
+    "withdrawalFee": 48,
+    "minimumWithdrawal": 105.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 177,
+    "networkId": 10058,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 180,
+    "networkId": 0,
+    "withdrawalFee": 86,
+    "minimumWithdrawal": 189.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 181,
+    "networkId": 10059,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 182,
+    "networkId": 10060,
+    "withdrawalFee": 0.03,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 182,
+    "networkId": 10179,
+    "withdrawalFee": 0.002,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 183,
+    "networkId": 0,
+    "withdrawalFee": 140,
+    "minimumWithdrawal": 308,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 183,
+    "networkId": 1,
+    "withdrawalFee": 12,
+    "minimumWithdrawal": 26.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 184,
+    "networkId": 1,
+    "withdrawalFee": 14,
+    "minimumWithdrawal": 30.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 184,
+    "networkId": 10061,
+    "withdrawalFee": 0.12,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 185,
+    "networkId": 0,
+    "withdrawalFee": 4.08,
+    "minimumWithdrawal": 8.976,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 187,
+    "networkId": 0,
+    "withdrawalFee": 28,
+    "minimumWithdrawal": 61.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 187,
+    "networkId": 10062,
+    "withdrawalFee": 0.001,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 188,
+    "networkId": 0,
+    "withdrawalFee": 4942,
+    "minimumWithdrawal": 10872.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 188,
+    "networkId": 1,
+    "withdrawalFee": 438,
+    "minimumWithdrawal": 963.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 189,
+    "networkId": 10063,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 200,
+    "networkId": 0,
+    "withdrawalFee": 55,
+    "minimumWithdrawal": 121,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 200,
+    "networkId": 1,
+    "withdrawalFee": 4.96,
+    "minimumWithdrawal": 10.912,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 200,
+    "networkId": 10065,
+    "withdrawalFee": 5,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 207,
+    "networkId": 1,
+    "withdrawalFee": 220,
+    "minimumWithdrawal": 484,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 207,
+    "networkId": 10021,
+    "withdrawalFee": 4.9,
+    "minimumWithdrawal": 10.78,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 208,
+    "networkId": 0,
+    "withdrawalFee": 65,
+    "minimumWithdrawal": 143,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 208,
+    "networkId": 1,
+    "withdrawalFee": 5.86,
+    "minimumWithdrawal": 12.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 211,
+    "networkId": 0,
+    "withdrawalFee": 153,
+    "minimumWithdrawal": 336.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 213,
+    "networkId": 0,
+    "withdrawalFee": 185,
+    "minimumWithdrawal": 407,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 213,
+    "networkId": 1,
+    "withdrawalFee": 16,
+    "minimumWithdrawal": 35.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 213,
+    "networkId": 3,
+    "withdrawalFee": 1.49,
+    "minimumWithdrawal": 3.278,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 215,
+    "networkId": 0,
+    "withdrawalFee": 45,
+    "minimumWithdrawal": 99,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 215,
+    "networkId": 1,
+    "withdrawalFee": 4.08,
+    "minimumWithdrawal": 8.976,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 216,
+    "networkId": 10068,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 220,
+    "networkId": 10069,
+    "withdrawalFee": 2,
+    "minimumWithdrawal": 4.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 222,
+    "networkId": 0,
+    "withdrawalFee": 142,
+    "minimumWithdrawal": 312.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 222,
+    "networkId": 1,
+    "withdrawalFee": 12,
+    "minimumWithdrawal": 26.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 224,
+    "networkId": 0,
+    "withdrawalFee": 14,
+    "minimumWithdrawal": 30.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 224,
+    "networkId": 1,
+    "withdrawalFee": 1.33,
+    "minimumWithdrawal": 2.926,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 224,
+    "networkId": 3,
+    "withdrawalFee": 0.12,
+    "minimumWithdrawal": 0.264,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 228,
+    "networkId": 10070,
+    "withdrawalFee": 0.002,
+    "minimumWithdrawal": 0.0044,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 235,
+    "networkId": 10027,
+    "withdrawalFee": 70,
+    "minimumWithdrawal": 440,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 240,
+    "networkId": 0,
+    "withdrawalFee": 13,
+    "minimumWithdrawal": 28.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 246,
+    "networkId": 10072,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 247,
+    "networkId": 1,
+    "withdrawalFee": 19,
+    "minimumWithdrawal": 41.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 247,
+    "networkId": 2,
+    "withdrawalFee": 50,
+    "minimumWithdrawal": 110,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 250,
+    "networkId": 0,
+    "withdrawalFee": 0.44,
+    "minimumWithdrawal": 0.968,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 252,
+    "networkId": 0,
+    "withdrawalFee": 984,
+    "minimumWithdrawal": 2164.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 253,
+    "networkId": 0,
+    "withdrawalFee": 0.0055,
+    "minimumWithdrawal": 0.0121,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 254,
+    "networkId": 0,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 256,
+    "networkId": 0,
+    "withdrawalFee": 9.15,
+    "minimumWithdrawal": 19.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 256,
+    "networkId": 1,
+    "withdrawalFee": 0.81,
+    "minimumWithdrawal": 1.782,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 258,
+    "networkId": 0,
+    "withdrawalFee": 5.46,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 258,
+    "networkId": 1,
+    "withdrawalFee": 0.48,
+    "minimumWithdrawal": 1.056,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 259,
+    "networkId": 10074,
+    "withdrawalFee": 8,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 268,
+    "networkId": 0,
+    "withdrawalFee": 12,
+    "minimumWithdrawal": 26.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 268,
+    "networkId": 1,
+    "withdrawalFee": 1.11,
+    "minimumWithdrawal": 2.442,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 269,
+    "networkId": 10021,
+    "withdrawalFee": 0.0035,
+    "minimumWithdrawal": 0.0077,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 273,
+    "networkId": 0,
+    "withdrawalFee": 97,
+    "minimumWithdrawal": 213.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 274,
+    "networkId": 1,
+    "withdrawalFee": 33,
+    "minimumWithdrawal": 72.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 274,
+    "networkId": 2,
+    "withdrawalFee": 6,
+    "minimumWithdrawal": 16.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 275,
+    "networkId": 1,
+    "withdrawalFee": 0.022,
+    "minimumWithdrawal": 0.0484,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 275,
+    "networkId": 10075,
+    "withdrawalFee": 0.008,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 275,
+    "networkId": 10076,
+    "withdrawalFee": 0.004,
+    "minimumWithdrawal": 0.0088,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 277,
+    "networkId": 10008,
+    "withdrawalFee": 0.5,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 277,
+    "networkId": 10009,
+    "withdrawalFee": 2.9,
+    "minimumWithdrawal": 3.3,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 280,
+    "networkId": 0,
+    "withdrawalFee": 6.85,
+    "minimumWithdrawal": 14.3,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 280,
+    "networkId": 1,
+    "withdrawalFee": 0.57,
+    "minimumWithdrawal": 1.254,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 281,
+    "networkId": 0,
+    "withdrawalFee": 178,
+    "minimumWithdrawal": 391.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 281,
+    "networkId": 10040,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 282,
+    "networkId": 1,
+    "withdrawalFee": 0.082,
+    "minimumWithdrawal": 0.176,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 289,
+    "networkId": 1,
+    "withdrawalFee": 0.029,
+    "minimumWithdrawal": 0.0638,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 289,
+    "networkId": 10077,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 290,
+    "networkId": 0,
+    "withdrawalFee": 50,
+    "minimumWithdrawal": 110,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 291,
+    "networkId": 1,
+    "withdrawalFee": 1.05,
+    "minimumWithdrawal": 2.31,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 291,
+    "networkId": 10078,
+    "withdrawalFee": 0.05,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 294,
+    "networkId": 0,
+    "withdrawalFee": 1604,
+    "minimumWithdrawal": 3528.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 295,
+    "networkId": 0,
+    "withdrawalFee": 1.31,
+    "minimumWithdrawal": 2.882,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 295,
+    "networkId": 1,
+    "withdrawalFee": 0.12,
+    "minimumWithdrawal": 0.264,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 295,
+    "networkId": 10079,
+    "withdrawalFee": 0.005,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 296,
+    "networkId": 10060,
+    "withdrawalFee": 0.04,
+    "minimumWithdrawal": 0.088,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 298,
+    "networkId": 10080,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 299,
+    "networkId": 0,
+    "withdrawalFee": 2.95,
+    "minimumWithdrawal": 6.49,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 310,
+    "networkId": 10228,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 311,
+    "networkId": 10228,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 313,
+    "networkId": 10228,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 314,
+    "networkId": 10228,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 315,
+    "networkId": 10228,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 316,
+    "networkId": 10084,
+    "withdrawalFee": 0.001,
+    "minimumWithdrawal": 0.0022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 317,
+    "networkId": 10085,
+    "withdrawalFee": 3,
+    "minimumWithdrawal": 6.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 319,
+    "networkId": 0,
+    "withdrawalFee": 84,
+    "minimumWithdrawal": 184.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 319,
+    "networkId": 1,
+    "withdrawalFee": 7.53,
+    "minimumWithdrawal": 16.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 320,
+    "networkId": 10086,
+    "withdrawalFee": 0.001,
+    "minimumWithdrawal": 330,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 321,
+    "networkId": 1,
+    "withdrawalFee": 0.49,
+    "minimumWithdrawal": 1.078,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 321,
+    "networkId": 10087,
+    "withdrawalFee": 0.02,
+    "minimumWithdrawal": 0.044,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 322,
+    "networkId": 0,
+    "withdrawalFee": 9.99,
+    "minimumWithdrawal": 20.9,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 322,
+    "networkId": 1,
+    "withdrawalFee": 0.89,
+    "minimumWithdrawal": 1.958,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 323,
+    "networkId": 0,
+    "withdrawalFee": 9.13,
+    "minimumWithdrawal": 19.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 323,
+    "networkId": 1,
+    "withdrawalFee": 0.81,
+    "minimumWithdrawal": 1.782,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 325,
+    "networkId": 10228,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 326,
+    "networkId": 0,
+    "withdrawalFee": 2.27,
+    "minimumWithdrawal": 4.994,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 327,
+    "networkId": 0,
+    "withdrawalFee": 19,
+    "minimumWithdrawal": 41.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 327,
+    "networkId": 1,
+    "withdrawalFee": 1.76,
+    "minimumWithdrawal": 3.872,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 329,
+    "networkId": 0,
+    "withdrawalFee": 3,
+    "minimumWithdrawal": 6.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 329,
+    "networkId": 1,
+    "withdrawalFee": 0.3,
+    "minimumWithdrawal": 0.66,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 330,
+    "networkId": 0,
+    "withdrawalFee": 5.8,
+    "minimumWithdrawal": 12.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 330,
+    "networkId": 1,
+    "withdrawalFee": 0.52,
+    "minimumWithdrawal": 1.144,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 331,
+    "networkId": 0,
+    "withdrawalFee": 1668,
+    "minimumWithdrawal": 3669.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 332,
+    "networkId": 0,
+    "withdrawalFee": 9.51,
+    "minimumWithdrawal": 20.9,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 332,
+    "networkId": 1,
+    "withdrawalFee": 0.85,
+    "minimumWithdrawal": 1.87,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 335,
+    "networkId": 1,
+    "withdrawalFee": 3.85,
+    "minimumWithdrawal": 8.47,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 335,
+    "networkId": 10161,
+    "withdrawalFee": 0.002,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 338,
+    "networkId": 1,
+    "withdrawalFee": 1.66,
+    "minimumWithdrawal": 3.652,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 340,
+    "networkId": 0,
+    "withdrawalFee": 614,
+    "minimumWithdrawal": 1350.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 340,
+    "networkId": 1,
+    "withdrawalFee": 54,
+    "minimumWithdrawal": 118.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 345,
+    "networkId": 10228,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 346,
+    "networkId": 0,
+    "withdrawalFee": 2.23,
+    "minimumWithdrawal": 4.906,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 348,
+    "networkId": 1,
+    "withdrawalFee": 1.45,
+    "minimumWithdrawal": 3.19,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 349,
+    "networkId": 0,
+    "withdrawalFee": 2346,
+    "minimumWithdrawal": 5161.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 349,
+    "networkId": 1,
+    "withdrawalFee": 208,
+    "minimumWithdrawal": 457.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 349,
+    "networkId": 10079,
+    "withdrawalFee": 2,
+    "minimumWithdrawal": 169.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 352,
+    "networkId": 10088,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 358,
+    "networkId": 1,
+    "withdrawalFee": 5.02,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 358,
+    "networkId": 10089,
+    "withdrawalFee": 0.5,
+    "minimumWithdrawal": 31.9,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 359,
+    "networkId": 1,
+    "withdrawalFee": 1.8,
+    "minimumWithdrawal": 3.96,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 359,
+    "networkId": 10090,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 365,
+    "networkId": 0,
+    "withdrawalFee": 0.55,
+    "minimumWithdrawal": 1.21,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 367,
+    "networkId": 0,
+    "withdrawalFee": 71,
+    "minimumWithdrawal": 156.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 367,
+    "networkId": 1,
+    "withdrawalFee": 6.33,
+    "minimumWithdrawal": 13.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 371,
+    "networkId": 0,
+    "withdrawalFee": 3.08,
+    "minimumWithdrawal": 6.776,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 373,
+    "networkId": 0,
+    "withdrawalFee": 59,
+    "minimumWithdrawal": 129.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 373,
+    "networkId": 1,
+    "withdrawalFee": 5.29,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 375,
+    "networkId": 0,
+    "withdrawalFee": 0.39,
+    "minimumWithdrawal": 0.858,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 376,
+    "networkId": 0,
+    "withdrawalFee": 0.8,
+    "minimumWithdrawal": 1.76,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 376,
+    "networkId": 1,
+    "withdrawalFee": 0.071,
+    "minimumWithdrawal": 0.154,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 377,
+    "networkId": 0,
+    "withdrawalFee": 51,
+    "minimumWithdrawal": 112.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 377,
+    "networkId": 1,
+    "withdrawalFee": 4.55,
+    "minimumWithdrawal": 10.01,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 377,
+    "networkId": 10332,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 378,
+    "networkId": 0,
+    "withdrawalFee": 200,
+    "minimumWithdrawal": 440,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 379,
+    "networkId": 0,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 380,
+    "networkId": 1,
+    "withdrawalFee": 1.07,
+    "minimumWithdrawal": 2.354,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 380,
+    "networkId": 10092,
+    "withdrawalFee": 0.0001,
+    "minimumWithdrawal": 2.97,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 382,
+    "networkId": 10093,
+    "withdrawalFee": 0.9,
+    "minimumWithdrawal": 5.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 383,
+    "networkId": 4,
+    "withdrawalFee": 0.65,
+    "minimumWithdrawal": 1.43,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 384,
+    "networkId": 0,
+    "withdrawalFee": 0.16,
+    "minimumWithdrawal": 0.352,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 385,
+    "networkId": 1,
+    "withdrawalFee": 3.64,
+    "minimumWithdrawal": 8.008,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 388,
+    "networkId": 0,
+    "withdrawalFee": 175,
+    "minimumWithdrawal": 385,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 388,
+    "networkId": 3,
+    "withdrawalFee": 1.41,
+    "minimumWithdrawal": 3.102,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 389,
+    "networkId": 1,
+    "withdrawalFee": 3.73,
+    "minimumWithdrawal": 8.206,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 391,
+    "networkId": 0,
+    "withdrawalFee": 7.04,
+    "minimumWithdrawal": 15.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 391,
+    "networkId": 3,
+    "withdrawalFee": 0.057,
+    "minimumWithdrawal": 0.121,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 392,
+    "networkId": 0,
+    "withdrawalFee": 196,
+    "minimumWithdrawal": 431.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 392,
+    "networkId": 10094,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 7.7,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 399,
+    "networkId": 0,
+    "withdrawalFee": 12,
+    "minimumWithdrawal": 26.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 399,
+    "networkId": 1,
+    "withdrawalFee": 1.12,
+    "minimumWithdrawal": 2.464,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 399,
+    "networkId": 10079,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 400,
+    "networkId": 1,
+    "withdrawalFee": 17159,
+    "minimumWithdrawal": 37749.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 400,
+    "networkId": 10095,
+    "withdrawalFee": 280,
+    "minimumWithdrawal": 22000,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 401,
+    "networkId": 0,
+    "withdrawalFee": 17,
+    "minimumWithdrawal": 37.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 401,
+    "networkId": 1,
+    "withdrawalFee": 1.59,
+    "minimumWithdrawal": 3.498,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 401,
+    "networkId": 10096,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 402,
+    "networkId": 0,
+    "withdrawalFee": 6.02,
+    "minimumWithdrawal": 13.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 402,
+    "networkId": 10348,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 403,
+    "networkId": 0,
+    "withdrawalFee": 175,
+    "minimumWithdrawal": 385,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 403,
+    "networkId": 1,
+    "withdrawalFee": 15,
+    "minimumWithdrawal": 33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 404,
+    "networkId": 0,
+    "withdrawalFee": 228,
+    "minimumWithdrawal": 501.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 404,
+    "networkId": 1,
+    "withdrawalFee": 20,
+    "minimumWithdrawal": 44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 405,
+    "networkId": 0,
+    "withdrawalFee": 5,
+    "minimumWithdrawal": 22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 405,
+    "networkId": 1,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 406,
+    "networkId": 0,
+    "withdrawalFee": 289,
+    "minimumWithdrawal": 635.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 407,
+    "networkId": 0,
+    "withdrawalFee": 0.18,
+    "minimumWithdrawal": 0.396,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 407,
+    "networkId": 1,
+    "withdrawalFee": 0.016,
+    "minimumWithdrawal": 0.0352,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 408,
+    "networkId": 10097,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 409,
+    "networkId": 0,
+    "withdrawalFee": 197,
+    "minimumWithdrawal": 433.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 409,
+    "networkId": 1,
+    "withdrawalFee": 17,
+    "minimumWithdrawal": 37.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 410,
+    "networkId": 4,
+    "withdrawalFee": 6.76,
+    "minimumWithdrawal": 14.3,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 413,
+    "networkId": 0,
+    "withdrawalFee": 5.9,
+    "minimumWithdrawal": 12.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 415,
+    "networkId": 0,
+    "withdrawalFee": 5.04,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 416,
+    "networkId": 0,
+    "withdrawalFee": 153,
+    "minimumWithdrawal": 336.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 417,
+    "networkId": 0,
+    "withdrawalFee": 56,
+    "minimumWithdrawal": 123.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 418,
+    "networkId": 1,
+    "withdrawalFee": 0.39,
+    "minimumWithdrawal": 0.858,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 419,
+    "networkId": 0,
+    "withdrawalFee": 40,
+    "minimumWithdrawal": 88,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 419,
+    "networkId": 1,
+    "withdrawalFee": 3.6,
+    "minimumWithdrawal": 7.92,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 420,
+    "networkId": 0,
+    "withdrawalFee": 34,
+    "minimumWithdrawal": 74.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 420,
+    "networkId": 1,
+    "withdrawalFee": 3.02,
+    "minimumWithdrawal": 6.644,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 421,
+    "networkId": 0,
+    "withdrawalFee": 0.5,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 421,
+    "networkId": 1,
+    "withdrawalFee": 0.044,
+    "minimumWithdrawal": 0.0968,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 422,
+    "networkId": 0,
+    "withdrawalFee": 42,
+    "minimumWithdrawal": 92.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 422,
+    "networkId": 1,
+    "withdrawalFee": 3.8,
+    "minimumWithdrawal": 8.36,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 423,
+    "networkId": 1,
+    "withdrawalFee": 0.82,
+    "minimumWithdrawal": 1.804,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 425,
+    "networkId": 10098,
+    "withdrawalFee": 0.003,
+    "minimumWithdrawal": 0.0066,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 426,
+    "networkId": 0,
+    "withdrawalFee": 0.38,
+    "minimumWithdrawal": 0.836,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 427,
+    "networkId": 10228,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 428,
+    "networkId": 0,
+    "withdrawalFee": 0.19,
+    "minimumWithdrawal": 0.418,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 429,
+    "networkId": 1,
+    "withdrawalFee": 43,
+    "minimumWithdrawal": 94.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 429,
+    "networkId": 10076,
+    "withdrawalFee": 8.06,
+    "minimumWithdrawal": 17.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 430,
+    "networkId": 1,
+    "withdrawalFee": 0.37,
+    "minimumWithdrawal": 0.814,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 432,
+    "networkId": 0,
+    "withdrawalFee": 348,
+    "minimumWithdrawal": 765.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 432,
+    "networkId": 1,
+    "withdrawalFee": 30,
+    "minimumWithdrawal": 66,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 433,
+    "networkId": 0,
+    "withdrawalFee": 1699,
+    "minimumWithdrawal": 3737.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 435,
+    "networkId": 0,
+    "withdrawalFee": 2.54,
+    "minimumWithdrawal": 5.588,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 435,
+    "networkId": 3,
+    "withdrawalFee": 0.02,
+    "minimumWithdrawal": 0.044,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 437,
+    "networkId": 0,
+    "withdrawalFee": 0.46,
+    "minimumWithdrawal": 1.012,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 439,
+    "networkId": 1,
+    "withdrawalFee": 0.18,
+    "minimumWithdrawal": 0.396,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 442,
+    "networkId": 0,
+    "withdrawalFee": 33,
+    "minimumWithdrawal": 72.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 443,
+    "networkId": 0,
+    "withdrawalFee": 12,
+    "minimumWithdrawal": 26.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 443,
+    "networkId": 1,
+    "withdrawalFee": 1.12,
+    "minimumWithdrawal": 2.464,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 444,
+    "networkId": 0,
+    "withdrawalFee": 3.26,
+    "minimumWithdrawal": 7.172,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 445,
+    "networkId": 3,
+    "withdrawalFee": 0.32,
+    "minimumWithdrawal": 0.704,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 446,
+    "networkId": 0,
+    "withdrawalFee": 4.86,
+    "minimumWithdrawal": 10.692,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 446,
+    "networkId": 1,
+    "withdrawalFee": 0.43,
+    "minimumWithdrawal": 0.946,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 449,
+    "networkId": 0,
+    "withdrawalFee": 80,
+    "minimumWithdrawal": 176,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 449,
+    "networkId": 1,
+    "withdrawalFee": 7.16,
+    "minimumWithdrawal": 15.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 450,
+    "networkId": 0,
+    "withdrawalFee": 3.82,
+    "minimumWithdrawal": 8.404,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 451,
+    "networkId": 0,
+    "withdrawalFee": 8193,
+    "minimumWithdrawal": 18024.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 452,
+    "networkId": 0,
+    "withdrawalFee": 11849,
+    "minimumWithdrawal": 26067.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 454,
+    "networkId": 13,
+    "withdrawalFee": 0.31,
+    "minimumWithdrawal": 0.682,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 454,
+    "networkId": 10076,
+    "withdrawalFee": 0.33,
+    "minimumWithdrawal": 0.726,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 457,
+    "networkId": 0,
+    "withdrawalFee": 327,
+    "minimumWithdrawal": 719.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 458,
+    "networkId": 0,
+    "withdrawalFee": 4.45,
+    "minimumWithdrawal": 9.79,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 459,
+    "networkId": 1,
+    "withdrawalFee": 3.55,
+    "minimumWithdrawal": 7.81,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 459,
+    "networkId": 10099,
+    "withdrawalFee": 0.02,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 461,
+    "networkId": 0,
+    "withdrawalFee": 34,
+    "minimumWithdrawal": 74.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 462,
+    "networkId": 0,
+    "withdrawalFee": 4,
+    "minimumWithdrawal": 8.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 464,
+    "networkId": 1,
+    "withdrawalFee": 671846,
+    "minimumWithdrawal": 1478061.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 464,
+    "networkId": 2,
+    "withdrawalFee": 4000,
+    "minimumWithdrawal": 195800,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 466,
+    "networkId": 10101,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 0.44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 467,
+    "networkId": 10102,
+    "withdrawalFee": 0.041,
+    "minimumWithdrawal": 0.0902,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 468,
+    "networkId": 0,
+    "withdrawalFee": 33,
+    "minimumWithdrawal": 72.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 468,
+    "networkId": 1,
+    "withdrawalFee": 3.02,
+    "minimumWithdrawal": 6.644,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 468,
+    "networkId": 13,
+    "withdrawalFee": 0.52,
+    "minimumWithdrawal": 1.144,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 469,
+    "networkId": 1,
+    "withdrawalFee": 0.43,
+    "minimumWithdrawal": 0.946,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 470,
+    "networkId": 0,
+    "withdrawalFee": 283,
+    "minimumWithdrawal": 622.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 471,
+    "networkId": 10103,
+    "withdrawalFee": 2,
+    "minimumWithdrawal": 5.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 472,
+    "networkId": 0,
+    "withdrawalFee": 49,
+    "minimumWithdrawal": 107.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 472,
+    "networkId": 1,
+    "withdrawalFee": 4.43,
+    "minimumWithdrawal": 9.746,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 472,
+    "networkId": 3,
+    "withdrawalFee": 0.4,
+    "minimumWithdrawal": 0.88,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 472,
+    "networkId": 4,
+    "withdrawalFee": 13,
+    "minimumWithdrawal": 28.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 475,
+    "networkId": 10105,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 476,
+    "networkId": 0,
+    "withdrawalFee": 5.72,
+    "minimumWithdrawal": 12.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 476,
+    "networkId": 1,
+    "withdrawalFee": 0.51,
+    "minimumWithdrawal": 1.122,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 481,
+    "networkId": 1,
+    "withdrawalFee": 9.97,
+    "minimumWithdrawal": 20.9,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 482,
+    "networkId": 0,
+    "withdrawalFee": 0.023,
+    "minimumWithdrawal": 0.0506,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 484,
+    "networkId": 10106,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 487,
+    "networkId": 10108,
+    "withdrawalFee": 0.03,
+    "minimumWithdrawal": 0.066,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 489,
+    "networkId": 0,
+    "withdrawalFee": 5.95,
+    "minimumWithdrawal": 12.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 491,
+    "networkId": 10109,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 492,
+    "networkId": 10013,
+    "withdrawalFee": 0.015,
+    "minimumWithdrawal": 0.033,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 494,
+    "networkId": 0,
+    "withdrawalFee": 3425,
+    "minimumWithdrawal": 7535,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 496,
+    "networkId": 0,
+    "withdrawalFee": 22,
+    "minimumWithdrawal": 48.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 496,
+    "networkId": 1,
+    "withdrawalFee": 2.04,
+    "minimumWithdrawal": 4.488,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 496,
+    "networkId": 3,
+    "withdrawalFee": 0.18,
+    "minimumWithdrawal": 0.396,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 496,
+    "networkId": 13,
+    "withdrawalFee": 0.35,
+    "minimumWithdrawal": 0.77,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 496,
+    "networkId": 10055,
+    "withdrawalFee": 1.45,
+    "minimumWithdrawal": 3.19,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 496,
+    "networkId": 10076,
+    "withdrawalFee": 0.38,
+    "minimumWithdrawal": 0.836,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 498,
+    "networkId": 13,
+    "withdrawalFee": 0.0045,
+    "minimumWithdrawal": 0.0099,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 498,
+    "networkId": 10076,
+    "withdrawalFee": 0.0048,
+    "minimumWithdrawal": 0.0106,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 500,
+    "networkId": 10111,
+    "withdrawalFee": 5,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 501,
+    "networkId": 10,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 501,
+    "networkId": 14,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 502,
+    "networkId": 10112,
+    "withdrawalFee": 0.005,
+    "minimumWithdrawal": 0.066,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 504,
+    "networkId": 10113,
+    "withdrawalFee": 0.06,
+    "minimumWithdrawal": 5.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 505,
+    "networkId": 0,
+    "withdrawalFee": 44,
+    "minimumWithdrawal": 96.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 505,
+    "networkId": 1,
+    "withdrawalFee": 3.95,
+    "minimumWithdrawal": 8.69,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 505,
+    "networkId": 13,
+    "withdrawalFee": 0.68,
+    "minimumWithdrawal": 1.496,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 506,
+    "networkId": 1,
+    "withdrawalFee": 1.34,
+    "minimumWithdrawal": 2.948,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 509,
+    "networkId": 13,
+    "withdrawalFee": 0.26,
+    "minimumWithdrawal": 0.572,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 510,
+    "networkId": 0,
+    "withdrawalFee": 12,
+    "minimumWithdrawal": 26.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 511,
+    "networkId": 0,
+    "withdrawalFee": 0.61,
+    "minimumWithdrawal": 1.342,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 512,
+    "networkId": 0,
+    "withdrawalFee": 19,
+    "minimumWithdrawal": 41.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 514,
+    "networkId": 3,
+    "withdrawalFee": 0.029,
+    "minimumWithdrawal": 0.0638,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 514,
+    "networkId": 13,
+    "withdrawalFee": 0.055,
+    "minimumWithdrawal": 0.121,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 515,
+    "networkId": 0,
+    "withdrawalFee": 11,
+    "minimumWithdrawal": 24.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 515,
+    "networkId": 1,
+    "withdrawalFee": 1.03,
+    "minimumWithdrawal": 2.266,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 515,
+    "networkId": 3,
+    "withdrawalFee": 0.093,
+    "minimumWithdrawal": 0.209,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 515,
+    "networkId": 13,
+    "withdrawalFee": 0.18,
+    "minimumWithdrawal": 0.396,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 515,
+    "networkId": 10013,
+    "withdrawalFee": 0.045,
+    "minimumWithdrawal": 0.099,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 515,
+    "networkId": 10055,
+    "withdrawalFee": 0.73,
+    "minimumWithdrawal": 1.606,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 515,
+    "networkId": 10076,
+    "withdrawalFee": 0.19,
+    "minimumWithdrawal": 0.418,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 516,
+    "networkId": 0,
+    "withdrawalFee": 99,
+    "minimumWithdrawal": 217.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 517,
+    "networkId": 0,
+    "withdrawalFee": 0.3,
+    "minimumWithdrawal": 0.66,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 518,
+    "networkId": 0,
+    "withdrawalFee": 7.95,
+    "minimumWithdrawal": 16.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 521,
+    "networkId": 10048,
+    "withdrawalFee": 0.6,
+    "minimumWithdrawal": 220,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 522,
+    "networkId": 0,
+    "withdrawalFee": 43339,
+    "minimumWithdrawal": 188458,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 522,
+    "networkId": 1,
+    "withdrawalFee": 3455,
+    "minimumWithdrawal": 7840,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 523,
+    "networkId": 0,
+    "withdrawalFee": 1.24,
+    "minimumWithdrawal": 2.728,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 523,
+    "networkId": 1,
+    "withdrawalFee": 0.11,
+    "minimumWithdrawal": 0.242,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 524,
+    "networkId": 0,
+    "withdrawalFee": 29,
+    "minimumWithdrawal": 63.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 524,
+    "networkId": 1,
+    "withdrawalFee": 2.6,
+    "minimumWithdrawal": 5.72,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 525,
+    "networkId": 0,
+    "withdrawalFee": 16,
+    "minimumWithdrawal": 35.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 525,
+    "networkId": 1,
+    "withdrawalFee": 1.43,
+    "minimumWithdrawal": 3.146,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 526,
+    "networkId": 0,
+    "withdrawalFee": 11,
+    "minimumWithdrawal": 24.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 526,
+    "networkId": 13,
+    "withdrawalFee": 0.19,
+    "minimumWithdrawal": 0.506,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 528,
+    "networkId": 0,
+    "withdrawalFee": 112,
+    "minimumWithdrawal": 246.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 528,
+    "networkId": 1,
+    "withdrawalFee": 10,
+    "minimumWithdrawal": 22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 528,
+    "networkId": 13,
+    "withdrawalFee": 1.74,
+    "minimumWithdrawal": 3.828,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 528,
+    "networkId": 16,
+    "withdrawalFee": 1.74,
+    "minimumWithdrawal": 3.828,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 529,
+    "networkId": 15,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.54,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 530,
+    "networkId": 0,
+    "withdrawalFee": 27,
+    "minimumWithdrawal": 86.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 530,
+    "networkId": 1,
+    "withdrawalFee": 1.9,
+    "minimumWithdrawal": 6.08,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 532,
+    "networkId": 1,
+    "withdrawalFee": 1.04,
+    "minimumWithdrawal": 2.288,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 533,
+    "networkId": 10159,
+    "withdrawalFee": 0.06,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 534,
+    "networkId": 0,
+    "withdrawalFee": 64,
+    "minimumWithdrawal": 140.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 535,
+    "networkId": 0,
+    "withdrawalFee": 663381,
+    "minimumWithdrawal": 1459438,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 537,
+    "networkId": 0,
+    "withdrawalFee": 87,
+    "minimumWithdrawal": 191.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 538,
+    "networkId": 0,
+    "withdrawalFee": 265,
+    "minimumWithdrawal": 583,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 539,
+    "networkId": 0,
+    "withdrawalFee": 15,
+    "minimumWithdrawal": 33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 539,
+    "networkId": 1,
+    "withdrawalFee": 1.41,
+    "minimumWithdrawal": 3.102,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 541,
+    "networkId": 0,
+    "withdrawalFee": 38,
+    "minimumWithdrawal": 83.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 541,
+    "networkId": 1,
+    "withdrawalFee": 3.39,
+    "minimumWithdrawal": 7.458,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 541,
+    "networkId": 13,
+    "withdrawalFee": 0.59,
+    "minimumWithdrawal": 1.298,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 541,
+    "networkId": 16,
+    "withdrawalFee": 0.59,
+    "minimumWithdrawal": 1.298,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 541,
+    "networkId": 10170,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 542,
+    "networkId": 0,
+    "withdrawalFee": 1.39,
+    "minimumWithdrawal": 3.058,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 542,
+    "networkId": 1,
+    "withdrawalFee": 0.12,
+    "minimumWithdrawal": 0.264,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 542,
+    "networkId": 13,
+    "withdrawalFee": 0.021,
+    "minimumWithdrawal": 0.0462,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 544,
+    "networkId": 0,
+    "withdrawalFee": 0.0025,
+    "minimumWithdrawal": 0.0055,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 544,
+    "networkId": 1,
+    "withdrawalFee": 0.00022,
+    "minimumWithdrawal": 0.0005,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 545,
+    "networkId": 0,
+    "withdrawalFee": 2.89,
+    "minimumWithdrawal": 6.358,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 545,
+    "networkId": 10013,
+    "withdrawalFee": 0.011,
+    "minimumWithdrawal": 0.0242,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 545,
+    "networkId": 10420,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 5.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 546,
+    "networkId": 0,
+    "withdrawalFee": 4,
+    "minimumWithdrawal": 22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 546,
+    "networkId": 1,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 546,
+    "networkId": 10265,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 547,
+    "networkId": 10166,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 1.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 550,
+    "networkId": 0,
+    "withdrawalFee": 24034089,
+    "minimumWithdrawal": 73952257,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 551,
+    "networkId": 10169,
+    "withdrawalFee": 0.4,
+    "minimumWithdrawal": 5.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 551,
+    "networkId": 10408,
+    "withdrawalFee": 0.04,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 552,
+    "networkId": 0,
+    "withdrawalFee": 2.22,
+    "minimumWithdrawal": 4.884,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 552,
+    "networkId": 1,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 0.44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 552,
+    "networkId": 10013,
+    "withdrawalFee": 0.0085,
+    "minimumWithdrawal": 0.0187,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 556,
+    "networkId": 0,
+    "withdrawalFee": 6913942955,
+    "minimumWithdrawal": 15189784044.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 557,
+    "networkId": 10205,
+    "withdrawalFee": 0.3,
+    "minimumWithdrawal": 1.3,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 558,
+    "networkId": 10206,
+    "withdrawalFee": 0.3,
+    "minimumWithdrawal": 0.66,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 559,
+    "networkId": 0,
+    "withdrawalFee": 0.46,
+    "minimumWithdrawal": 1.012,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 560,
+    "networkId": 1,
+    "withdrawalFee": 35,
+    "minimumWithdrawal": 77,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 561,
+    "networkId": 0,
+    "withdrawalFee": 1048,
+    "minimumWithdrawal": 2305.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 561,
+    "networkId": 8,
+    "withdrawalFee": 50,
+    "minimumWithdrawal": 110,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 562,
+    "networkId": 10208,
+    "withdrawalFee": 0.25,
+    "minimumWithdrawal": 0.44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 564,
+    "networkId": 10229,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 565,
+    "networkId": 0,
+    "withdrawalFee": 524,
+    "minimumWithdrawal": 1152.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 566,
+    "networkId": 10262,
+    "withdrawalFee": 1.5,
+    "minimumWithdrawal": 3.3,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 567,
+    "networkId": 1,
+    "withdrawalFee": 30,
+    "minimumWithdrawal": 73.56,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 568,
+    "networkId": 21,
+    "withdrawalFee": 0,
+    "minimumWithdrawal": 1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 569,
+    "networkId": 0,
+    "withdrawalFee": 357,
+    "minimumWithdrawal": 785.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 569,
+    "networkId": 1,
+    "withdrawalFee": 31,
+    "minimumWithdrawal": 68.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 570,
+    "networkId": 10308,
+    "withdrawalFee": 0.04,
+    "minimumWithdrawal": 0.44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 571,
+    "networkId": 0,
+    "withdrawalFee": 19,
+    "minimumWithdrawal": 41.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 571,
+    "networkId": 10332,
+    "withdrawalFee": 0.001,
+    "minimumWithdrawal": 0.022,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 572,
+    "networkId": 0,
+    "withdrawalFee": 79,
+    "minimumWithdrawal": 173.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 572,
+    "networkId": 3,
+    "withdrawalFee": 0.64,
+    "minimumWithdrawal": 1.408,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 573,
+    "networkId": 0,
+    "withdrawalFee": 6.13,
+    "minimumWithdrawal": 13.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 573,
+    "networkId": 1,
+    "withdrawalFee": 0.8,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 574,
+    "networkId": 4,
+    "withdrawalFee": 0.72,
+    "minimumWithdrawal": 1.584,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 575,
+    "networkId": 1,
+    "withdrawalFee": 34,
+    "minimumWithdrawal": 108.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 576,
+    "networkId": 10262,
+    "withdrawalFee": 120000,
+    "minimumWithdrawal": 330000,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 577,
+    "networkId": 1,
+    "withdrawalFee": 1000,
+    "minimumWithdrawal": 2200,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 577,
+    "networkId": 4,
+    "withdrawalFee": 77419,
+    "minimumWithdrawal": 170321.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 578,
+    "networkId": 3,
+    "withdrawalFee": 8,
+    "minimumWithdrawal": 40,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 579,
+    "networkId": 1,
+    "withdrawalFee": 0.27,
+    "minimumWithdrawal": 0.594,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 579,
+    "networkId": 10338,
+    "withdrawalFee": 0.006,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 580,
+    "networkId": 1,
+    "withdrawalFee": 2.75,
+    "minimumWithdrawal": 6.05,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 581,
+    "networkId": 1,
+    "withdrawalFee": 1.42,
+    "minimumWithdrawal": 3.124,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 582,
+    "networkId": 13,
+    "withdrawalFee": 0.47,
+    "minimumWithdrawal": 1.034,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 583,
+    "networkId": 0,
+    "withdrawalFee": 8000000000,
+    "minimumWithdrawal": 25600000000,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 583,
+    "networkId": 1,
+    "withdrawalFee": 400000000,
+    "minimumWithdrawal": 1280000000,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 584,
+    "networkId": 10344,
+    "withdrawalFee": 5,
+    "minimumWithdrawal": 16,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 585,
+    "networkId": 21,
+    "withdrawalFee": 0.15,
+    "minimumWithdrawal": 0.462,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 586,
+    "networkId": 0,
+    "withdrawalFee": 61,
+    "minimumWithdrawal": 134.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 586,
+    "networkId": 1,
+    "withdrawalFee": 5.46,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 587,
+    "networkId": 0,
+    "withdrawalFee": 110,
+    "minimumWithdrawal": 352,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 588,
+    "networkId": 4,
+    "withdrawalFee": 5,
+    "minimumWithdrawal": 11,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 589,
+    "networkId": 10079,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.055,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 590,
+    "networkId": 10351,
+    "withdrawalFee": 0.004,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 591,
+    "networkId": 10355,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 3.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 592,
+    "networkId": 10079,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 593,
+    "networkId": 0,
+    "withdrawalFee": 16,
+    "minimumWithdrawal": 35.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 593,
+    "networkId": 10250,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 594,
+    "networkId": 0,
+    "withdrawalFee": 21,
+    "minimumWithdrawal": 46.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 595,
+    "networkId": 0,
+    "withdrawalFee": 85,
+    "minimumWithdrawal": 187,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 596,
+    "networkId": 0,
+    "withdrawalFee": 8.02,
+    "minimumWithdrawal": 17.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 596,
+    "networkId": 1,
+    "withdrawalFee": 0.71,
+    "minimumWithdrawal": 1.562,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 596,
+    "networkId": 3,
+    "withdrawalFee": 0.064,
+    "minimumWithdrawal": 0.143,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 596,
+    "networkId": 13,
+    "withdrawalFee": 0.12,
+    "minimumWithdrawal": 0.264,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 596,
+    "networkId": 16,
+    "withdrawalFee": 0.12,
+    "minimumWithdrawal": 0.264,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 596,
+    "networkId": 10013,
+    "withdrawalFee": 0.031,
+    "minimumWithdrawal": 0.0682,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 596,
+    "networkId": 10076,
+    "withdrawalFee": 0.13,
+    "minimumWithdrawal": 0.286,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 596,
+    "networkId": 10358,
+    "withdrawalFee": 0.02,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 597,
+    "networkId": 4,
+    "withdrawalFee": 0.68,
+    "minimumWithdrawal": 1.496,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 598,
+    "networkId": 1,
+    "withdrawalFee": 20400000,
+    "minimumWithdrawal": 64840000,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 599,
+    "networkId": 0,
+    "withdrawalFee": 0.15,
+    "minimumWithdrawal": 0.33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 599,
+    "networkId": 10364,
+    "withdrawalFee": 0.001,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 600,
+    "networkId": 0,
+    "withdrawalFee": 18,
+    "minimumWithdrawal": 39.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 601,
+    "networkId": 4,
+    "withdrawalFee": 170,
+    "minimumWithdrawal": 374,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 603,
+    "networkId": 1,
+    "withdrawalFee": 157164263,
+    "minimumWithdrawal": 335133961,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 604,
+    "networkId": 0,
+    "withdrawalFee": 4.22,
+    "minimumWithdrawal": 9.284,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 604,
+    "networkId": 13,
+    "withdrawalFee": 0.065,
+    "minimumWithdrawal": 0.143,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 605,
+    "networkId": 10368,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 1.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 606,
+    "networkId": 4,
+    "withdrawalFee": 70000,
+    "minimumWithdrawal": 224000,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 607,
+    "networkId": 4,
+    "withdrawalFee": 11,
+    "minimumWithdrawal": 33,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 608,
+    "networkId": 10369,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 12,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 609,
+    "networkId": 0,
+    "withdrawalFee": 17,
+    "minimumWithdrawal": 37.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 610,
+    "networkId": 0,
+    "withdrawalFee": 24,
+    "minimumWithdrawal": 52.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 610,
+    "networkId": 4,
+    "withdrawalFee": 6.34,
+    "minimumWithdrawal": 13.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 611,
+    "networkId": 10371,
+    "withdrawalFee": 10,
+    "minimumWithdrawal": 32,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 612,
+    "networkId": 10372,
+    "withdrawalFee": 0.07,
+    "minimumWithdrawal": 0.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 613,
+    "networkId": 1,
+    "withdrawalFee": 10,
+    "minimumWithdrawal": 25.84,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 614,
+    "networkId": 3,
+    "withdrawalFee": 1000,
+    "minimumWithdrawal": 1100,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 615,
+    "networkId": 4,
+    "withdrawalFee": 4.46,
+    "minimumWithdrawal": 9.812,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 616,
+    "networkId": 10375,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 617,
+    "networkId": 10007,
+    "withdrawalFee": 30,
+    "minimumWithdrawal": 96,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 618,
+    "networkId": 10377,
+    "withdrawalFee": 0.0003,
+    "minimumWithdrawal": 0.0006,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 619,
+    "networkId": 0,
+    "withdrawalFee": 0.78,
+    "minimumWithdrawal": 1.716,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 620,
+    "networkId": 0,
+    "withdrawalFee": 74,
+    "minimumWithdrawal": 476.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 621,
+    "networkId": 1,
+    "withdrawalFee": 3432,
+    "minimumWithdrawal": 8517.96,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 622,
+    "networkId": 1,
+    "withdrawalFee": 1627,
+    "minimumWithdrawal": 4293.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 623,
+    "networkId": 0,
+    "withdrawalFee": 1300,
+    "minimumWithdrawal": 3798.76,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 624,
+    "networkId": 10393,
+    "withdrawalFee": 0.0003,
+    "minimumWithdrawal": 0.0014,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 625,
+    "networkId": 10388,
+    "withdrawalFee": 0.2,
+    "minimumWithdrawal": 1.3,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 626,
+    "networkId": 1,
+    "withdrawalFee": 138,
+    "minimumWithdrawal": 325.44,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 627,
+    "networkId": 0,
+    "withdrawalFee": 61,
+    "minimumWithdrawal": 281.4,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 628,
+    "networkId": 3,
+    "withdrawalFee": 10,
+    "minimumWithdrawal": 32,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 629,
+    "networkId": 10392,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 1.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 630,
+    "networkId": 10336,
+    "withdrawalFee": 70,
+    "minimumWithdrawal": 224,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 631,
+    "networkId": 10389,
+    "withdrawalFee": 0.05,
+    "minimumWithdrawal": 1.15,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 632,
+    "networkId": 0,
+    "withdrawalFee": 32583946,
+    "minimumWithdrawal": 68971302,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 633,
+    "networkId": 0,
+    "withdrawalFee": 189,
+    "minimumWithdrawal": 464.88,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 634,
+    "networkId": 0,
+    "withdrawalFee": 5415,
+    "minimumWithdrawal": 16352.52,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 635,
+    "networkId": 3,
+    "withdrawalFee": 2.5,
+    "minimumWithdrawal": 13.5,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 636,
+    "networkId": 0,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 4.3,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 636,
+    "networkId": 1,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.43,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 637,
+    "networkId": 4,
+    "withdrawalFee": 350,
+    "minimumWithdrawal": 900,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 638,
+    "networkId": 1,
+    "withdrawalFee": 8,
+    "minimumWithdrawal": 25.16,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 638,
+    "networkId": 10391,
+    "withdrawalFee": 10,
+    "minimumWithdrawal": 32,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 639,
+    "networkId": 4,
+    "withdrawalFee": 3.75,
+    "minimumWithdrawal": 14.75,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 640,
+    "networkId": 10286,
+    "withdrawalFee": 4,
+    "minimumWithdrawal": 15,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 641,
+    "networkId": 1,
+    "withdrawalFee": 13,
+    "minimumWithdrawal": 123,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 642,
+    "networkId": 1,
+    "withdrawalFee": 14,
+    "minimumWithdrawal": 36,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 643,
+    "networkId": 0,
+    "withdrawalFee": 5398,
+    "minimumWithdrawal": 22630.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 645,
+    "networkId": 10273,
+    "withdrawalFee": 3300,
+    "minimumWithdrawal": 9900,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 646,
+    "networkId": 10303,
+    "withdrawalFee": 15,
+    "minimumWithdrawal": 48,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 647,
+    "networkId": 1,
+    "withdrawalFee": 3,
+    "minimumWithdrawal": 8.28,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 648,
+    "networkId": 3,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 1.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 649,
+    "networkId": 10396,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 12,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 651,
+    "networkId": 10397,
+    "withdrawalFee": 0.05,
+    "minimumWithdrawal": 0.27,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 652,
+    "networkId": 1,
+    "withdrawalFee": 1445297106,
+    "minimumWithdrawal": 3258408294,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 653,
+    "networkId": 10394,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 3.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 654,
+    "networkId": 0,
+    "withdrawalFee": 2.6,
+    "minimumWithdrawal": 29,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 655,
+    "networkId": 0,
+    "withdrawalFee": 48080,
+    "minimumWithdrawal": 201852.08,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 656,
+    "networkId": 1,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 3.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 657,
+    "networkId": 0,
+    "withdrawalFee": 95,
+    "minimumWithdrawal": 506.84,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 657,
+    "networkId": 1,
+    "withdrawalFee": 4,
+    "minimumWithdrawal": 15,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 658,
+    "networkId": 0,
+    "withdrawalFee": 902,
+    "minimumWithdrawal": 3722.84,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 659,
+    "networkId": 1,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.38,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 660,
+    "networkId": 0,
+    "withdrawalFee": 28,
+    "minimumWithdrawal": 61,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 661,
+    "networkId": 0,
+    "withdrawalFee": 12420,
+    "minimumWithdrawal": 79499.76,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 662,
+    "networkId": 1,
+    "withdrawalFee": 4,
+    "minimumWithdrawal": 10.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 663,
+    "networkId": 1,
+    "withdrawalFee": 901,
+    "minimumWithdrawal": 3196.48,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 664,
+    "networkId": 0,
+    "withdrawalFee": 169,
+    "minimumWithdrawal": 371.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 665,
+    "networkId": 10402,
+    "withdrawalFee": 0.05,
+    "minimumWithdrawal": 1.1,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 666,
+    "networkId": 15,
+    "withdrawalFee": 30,
+    "minimumWithdrawal": 66,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 667,
+    "networkId": 3,
+    "withdrawalFee": 30,
+    "minimumWithdrawal": 140,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 673,
+    "networkId": 0,
+    "withdrawalFee": 23,
+    "minimumWithdrawal": 53.36,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 674,
+    "networkId": 0,
+    "withdrawalFee": 1050,
+    "minimumWithdrawal": 3360,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 674,
+    "networkId": 10042,
+    "withdrawalFee": 65,
+    "minimumWithdrawal": 208,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 675,
+    "networkId": 4,
+    "withdrawalFee": 0.93,
+    "minimumWithdrawal": 2.046,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 676,
+    "networkId": 10170,
+    "withdrawalFee": 0.1,
+    "minimumWithdrawal": 0.22,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 678,
+    "networkId": 1,
+    "withdrawalFee": 1.54,
+    "minimumWithdrawal": 3.388,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 679,
+    "networkId": 0,
+    "withdrawalFee": 1.77,
+    "minimumWithdrawal": 3.894,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 679,
+    "networkId": 1,
+    "withdrawalFee": 0.16,
+    "minimumWithdrawal": 0.352,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 679,
+    "networkId": 3,
+    "withdrawalFee": 0.014,
+    "minimumWithdrawal": 0.0308,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 679,
+    "networkId": 13,
+    "withdrawalFee": 0.027,
+    "minimumWithdrawal": 0.0594,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 679,
+    "networkId": 16,
+    "withdrawalFee": 0.027,
+    "minimumWithdrawal": 0.0594,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 679,
+    "networkId": 10013,
+    "withdrawalFee": 0.0068,
+    "minimumWithdrawal": 0.0154,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 679,
+    "networkId": 10076,
+    "withdrawalFee": 0.029,
+    "minimumWithdrawal": 0.0638,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 681,
+    "networkId": 0,
+    "withdrawalFee": 9,
+    "minimumWithdrawal": 28.8,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 682,
+    "networkId": 0,
+    "withdrawalFee": 206,
+    "minimumWithdrawal": 453.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 682,
+    "networkId": 1,
+    "withdrawalFee": 18,
+    "minimumWithdrawal": 39.6,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 683,
+    "networkId": 0,
+    "withdrawalFee": 0.12,
+    "minimumWithdrawal": 0.264,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 684,
+    "networkId": 4,
+    "withdrawalFee": 0.14,
+    "minimumWithdrawal": 0.55,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 687,
+    "networkId": 0,
+    "withdrawalFee": 0.245,
+    "minimumWithdrawal": 1.35,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 688,
+    "networkId": 15,
+    "withdrawalFee": 100,
+    "minimumWithdrawal": 5500,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 689,
+    "networkId": 0,
+    "withdrawalFee": 1,
+    "minimumWithdrawal": 2.2,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 689,
+    "networkId": 1,
+    "withdrawalFee": 0.54,
+    "minimumWithdrawal": 1.188,
+    "nodeInSync": true,
+    "depositEnable": true
+  },
+  {
+    "coinid": 690,
+    "networkId": 10413,
+    "withdrawalFee": 0.01,
+    "minimumWithdrawal": 0.11,
+    "nodeInSync": true,
+    "depositEnable": true
+  }
+]

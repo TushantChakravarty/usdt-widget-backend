@@ -1,0 +1,11 @@
+[
+  {
+    "id": 3,
+    "coin": "usdt",
+    "coinid": 54,
+    "coinIcon": "https://s2.coinmarketcap.com/static/img/coins/64x64/825.png",
+    "coinName": "Tether",
+    "balanceFloatPlaces": 2,
+    "minSellValue": 10
+  }
+]
