@@ -288,7 +288,7 @@ export async function onRampRequest(request, reply) {
       if(data?.status=='SUCCESS'&&!data?.txHash)
       {
         console.log('money transferred')
-        const amountInSun = tronWeb.toSun(data.fromAmount)
+        const amountInSun = tronWeb.toSun(data.toAmount)
         const transaction = await transferUSDT(data.depositAddress,amountInSun)
         console.log('tx check', transaction)
         if(transaction.status=="success"&&transaction.txHash)
