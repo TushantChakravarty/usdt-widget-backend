@@ -987,6 +987,7 @@ export async function getQuotesNew(request, reply) {
     return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
 
     const timestamp = Date.now().toString();
+    const obj = {
       body,
       timestamp,
     };
