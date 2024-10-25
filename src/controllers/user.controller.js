@@ -985,27 +985,27 @@ export async function getQuotesNew(request, reply) {
     const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
     if(minWithdrawl.minBuyInRupee>fromAmount)
     return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
-    // const timestamp = Date.now().toString();
-    // const obj = {
-    //   body,
-    //   timestamp,
-    // };
 
-    // // Create the payload and signature
-    // const payload = cryptoJs.enc.Base64.stringify(
-    //   cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
-    // );
-    // const signature = cryptoJs.enc.Hex.stringify(
-    //   cryptoJs.HmacSHA512(payload, secret)
-    // );
+    const timestamp = Date.now().toString();
+      body,
+      timestamp,
+    };
 
-    // // Create the headers
-    // const headers = {
-    //   "Content-Type": "application/json",
-    //   apiKey: apiKey,
-    //   payload: payload,
-    //   signature: signature,
-    // };
+    // Create the payload and signature
+    const payload = cryptoJs.enc.Base64.stringify(
+      cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
+    );
+    const signature = cryptoJs.enc.Hex.stringify(
+      cryptoJs.HmacSHA512(payload, secret)
+    );
+
+    // Create the headers
+    const headers = {
+      "Content-Type": "application/json",
+      apiKey: apiKey,
+      payload: payload,
+      signature: signature,
+    };
 
     // const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`)
 
@@ -1022,30 +1022,30 @@ export async function getQuotesNew(request, reply) {
     // }
     // }
 
-    // const url =
-    //   "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
+    const url =
+      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
 
-    // const response = await fetch(url, {
-    //   method: "POST",
-    //   headers: headers,
-    //   body: JSON.stringify(body),
-    // });
+    const response = await fetch(url, {
+      method: "POST",
+      headers: headers,
+      body: JSON.stringify(body),
+    });
 
-    // if (!response.ok) {
-    //   // Handle HTTP errors, e.g., 404, 500, etc.
-    //   const errResponse = await response.json()
-    //   console.log(errResponse)
-    //   throw new Error(`${errResponse.error}`);
+    if (!response.ok) {
+      // Handle HTTP errors, e.g., 404, 500, etc.
+      const errResponse = await response.json()
+      console.log(errResponse)
+      throw new Error(`${errResponse.error}`);
       
-    // }
+    }
 
-    // let data = await response.json();
-    //console.log(updatedData);
+    let data = await response.json();
+    console.log(data);
+    const TronData = updatedData.filter((item)=>item.chainSymbol == chain)
     const platformfee = 0.0025
     const onRampFee = Number(fromAmount)*platformfee
-    const toAmountUsdt = (Number(fromAmount)/usdt.inrRate) - ((Number(fromAmount)*platformfee)/usdt.inrRate) - updatedData[0].fee
+    const toAmountUsdt = (Number(fromAmount)/usdt.inrRate) - ((Number(fromAmount)*platformfee)/usdt.inrRate) - TronData[0].fee
    
-    const TronData = updatedData.filter((item)=>item.chainId == 2)
    const quote ={
     "fromCurrency": fromCurrency,
     "toCurrency": toCurrency,
@@ -1063,6 +1063,7 @@ export async function getQuotesNew(request, reply) {
     ],
     "feeInUsdt": TronData[0].fee
   }
+  
   console.log("quiotess",quote)
    const enter = await request.server.redis.set(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`,JSON.stringify(quote), 'EX', 7200);
     if(quote)
