@@ -328,8 +328,8 @@ export async function offrampCallbackGsx(request, reply) {
       payoutTx.utr = utr;
       const updatedOfframp = await transaction.save();
       const updatedPayout = await payoutTx.save();
-    //   console.log("updated tx", updatedOfframp);
-    //   console.log("updated payout", updatedPayout);
+       console.log("updated tx", updatedOfframp);
+      console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
         reply.status(200).send({ message: "success" });
       }
