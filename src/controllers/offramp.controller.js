@@ -31,11 +31,12 @@ import {
 } from "tronweb";
 import QRCode from "qrcode";
 import { generateRandomFiatId, generateTransactionId } from "../utils/utils.js";
-import {
-  createPayoutBankRequest,
-  generateToken,
-} from "../ApiCalls/globalpay.js";
+// import {
+//   createPayoutBankRequest,
+//   generateToken,
+// } from "../ApiCalls/globalpay.js";
 import { tronWeb, walletAddress } from "../utils/tronUtils.js";
+import { createPayoutBankRequestPayhub, generateToken } from "../ApiCalls/payhub.js";
 
 const {
   User,
@@ -696,51 +697,48 @@ export async function verifyTransaction(request, reply) {
     //console.log(txHash)
     // Fetch the transaction info from Tron blockchain using the txHash
     const transaction = await findRecord(OffRampTransaction, {
-     // txHash: txHash,
+      // txHash: txHash,
       reference_id: reference_id.toString(),
     });
- 
+
     const payoutTx = await findRecord(Payout, {
       reference_id: reference_id.toString(),
     });
     const payoutHash = await findRecord(Payout, {
-        txHash : txHash
-      });
+      txHash: txHash,
+    });
     console.log(transaction);
     console.log(payoutTx.transaction_id);
-    if(transaction.length==0)
-    {
-        return reply
+    if (transaction.length == 0) {
+      return reply
         .status(400)
         .send(
           responseMappingError(400, `transaction doesnt belong to our system`)
         );
     }
-    if(transaction.fromAmount!==fromAmount )
-    {
+    if (transaction.fromAmount !== fromAmount) {
       return reply
-      .status(400)
-      .send(
-        responseMappingError(400, `invalid amount`)
-      );
+        .status(400)
+        .send(responseMappingError(400, `invalid amount`));
     }
-    if(payoutHash.transaction_id)
-    {
-        return reply
+    if (payoutHash.transaction_id) {
+      return reply
         .status(400)
         .send(
           responseMappingError(400, `transaction has already been processed`)
         );
     }
-    if(transaction.txHash && transaction.txHash !== txHash)
-    {
-        return reply
+    if (transaction.txHash && transaction.txHash !== txHash) {
+      return reply
         .status(400)
         .send(
-          responseMappingError(400, `transaction has already been processed with different hash`)
+          responseMappingError(
+            400,
+            `transaction has already been processed with different hash`
+          )
         );
     }
-   
+
     if (
       transaction.status == "success" &&
       transaction.user_id == request.user.id &&
@@ -757,11 +755,8 @@ export async function verifyTransaction(request, reply) {
       console.log("Transaction belongs to another user");
       return reply
         .status(400)
-        .send(
-          responseMappingError(400, `Transaction belongs to another user`)
-        );
+        .send(responseMappingError(400, `Transaction belongs to another user`));
     }
-    
 
     const transactionInfo = await tronWeb.trx.getTransaction(txHash);
     console.log(transactionInfo);
@@ -771,13 +766,10 @@ export async function verifyTransaction(request, reply) {
 
       // Convert the expected amount from TRX to SUN (1 TRX = 1,000,000 SUN)
       const expectedAmountInSun = fromAmount * 1000000;
-      if(expectedAmountInSun!==actualAmount)
-      {
+      if (expectedAmountInSun !== actualAmount) {
         return reply
-        .status(400)
-        .send(
-          responseMappingError(400, `invalid amount`)
-        );
+          .status(400)
+          .send(responseMappingError(400, `invalid amount`));
       }
       // Check if the transaction was successful
       const transactionStatus = transactionInfo.ret[0].contractRet;
@@ -816,7 +808,7 @@ export async function verifyTransaction(request, reply) {
         let updateDetails = {
           txHash: transactionInfo.txID,
           status: "SUCCESS",
-          processed:"PENDING"
+          processed: "PENDING",
         };
         let query = {
           reference_id: reference_id.toString(),
@@ -830,15 +822,56 @@ export async function verifyTransaction(request, reply) {
         if (transaction) {
           
           const response = await generateToken();
-          if (response.token) {
+          if (response.responseData.token) {
             const fiatAccount = await findRecord(FiatAccount, {
               fiatAccountId: transaction.fiatAccountId,
             });
             console.log(fiatAccount);
-            console.log("token", response.token);
+            console.log("token", response.responseData.token);
             console.log(request.user);
             const phone = request.user.phone.replace("+91-", "");
-            let body = {
+            // let body = {
+            //   name: fiatAccount.account_name,
+            //   email: request.user.email,
+            //   phone: phone,
+            //   amount: transaction.fromAmount,
+            //   account_number: fiatAccount.fiatAccount,
+            //   ifsc: fiatAccount.ifsc,
+            //   bank_name: fiatAccount.ifsc,
+            //   method: "IMPS",
+            //   customer_id: request.user.customerId,
+            // };
+           let body = {
+              "emailId": "test@payhub",
+              "amount": 101,
+              "customer_name": "tushant",
+              "customer_email": request.user.email,
+              "customer_phone": phone,
+              "account_number": fiatAccount.fiatAccount,
+              "customer_upiId":"success@upi",
+              "bank_ifsc":  fiatAccount.ifsc,
+              "account_name": fiatAccount.account_name,
+              "bank_name": "state bank of india",
+              "customer_address":"xyz",
+              "method":"bank",
+              "transaction_id":reference_id.toString()
+          }
+            console.log(body);
+            // const payoutRequest = await createPayoutBankRequest(
+            //   response.token,
+            //   body
+            // );
+
+            const payoutRequest = await createPayoutBankRequestPayhub(
+              response.responseData,
+              body
+            );
+            console.log(payoutRequest);
+            if (
+              payoutRequest.responseCode == 200 &&
+              payoutRequest.responseData.transaction_id
+            ) {
+              let updatedData ={
               name: fiatAccount.account_name,
               email: request.user.email,
               phone: phone,
@@ -848,25 +881,16 @@ export async function verifyTransaction(request, reply) {
               bank_name: fiatAccount.ifsc,
               method: "IMPS",
               customer_id: request.user.customerId,
-            };
-            console.log(body);
-            const payoutRequest = await createPayoutBankRequest(
-              response.token,
-              body
-            );
-            console.log(payoutRequest);
-            if (
-              payoutRequest.responseCode == 200 &&
-              payoutRequest.responseData.transaction_id
-            ) {
-              body.transaction_id =
+              }
+              updatedData.transaction_id =
                 payoutRequest.responseData.transaction_id.toString();
-              body.reference_id = reference_id.toString();
-              body.user_id = request.user.id;
-              body.txHash = txHash
-              const payoutsData = await createNewRecord(Payout, body);
-              transaction.payout_id = payoutRequest.responseData.transaction_id.toString()
-              transaction.save()
+                updatedData.reference_id = reference_id.toString();
+                updatedData.user_id = request.user.id;
+                updatedData.txHash = txHash;
+              const payoutsData = await createNewRecord(Payout, updatedData);
+              transaction.payout_id =
+                payoutRequest.responseData.transaction_id.toString();
+              transaction.save();
               console.log(payoutsData);
               return reply
                 .status(200)

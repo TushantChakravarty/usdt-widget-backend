@@ -44,3 +44,24 @@ export async function createPayinBankRequest(userData,body)
         console.log(error)
     }
 }
+export async function createPayoutBankRequestPayhub(userData,body)
+{
+    try{
+        console.log(userData)
+        const response = await fetch('https://server.payhub.link/payouts/sendPayoutRequest',{
+            method:'post',
+            headers: {
+                "Content-Type": "application/json",
+                token:userData.token,
+                apikey:`${userData.apiKey}`
+            },
+            body: JSON.stringify(body),
+        })
+        const resp =await response.json()
+        console.log(resp)
+        return resp
+    }catch(error)
+    {
+        console.log(error)
+    }
+}
