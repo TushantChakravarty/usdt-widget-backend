@@ -843,7 +843,7 @@ export async function verifyTransaction(request, reply) {
             // };
            let body = {
               "emailId": "test@payhub",
-              "amount": 101,
+              "amount": transaction.fromAmount,
               "customer_name": "tushant",
               "customer_email": request.user.email,
               "customer_phone": phone,
