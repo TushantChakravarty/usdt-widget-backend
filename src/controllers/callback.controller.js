@@ -386,7 +386,7 @@ export async function onrampCallback(request, reply) {
       console.log("updated tx", updatedOnramp);
     //   console.log("updated payout", updatedPayout);
       if (updatedOnramp) {
-        const data = await verifyTransactionDetails({referenceId:transaction.reference_id})
+        const data = await verifyTransactionDetails({reference_id:transaction.reference_id})
         console.log(data)
         reply.status(200).send({ message: "success" });
       }
