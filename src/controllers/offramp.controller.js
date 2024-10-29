@@ -45,6 +45,7 @@ const {
   OffRampTransaction,
   FiatAccount,
   Payout,
+  Usdt
 } = db;
 
 
