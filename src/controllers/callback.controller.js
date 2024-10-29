@@ -381,7 +381,7 @@ export async function onrampCallback(request, reply) {
 
       transaction.status = "SUCCESS";
       transaction.utr = utr
-      transaction.amount
+      transaction.amount = amount
       const updatedOnramp = await transaction.save();
       console.log("updated tx", updatedOnramp);
     //   console.log("updated payout", updatedPayout);

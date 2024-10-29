@@ -358,6 +358,7 @@ export async function onRampRequest(request, reply) {
         console.log('tx check', transaction)
         if(transaction.status=="success"&&transaction.txHash)
         {
+          console.log(transaction)
           const updateTx = await findOneAndUpdate(OnRampTransaction,{
             reference_id
           },{
