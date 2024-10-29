@@ -129,7 +129,7 @@ const routes = async (route, options) => { // route = fastify instance
     // ],
     schema: validator.getQuotesOfframp,
    // preValidation: validateToken,
-    handler: offramp.getQuotes,
+    handler: offramp.getQuotesNew,
   });
 
   /**
