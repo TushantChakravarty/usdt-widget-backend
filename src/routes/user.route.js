@@ -167,7 +167,7 @@ const routes = async (route, options) => { // route = fastify instance
     //   route.authenticate
     // ],
     // preValidation: validateToken,
-    handler: user.getQuotes,
+    handler: user.getQuotesNew,
   });
   /*
 * Route for getting all crypto coins.
@@ -179,7 +179,7 @@ const routes = async (route, options) => { // route = fastify instance
     //   route.authenticate
     // ],
     //preValidation: validateToken,
-    handler: user.getAllCoins,
+    handler: user.getAllCoinsNew,
   });
 
   /**
@@ -205,7 +205,7 @@ const routes = async (route, options) => { // route = fastify instance
     //   route.authenticate
     // ],
     // preValidation: validateToken,
-    handler: user.getAllNetworks,
+    handler: user.getAllNetworksNew,
   });
 
   /**
