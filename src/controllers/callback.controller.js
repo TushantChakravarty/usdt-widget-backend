@@ -1,5 +1,6 @@
 import { findOneAndUpdate, findRecord } from "../Dao/dao.js";
 import db from "../models/index.js";
+import { verifyTransactionDetails } from "./onramp.controller.js";
 
 const { User, OnRampTransaction, OffRampTransaction, Payout } = db;
 
@@ -385,6 +386,8 @@ export async function onrampCallback(request, reply) {
       console.log("updated tx", updatedOnramp);
     //   console.log("updated payout", updatedPayout);
       if (updatedOnramp) {
+        const data = await verifyTransactionDetails({referenceId:transaction.reference_id})
+        console.log(data)
         reply.status(200).send({ message: "success" });
       }
     } else {

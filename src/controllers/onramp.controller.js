@@ -106,7 +106,7 @@ export async function onRampRequest(request, reply) {
         "phone":phone
      }
      const response = await createPayinBankRequest(userData.responseData,bodyPayin)
-    // console.log("resp check",response)
+     console.log("resp check",response)
      
       if(response?.responseData?.transaction_id)
       {
@@ -321,6 +321,74 @@ export async function onRampRequest(request, reply) {
     {
       console.log("on ramp verify", error.message)
       return reply.status(500).send(responseMappingError(500, `internal server error`))
+    }
+  }
+
+  export async function verifyTransactionDetails(details) {
+    try {
+      const { reference_id } = details
+      const data =  await findRecord(OnRampTransaction,{
+        reference_id
+      })
+      console.log(data)
+      if(data?.status=="PENDING")
+      {
+        return reply.status(500).send(responseMappingError(500, "please complete the payment first"))
+
+      }
+      if(data?.status=="SUCCESS"&&data?.txHash)
+      {
+        return reply.status(500).send(responseMappingError(500, "Crypto has already been processed"))
+
+      }
+
+      if(data?.status=="FAILED")
+      {
+        return reply.status(500).send(responseMappingError(500, "Your payment hast failed"))
+
+      }
+
+
+
+      if(data?.status=='SUCCESS'&&!data?.txHash)
+      {
+        console.log('money transferred')
+        const amountInSun = tronWeb.toSun(data.toAmount)
+        const transaction = await transferUSDT(data.depositAddress,amountInSun)
+        console.log('tx check', transaction)
+        if(transaction.status=="success"&&transaction.txHash)
+        {
+          const updateTx = await findOneAndUpdate(OnRampTransaction,{
+            reference_id
+          },{
+            txHash:transaction.txHash,
+            txStatus:"SUCCESS",
+            amountTransferred:transaction.amount
+          })
+          console.log(updateTx)
+
+          if(updateTx)
+          {
+            return {status:updateTx.txStatus, txHash:transaction.txHash, amountTransferred:transaction.amount}
+            // return reply
+            // .status(200)
+            // .send(responseMappingWithData(200, "success", {status:updateTx.txStatus, txHash:transaction.txHash, amountTransferred:transaction.amount}));
+          }
+        }else{
+          return {status:"failed", txHash:transaction.txHash}
+          // return reply
+          //   .status(200)
+          //   .send(responseMappingWithData(200, "success", {status:"failed", txHash:transaction.txHash}));
+        }
+      }else{
+        return "Unable to process your request at the moment"
+        // return reply.status(500).send(responseMappingError(500, "Unable to process your request at the moment"))
+      }
+    }catch(error)
+    {
+      console.log("on ramp verify", error.message)
+      return error
+      // return reply.status(500).send(responseMappingError(500, `internal server error`))
     }
   }
   
