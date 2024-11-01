@@ -29,21 +29,22 @@ export async function getAllOnRampTransaction(request, reply) {
         
             order: [["date", "DESC"]],
         })
-        const fiatDescriptionMapper ={
-          SUCCESS:'Fiat money recieved successfully',
-          PENDING:'Fiat money transfer pending',
-          FAILED:'Fiat money transfer failed'
-        }
-
-        const cryptoDescriptionMapper ={
-          SUCCESS:`Crpto transferred successfully to ${depositAddress} `,
-          PENDING:`Crypto transfer pending to ${depositAddress}`,
-          FAILED:`Crypto transfer failed to ${depositAddress}`
-        }
+       
         let updatedOnRamp =[]
         if(all_on_ramp?.length>0)
         {
           updatedOnRamp = await all_on_ramp?.map((item)=>{
+            const fiatDescriptionMapper ={
+              SUCCESS:'Fiat money recieved successfully',
+              PENDING:'Fiat money transfer pending',
+              FAILED:'Fiat money transfer failed'
+            }
+    
+            const cryptoDescriptionMapper ={
+              SUCCESS:`Crpto transferred successfully to ${item?.depositAddress} `,
+              PENDING:`Crypto transfer pending to ${item?.depositAddress}`,
+              FAILED:`Crypto transfer failed to ${item?.depositAddress}`
+            }
                return {
                 ...item,
                 FiatMoneyTransferStatus:fiatDescriptionMapper[`${item.status}`],
