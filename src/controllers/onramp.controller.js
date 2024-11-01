@@ -108,8 +108,18 @@ export async function onRampRequest(request, reply) {
           }
         })
       }
-      const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-      console.log(minWithdrawl)
+     
+      const minWithdrawl = updatedData.find((item) => item.chainSymbol == chain);
+      if (!minWithdrawl) {
+        return reply.status(500).send(responseMappingError(400, `invalid chain`));
+      }
+      const addressRegex = new RegExp(minWithdrawl?.addressRegex); // Convert string to RegExp
+      console.log(addressRegex);
+      
+      if (!addressRegex.test(depositAddress)) {
+        return reply.status(500).send(responseMappingError(400, `invalid deposit address`));
+      }
+      
       if(minWithdrawl.minBuyInRupee>fromAmount)
       return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
   
