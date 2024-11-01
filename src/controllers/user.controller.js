@@ -986,27 +986,27 @@ export async function getQuotesNew(request, reply) {
     if(minWithdrawl.minBuyInRupee>fromAmount)
     return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
 
-    const timestamp = Date.now().toString();
-    const obj = {
-      body,
-      timestamp,
-    };
+    // const timestamp = Date.now().toString();
+    // const obj = {
+    //   body,
+    //   timestamp,
+    // };
 
-    // Create the payload and signature
-    const payload = cryptoJs.enc.Base64.stringify(
-      cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
-    );
-    const signature = cryptoJs.enc.Hex.stringify(
-      cryptoJs.HmacSHA512(payload, secret)
-    );
+    // // Create the payload and signature
+    // const payload = cryptoJs.enc.Base64.stringify(
+    //   cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
+    // );
+    // const signature = cryptoJs.enc.Hex.stringify(
+    //   cryptoJs.HmacSHA512(payload, secret)
+    // );
 
-    // Create the headers
-    const headers = {
-      "Content-Type": "application/json",
-      apiKey: apiKey,
-      payload: payload,
-      signature: signature,
-    };
+    // // Create the headers
+    // const headers = {
+    //   "Content-Type": "application/json",
+    //   apiKey: apiKey,
+    //   payload: payload,
+    //   signature: signature,
+    // };
 
     // const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`)
 
@@ -1023,25 +1023,25 @@ export async function getQuotesNew(request, reply) {
     // }
     // }
 
-    const url =
-      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
+    // const url =
+    //   "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
 
-    const response = await fetch(url, {
-      method: "POST",
-      headers: headers,
-      body: JSON.stringify(body),
-    });
+    // const response = await fetch(url, {
+    //   method: "POST",
+    //   headers: headers,
+    //   body: JSON.stringify(body),
+    // });
 
-    if (!response.ok) {
-      // Handle HTTP errors, e.g., 404, 500, etc.
-      const errResponse = await response.json()
-      console.log(errResponse)
-      throw new Error(`${errResponse.error}`);
+    // if (!response.ok) {
+    //   // Handle HTTP errors, e.g., 404, 500, etc.
+    //   const errResponse = await response.json()
+    //   console.log(errResponse)
+    //   throw new Error(`${errResponse.error}`);
       
-    }
+    // }
 
-    let data = await response.json();
-    console.log(data);
+    // let data = await response.json();
+    // console.log(data);
     const TronData = updatedData.filter((item)=>item.chainSymbol == chain)
     const platformfee = 0.0025
     const onRampFee = Number(fromAmount)*platformfee

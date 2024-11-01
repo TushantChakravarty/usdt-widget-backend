@@ -29,8 +29,32 @@ export async function getAllOnRampTransaction(request, reply) {
         
             order: [["date", "DESC"]],
         })
+        const fiatDescriptionMapper ={
+          SUCCESS:'Fiat money recieved successfully',
+          PENDING:'Fiat money transfer pending',
+          FAILED:'Fiat money transfer failed'
+        }
 
-        return reply.status(200).send(responseMappingWithData(200, "Success", all_on_ramp))
+        const cryptoDescriptionMapper ={
+          SUCCESS:`Crpto transferred successfully to ${depositAddress} `,
+          PENDING:`Crypto transfer pending to ${depositAddress}`,
+          FAILED:`Crypto transfer failed to ${depositAddress}`
+        }
+        let updatedOnRamp =[]
+        if(all_on_ramp?.length>0)
+        {
+          updatedOnRamp = await all_on_ramp?.map((item)=>{
+               return {
+                ...item,
+                FiatMoneyTransferStatus:fiatDescriptionMapper[`${item.status}`],
+                cryptoTransferStatus:cryptoDescriptionMapper[`${item.txStatus}`]
+               }
+          })
+
+        }
+        
+
+        return reply.status(200).send(responseMappingWithData(200, "Success", updatedOnRamp))
 
     } catch (error) {
         logger.error("user.controller.getQuotes", error.message)
