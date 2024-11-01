@@ -46,7 +46,7 @@ export async function getAllOnRampTransaction(request, reply) {
               FAILED:`Crypto transfer failed to ${item?.depositAddress}`
             }
                return {
-                ...item,
+                ...item.dataValues,
                 FiatMoneyTransferStatus:fiatDescriptionMapper[`${item.status}`],
                 cryptoTransferStatus:cryptoDescriptionMapper[`${item.txStatus}`]
                }
