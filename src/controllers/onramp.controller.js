@@ -58,8 +58,8 @@ export async function getAllOnRampTransaction(request, reply) {
         return reply.status(200).send(responseMappingWithData(200, "Success", updatedOnRamp))
 
     } catch (error) {
-        logger.error("user.controller.getQuotes", error.message)
-        console.log('user.controller.getQUotes', error.message)
+        logger.error("user.controller.getAllTransactions", error.message)
+        console.log('user.controller.getAllTransactions', error.message)
         return reply.status(500).send(responseMapping(500, `Internal server error`))
 
     }
