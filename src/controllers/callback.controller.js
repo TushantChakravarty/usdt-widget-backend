@@ -325,6 +325,7 @@ export async function offrampCallbackGsx(request, reply) {
     //   console.log("offramp tx found", transaction);
 
       transaction.processed = "SUCCESS";
+      transaction.status = "SUCCESS";
       payoutTx.status = "SUCCESS";
       payoutTx.utr = utr;
       const updatedOfframp = await transaction.save();

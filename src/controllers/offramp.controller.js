@@ -429,7 +429,7 @@ export async function getAllOffRamp(request, reply) {
 
     return reply
       .status(200)
-      .send(responseMappingWithData(200, "Success", all_off_ramp));
+      .send(responseMappingWithData(200, "Success", updatedOnRamp));
   } catch (error) {
     console.log("user.controller.getQUotes", error.message);
     return reply
