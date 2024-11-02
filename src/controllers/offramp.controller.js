@@ -405,6 +405,7 @@ export async function getAllOffRamp(request, reply) {
         const fiatAccount = await findRecord(FiatAccount, {
           fiatAccountId: item.fiatAccountId,
         });
+        console.log(fiatAccount)
         const fiatDescriptionMapper ={
           SUCCESS:`Fiat money transferred successfully to ${fiatAccount?.fiatAccount}`,
           PENDING:`Fiat money transfer pending to ${fiatAccount?.fiatAccount}`,
