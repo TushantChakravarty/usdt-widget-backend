@@ -745,7 +745,7 @@ export async function verifyTransaction(request, reply) {
     }
 
     if (
-      transaction.status == "success" &&
+      transaction.txStatus == "success" &&
       transaction.user_id == request.user.id &&
       payoutTx.transaction_id
     ) {
@@ -812,7 +812,7 @@ export async function verifyTransaction(request, reply) {
         );
         let updateDetails = {
           txHash: transactionInfo.txID,
-          status: "SUCCESS",
+          txStatus: "SUCCESS",
           processed: "PENDING",
         };
         let query = {
@@ -861,7 +861,7 @@ export async function verifyTransaction(request, reply) {
               "method":"bank",
               "transaction_id":reference_id.toString()
           }
-            console.log(body);
+            //console.log(body);
             // const payoutRequest = await createPayoutBankRequest(
             //   response.token,
             //   body

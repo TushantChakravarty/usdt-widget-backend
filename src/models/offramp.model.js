@@ -75,7 +75,12 @@ export default (sequelize, DataTypes) => {
             payout_id:{
                 type: DataTypes.STRING,
                 allowNull: true,
-            }
+            },
+            txStatus:{
+                type: DataTypes.STRING,
+                allowNull: true,
+                defaultValue:"PENDING"
+            },
 
         },
         {
