@@ -653,6 +653,9 @@ export async function generateTransaction(request, reply) {
         reference_id: transactionId,
         wallet: walletAddress,
         qrCode: tronQrCode,
+        fromCurrency,
+        toCurrency,
+        chain,
         cryptoNotes: [
           {
             type: -1,
