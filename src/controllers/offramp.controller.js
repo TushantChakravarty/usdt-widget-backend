@@ -418,7 +418,7 @@ export async function getAllOffRamp(request, reply) {
           FAILED:`Crypto receive failed to ${item?.depositAddress}`
         }
            return {
-            ...item.dataValues,
+            ...item,
             FiatMoneyTransferStatus:fiatDescriptionMapper[`${item.status}`],
             cryptoTransferStatus:cryptoDescriptionMapper[`${item.txStatus}`]
            }
