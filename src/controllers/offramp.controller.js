@@ -883,7 +883,7 @@ export async function verifyTransaction(request, reply) {
               amount: transaction.fromAmount,
               account_number: fiatAccount.fiatAccount,
               ifsc: fiatAccount.ifsc,
-              bank_name: fiatAccount.ifsc,
+              bank_name: fiatAccount.bank_name,
               method: "IMPS",
               customer_id: request.user.customerId,
               }
