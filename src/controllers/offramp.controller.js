@@ -656,6 +656,7 @@ export async function generateTransaction(request, reply) {
         fromCurrency,
         toCurrency,
         chain,
+        fromAmount,
         cryptoNotes: [
           {
             type: -1,
