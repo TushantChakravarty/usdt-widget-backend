@@ -911,19 +911,34 @@ export async function verifyTransaction(request, reply) {
           // console.log(transaction)
         } else {
           console.log("transaction doesnt belong to our system");
+          return reply
+          .status(400)
+          .send(responseMappingError(500, `transaction doesnt belong to our system`));
         }
         //const transaction = await OffRampTransaction.create(body)
         // Mark payment as successful in your system
       } else if (actualAmount !== expectedAmountInSun) {
         console.log("Transaction amount does not match the expected value.");
+        return reply
+        .status(400)
+        .send(responseMappingError(500, `Transaction amount does not match the expected value.`));
       } else if (transactionStatus !== "SUCCESS") {
         console.log("Transaction was not successful.");
+        return reply
+        .status(400)
+        .send(responseMappingError(500, `Transaction was not successful`));
       }
     } else {
       console.log("Transaction not found.");
+      return reply
+        .status(400)
+        .send(responseMappingError(404, `Transaction not found.`));
     }
   } catch (error) {
     console.error("Error verifying transaction:", error);
+    return reply
+        .status(500)
+        .send(responseMappingError(404, `Internal Server Error.`));
   }
 }
 
