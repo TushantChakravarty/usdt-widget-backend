@@ -48,7 +48,7 @@ export async function createPayoutBankRequestPayhub(userData,body)
 {
     try{
         console.log(userData)
-        const response = await fetch('https://server.payhub.link/payouts/sendPayoutRequest',{
+        const response = await fetch('https://api.payhub.link/payouts/sendPayoutRequest',{
             method:'post',
             headers: {
                 "Content-Type": "application/json",
