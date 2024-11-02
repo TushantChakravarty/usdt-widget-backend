@@ -856,7 +856,7 @@ export async function verifyTransaction(request, reply) {
               "customer_upiId":"success@upi",
               "bank_ifsc":  fiatAccount.ifsc,
               "account_name": fiatAccount.account_name,
-              "bank_name": "state bank of india",
+              "bank_name": fiatAccount.bank_name,
               "customer_address":"xyz",
               "method":"bank",
               "transaction_id":reference_id.toString()
