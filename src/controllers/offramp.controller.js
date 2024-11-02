@@ -397,39 +397,41 @@ export async function getAllOffRamp(request, reply) {
       order: [["date", "DESC"]],
     });
 
-    let updatedOnRamp =[]
-    if(all_off_ramp?.length>0)
-    {
-      
-      updatedOnRamp = await all_off_ramp?.map(async (item)=>{
-        const fiatAccount = await findRecord(FiatAccount, {
-          fiatAccountId: item.fiatAccountId,
-        });
-        console.log(fiatAccount)
-        const fiatDescriptionMapper ={
-          SUCCESS:`Fiat money transferred successfully to ${fiatAccount?.fiatAccount}`,
-          PENDING:`Fiat money transfer pending to ${fiatAccount?.fiatAccount}`,
-          FAILED:`Fiat money transfer failed to ${fiatAccount?.fiatAccount}`
-        }
-
-        const cryptoDescriptionMapper ={
-          SUCCESS:`Crpto received successfully to ${item?.depositAddress}`,
-          PENDING:`Crypto receive pending to ${item?.depositAddress}`,
-          FAILED:`Crypto receive failed to ${item?.depositAddress}`
-        }
-           return {
-            ...item,
-            FiatMoneyTransferStatus:fiatDescriptionMapper[`${item.status}`],
-            cryptoTransferStatus:cryptoDescriptionMapper[`${item.txStatus}`]
-           }
-      })
-
+    let updatedOffRamp = [];
+    if (all_off_ramp?.length > 0) {
+      updatedOffRamp = await Promise.all(
+        all_off_ramp.map(async (item) => {
+          const fiatAccount = await findRecord(FiatAccount, {
+            fiatAccountId: item.fiatAccountId,
+          });
+          console.log(fiatAccount);
+          
+          const fiatDescriptionMapper = {
+            SUCCESS: `Fiat money transferred successfully to ${fiatAccount?.fiatAccount}`,
+            PENDING: `Fiat money transfer pending to ${fiatAccount?.fiatAccount}`,
+            FAILED: `Fiat money transfer failed to ${fiatAccount?.fiatAccount}`,
+          };
+    
+          const cryptoDescriptionMapper = {
+            SUCCESS: `Crypto received successfully to ${item?.depositAddress}`,
+            PENDING: `Crypto receive pending to ${item?.depositAddress}`,
+            FAILED: `Crypto receive failed to ${item?.depositAddress}`,
+          };
+    
+          return {
+            ...item.dataValues,
+            FiatMoneyTransferStatus: fiatDescriptionMapper[item.status],
+            cryptoTransferStatus: cryptoDescriptionMapper[item.txStatus],
+          };
+        })
+      );
     }
     
+  
 
     return reply
       .status(200)
-      .send(responseMappingWithData(200, "Success", updatedOnRamp));
+      .send(responseMappingWithData(200, "Success", updatedOffRamp));
   } catch (error) {
     console.log("user.controller.getQUotes", error.message);
     return reply
