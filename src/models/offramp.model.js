@@ -81,6 +81,12 @@ export default (sequelize, DataTypes) => {
                 allowNull: true,
                 defaultValue:"PENDING"
             },
+            depositAddress:{
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
+         
+
 
         },
         {

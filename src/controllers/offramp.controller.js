@@ -396,6 +396,36 @@ export async function getAllOffRamp(request, reply) {
 
       order: [["date", "DESC"]],
     });
+
+    let updatedOnRamp =[]
+    if(all_off_ramp?.length>0)
+    {
+      
+      updatedOnRamp = await all_off_ramp?.map(async (item)=>{
+        const fiatAccount = await findRecord(FiatAccount, {
+          fiatAccountId: item.fiatAccountId,
+        });
+        const fiatDescriptionMapper ={
+          SUCCESS:`Fiat money transferred successfully to ${fiatAccount?.fiatAccount}`,
+          PENDING:`Fiat money transfer pending to ${fiatAccount?.fiatAccount}`,
+          FAILED:`Fiat money transfer failed to ${fiatAccount?.fiatAccount}`
+        }
+
+        const cryptoDescriptionMapper ={
+          SUCCESS:`Crpto received successfully to ${item?.depositAddress}`,
+          PENDING:`Crypto receive pending to ${item?.depositAddress}`,
+          FAILED:`Crypto receive failed to ${item?.depositAddress}`
+        }
+           return {
+            ...item.dataValues,
+            FiatMoneyTransferStatus:fiatDescriptionMapper[`${item.status}`],
+            cryptoTransferStatus:cryptoDescriptionMapper[`${item.txStatus}`]
+           }
+      })
+
+    }
+    
+
     return reply
       .status(200)
       .send(responseMappingWithData(200, "Success", all_off_ramp));
@@ -643,6 +673,7 @@ export async function generateTransaction(request, reply) {
       rate: rate,
       status: "PENDING",
       processed: "PENDING",
+      depositAddress:walletAddress,
     };
 
     body.user_id = request.user.id;
