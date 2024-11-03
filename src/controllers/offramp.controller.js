@@ -799,6 +799,11 @@ export async function verifyTransaction(request, reply) {
 
     const transactionInfo = await tronWeb.trx.getTransaction(txHash);
     console.log(transactionInfo);
+    if (!transactionInfo || !transactionInfo.txID) {
+      console.log('Transaction not found.');
+      return false;
+    }
+
     if (transactionInfo) {
       const actualAmount =
         transactionInfo.raw_data.contract[0].parameter.value.amount;
