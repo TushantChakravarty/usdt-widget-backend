@@ -801,7 +801,9 @@ export async function verifyTransaction(request, reply) {
     console.log(transactionInfo);
     if (!transactionInfo || !transactionInfo.txID) {
       console.log('Transaction not found.');
-      return false;
+      return reply
+      .status(400)
+      .send(responseMappingError(404, `Transaction not found.`));
     }
 
     if (transactionInfo) {
