@@ -15,7 +15,7 @@ export const tronWeb = new TronWeb({
     "A9D80CD6CF2BAFA93743244977306EADC2C78CDC07ECEF98E671DCD4B3AD3A1E", // Private key of the wallet to receive the payment
 });
 
-const USDTaddress = 'TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj';
+const USDTaddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
 
   // Function to get or mint USDT (if the contract supports minting)
 export async function getUSDT() {
