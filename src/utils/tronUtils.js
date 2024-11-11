@@ -10,12 +10,12 @@ import {
 
 export const walletAddress = "TEkUyYL3pGnSErbWPZXnYrJYPUoTci2nrF";
 export const tronWeb = new TronWeb({
-  fullHost: "https://nile.trongrid.io", // Mainnet or https://nile.trongrid.io for testnet
+  fullHost: "https://api.trongrid.io", // Mainnet or https://nile.trongrid.io for testnet
   privateKey:
     "A9D80CD6CF2BAFA93743244977306EADC2C78CDC07ECEF98E671DCD4B3AD3A1E", // Private key of the wallet to receive the payment
 });
 
-const USDTaddress = 'TF17BgPaZYbz8oxbjhriubPDsA7ArKoLX3';
+const USDTaddress = 'TXLAQ63Xg1NAzckPwKHvzw7CSEmLMEqcdj';
 
   // Function to get or mint USDT (if the contract supports minting)
 export async function getUSDT() {
