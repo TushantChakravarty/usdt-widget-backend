@@ -983,8 +983,8 @@ export async function getQuotesNew(request, reply) {
       })
     }
     const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-    if(minWithdrawl.minBuyInRupee>fromAmount)
-    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
+    // if(minWithdrawl.minBuyInRupee>fromAmount)
+    // return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
 
     // const timestamp = Date.now().toString();
     // const obj = {
