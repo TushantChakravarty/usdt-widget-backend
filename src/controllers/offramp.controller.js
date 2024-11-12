@@ -807,12 +807,24 @@ export async function verifyTransaction(request, reply) {
     }
 
     if (transactionInfo) {
-      const actualAmount =
-        transactionInfo.raw_data.contract[0].parameter.value.amount;
-
-      // Convert the expected amount from TRX to SUN (1 TRX = 1,000,000 SUN)
+      let actualAmount;
+      
+      if (transactionInfo.raw_data.contract[0].type === "TransferContract") {
+          // Native TRX transfer
+          actualAmount = transactionInfo.raw_data.contract[0].parameter.value.amount;
+      } else if (transactionInfo.raw_data.contract[0].type === "TriggerSmartContract") {
+          // Token transfer (e.g., USDT)
+          const data = transactionInfo.raw_data.contract[0].parameter.value.data;
+          
+          // Decode the data field to get the amount if it’s a TRC-20 transfer
+          if (data && data.length >= 64) {
+              const amountHex = data.substring(32, 64);
+              actualAmount = parseInt(amountHex, 16);
+          }
+      }
+      
       const expectedAmountInSun = fromAmount * 1000000;
-      console.log("check check",expectedAmountInSun, actualAmount)
+      console.log("check check", expectedAmountInSun, actualAmount);
       if (expectedAmountInSun !== actualAmount) {
         return reply
           .status(400)
