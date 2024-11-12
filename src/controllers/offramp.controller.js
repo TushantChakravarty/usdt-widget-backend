@@ -810,6 +810,7 @@ export async function verifyTransaction(request, reply) {
 
       if (transactionInfo.raw_data.contract[0].type === "TransferContract") {
         // Native TRX transfer
+        console.log('contract native')
         actualAmount =
           transactionInfo.raw_data.contract[0].parameter.value.amount;
       } else if (
@@ -817,12 +818,17 @@ export async function verifyTransaction(request, reply) {
       ) {
         // Token transfer (e.g., USDT)
         const data = transactionInfo.raw_data.contract[0].parameter.value.data;
-
-        // Extract the last 32 characters (16 bytes) for the amount
-        if (data && data.length >= 64) {
-          const amountHex = data.substring(64, 128); // Only take the last 32 characters
-          actualAmount = parseInt(amountHex, 16); // Convert from hex to integer (Sun)
-        }
+        console.log('contract smart')
+    if (data && data.length >= 64) {
+        // If the data is present directly, get the amount from the last 32 characters
+        const amountHex = data.substring(data.length - 32);
+        actualAmount = BigInt(`0x${amountHex}`);
+    } else {
+        // Fallback: If data is not directly accessible, use raw_data_hex to extract the amount
+        const rawDataHex = transactionInfo.raw_data_hex;
+        const amountHex = rawDataHex.substring(rawDataHex.length - 64, rawDataHex.length - 32);
+        actualAmount = BigInt(`0x${amountHex}`);
+    }
       }
 
       const expectedAmountInSun = fromAmount * 1000000;
