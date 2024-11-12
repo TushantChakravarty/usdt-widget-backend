@@ -435,11 +435,11 @@ export async function getAllCoinsNew(request, reply) {
       const filteredCoins = coinsArray?.length > 0
       ? coinsArray.filter((coin) => coin.coinid === 54).map(coin => ({
           ...coin.dataValues,
-          minSellValue: 1 // Replace with actual logic
+          minSellValue: 10 // Replace with actual logic
         }))
       : coins.filter((coin) => coin.coinid === 54).map(coin => ({
           ...coin.dataValues,
-          minSellValue: 1 // Replace with actual logic
+          minSellValue: 10 // Replace with actual logic
         }));
 
 
@@ -585,7 +585,7 @@ export async function getAllNetworksNew(request, reply) {
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
             minBuy: networkData[0]?.minimumWithdrawal,
-            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(1) * usdt?.inrRate) : Math.ceil(300),
+            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal),
             inSync:true
           })
         }
@@ -983,8 +983,8 @@ export async function getQuotesNew(request, reply) {
       })
     }
     const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-    // if(minWithdrawl.minBuyInRupee>fromAmount)
-    // return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
+    if(minWithdrawl.minBuyInRupee>fromAmount)
+    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
 
     // const timestamp = Date.now().toString();
     // const obj = {

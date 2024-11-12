@@ -120,8 +120,8 @@ export async function onRampRequest(request, reply) {
         return reply.status(500).send(responseMappingError(400, `invalid deposit address`));
       }
       
-      // if(minWithdrawl.minBuyInRupee>fromAmount)
-      // return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
+      if(minWithdrawl.minBuyInRupee>fromAmount)
+      return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
   
       let body = {
         fromCurrency: fromCurrency,
