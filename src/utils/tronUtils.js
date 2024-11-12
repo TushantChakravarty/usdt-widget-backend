@@ -52,7 +52,7 @@ export async function transferUSDT(receiverAddress, amount) {
      // const amountInSun = tronWeb.toSun(amount);
   
       // Initiate the transfer and get the transaction hash
-      const txHash = await contract.methods.transfer(receiverAddress, amountInSun).send({
+      const txHash = await contract.methods.transfer(receiverAddress, amount).send({
         from: tronWeb.defaultAddress.base58,
       });
   
