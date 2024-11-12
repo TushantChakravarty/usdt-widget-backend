@@ -8,11 +8,11 @@ import {
     Plugin,
   } from "tronweb";
 
-export const walletAddress = "TEkUyYL3pGnSErbWPZXnYrJYPUoTci2nrF";
+export const walletAddress = process.env.walletAddress;
 export const tronWeb = new TronWeb({
   fullHost: "https://api.trongrid.io", // Mainnet or https://nile.trongrid.io for testnet
   privateKey:
-    "A9D80CD6CF2BAFA93743244977306EADC2C78CDC07ECEF98E671DCD4B3AD3A1E", // Private key of the wallet to receive the payment
+    process.env.privateKeyWallet, // Private key of the wallet to receive the payment
 });
 
 const USDTaddress = 'TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t';
