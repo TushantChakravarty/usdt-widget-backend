@@ -839,41 +839,45 @@ export async function verifyTransaction(request, reply) {
           .send(responseMappingError(400, `invalid amount`));
       }
       // Check if the transaction was successful
-      const transactionStatus = transactionInfo.ret && transactionInfo.ret[0].contractRet;
-      const rawData = transactionInfo.raw_data;
-      let recipientAddress;
-      
-      if (transactionStatus === 'SUCCESS') {
-        // Check if there are any contract calls
-        if (rawData && rawData.contract && rawData.contract.length > 0) {
-          // Find the TriggerSmartContract type
-          const transferContract = rawData.contract.find(
-            (contract) => contract.type === "TriggerSmartContract"
-          );
-      
-          if (transferContract) {
-            // Extract the data field
-            const data = transferContract.parameter.value.data;
-            if (data && data.length >= 72) { // Minimum length check: 8 (function) + 64 (address)
-              // Get the recipient address part (32 bytes after the first 4 bytes for the function signature)
-              const recipientAddressHex = '41' + data.substring(10, 42); // Add '41' TRON prefix
-      
-              // Convert hex address to base58 (TRON address)
-              recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
-            } else {
-              console.log("Data field does not contain a valid recipient address.");
-            }
-          } else {
-            console.log("No TriggerSmartContract found in transaction.");
-          }
-        } else {
-          console.log("Invalid transaction data.");
-        }
+     // Check if the transaction was successful
+const transactionStatus = transactionInfo.ret && transactionInfo.ret[0].contractRet;
+const rawData = transactionInfo.raw_data;
+let recipientAddress;
+
+if (transactionStatus === 'SUCCESS') {
+  // Check if there are any contract calls
+  if (rawData && rawData.contract && rawData.contract.length > 0) {
+    // Find the TriggerSmartContract type
+    const transferContract = rawData.contract.find(
+      (contract) => contract.type === "TriggerSmartContract"
+    );
+
+    if (transferContract) {
+      // Extract the data field
+      const data = transferContract.parameter.value.data;
+      if (data && data.length >= 72) { // Minimum length check: 8 (function signature) + 64 (address)
+        // Extract recipient address from data (skipping the first 8 characters for function signature)
+        const recipientAddressHex = '41' + data.substring(8, 72); // Add '41' TRON prefix and take address from 8-72
+
+        // Log data and recipient address
+        console.log("Extracted Hex Address:", recipientAddressHex);
+
+        // Convert hex address to base58 (TRON address)
+        recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
       } else {
-        console.log("Transaction was not successful.");
+        console.log("Data field does not contain a valid recipient address.");
       }
-      
-      console.log("Recipient Address Check:", recipientAddress);
+    } else {
+      console.log("No TriggerSmartContract found in transaction.");
+    }
+  } else {
+    console.log("Invalid transaction data.");
+  }
+} else {
+  console.log("Transaction was not successful.");
+}
+
+console.log("Recipient Address Check:", recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
       if (
         expectedAmountInSun.toString() == actualAmount.toString() &&
