@@ -832,8 +832,8 @@ export async function verifyTransaction(request, reply) {
       }
 
       const expectedAmountInSun = fromAmount * 1000000;
-      console.log("check check", expectedAmountInSun, actualAmount);
-      if (expectedAmountInSun !== actualAmount) {
+      console.log("check check", expectedAmountInSun.toString(), actualAmount.toString());
+      if (expectedAmountInSun.toString() !== actualAmount.toString()) {
         return reply
           .status(400)
           .send(responseMappingError(400, `invalid amount`));
