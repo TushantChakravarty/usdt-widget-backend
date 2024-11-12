@@ -36,7 +36,10 @@ import { generateRandomFiatId, generateTransactionId } from "../utils/utils.js";
 //   generateToken,
 // } from "../ApiCalls/globalpay.js";
 import { tronWeb, walletAddress } from "../utils/tronUtils.js";
-import { createPayoutBankRequestPayhub, generateToken } from "../ApiCalls/payhub.js";
+import {
+  createPayoutBankRequestPayhub,
+  generateToken,
+} from "../ApiCalls/payhub.js";
 
 const {
   User,
@@ -45,10 +48,8 @@ const {
   OffRampTransaction,
   FiatAccount,
   Payout,
-  Usdt
+  Usdt,
 } = db;
-
-
 
 export async function AddFiatAccountId(request, reply) {
   try {
@@ -405,19 +406,19 @@ export async function getAllOffRamp(request, reply) {
             fiatAccountId: item.fiatAccountId,
           });
           console.log(fiatAccount);
-          
+
           const fiatDescriptionMapper = {
             SUCCESS: `Fiat money transferred successfully to ${fiatAccount?.fiatAccount}`,
             PENDING: `Fiat money transfer pending to ${fiatAccount?.fiatAccount}`,
             FAILED: `Fiat money transfer failed to ${fiatAccount?.fiatAccount}`,
           };
-    
+
           const cryptoDescriptionMapper = {
             SUCCESS: `Crypto received successfully to ${item?.depositAddress}`,
             PENDING: `Crypto receive pending to ${item?.depositAddress}`,
             FAILED: `Crypto receive failed to ${item?.depositAddress}`,
           };
-    
+
           return {
             ...item.dataValues,
             FiatMoneyTransferStatus: fiatDescriptionMapper[item.status],
@@ -426,8 +427,6 @@ export async function getAllOffRamp(request, reply) {
         })
       );
     }
-    
-  
 
     return reply
       .status(200)
@@ -676,7 +675,7 @@ export async function generateTransaction(request, reply) {
       rate: rate,
       status: "PENDING",
       processed: "PENDING",
-      depositAddress:walletAddress,
+      depositAddress: walletAddress,
     };
 
     body.user_id = request.user.id;
@@ -800,29 +799,32 @@ export async function verifyTransaction(request, reply) {
     const transactionInfo = await tronWeb.trx.getTransaction(txHash);
     console.log(transactionInfo);
     if (!transactionInfo || !transactionInfo.txID) {
-      console.log('Transaction not found.');
+      console.log("Transaction not found.");
       return reply
-      .status(400)
-      .send(responseMappingError(404, `Transaction not found.`));
+        .status(400)
+        .send(responseMappingError(404, `Transaction not found.`));
     }
 
     if (transactionInfo) {
       let actualAmount;
-      
+
       if (transactionInfo.raw_data.contract[0].type === "TransferContract") {
-          // Native TRX transfer
-          actualAmount = transactionInfo.raw_data.contract[0].parameter.value.amount;
-      } else if (transactionInfo.raw_data.contract[0].type === "TriggerSmartContract") {
-          // Token transfer (e.g., USDT)
-          const data = transactionInfo.raw_data.contract[0].parameter.value.data;
-          
-          // Decode the data field to get the amount if it’s a TRC-20 transfer
-          if (data && data.length >= 64) {
-              const amountHex = data.substring(32, 64);
-              actualAmount = parseInt(amountHex, 16);
-          }
+        // Native TRX transfer
+        actualAmount =
+          transactionInfo.raw_data.contract[0].parameter.value.amount;
+      } else if (
+        transactionInfo.raw_data.contract[0].type === "TriggerSmartContract"
+      ) {
+        // Token transfer (e.g., USDT)
+        const data = transactionInfo.raw_data.contract[0].parameter.value.data;
+
+        // Extract the last 32 characters (16 bytes) for the amount
+        if (data && data.length >= 64) {
+          const amountHex = data.substring(64, 128); // Only take the last 32 characters
+          actualAmount = parseInt(amountHex, 16); // Convert from hex to integer (Sun)
+        }
       }
-      
+
       const expectedAmountInSun = fromAmount * 1000000;
       console.log("check check", expectedAmountInSun, actualAmount);
       if (expectedAmountInSun !== actualAmount) {
@@ -879,7 +881,6 @@ export async function verifyTransaction(request, reply) {
           updateDetails
         );
         if (transaction) {
-          
           const response = await generateToken();
           if (response.responseData.token) {
             const fiatAccount = await findRecord(FiatAccount, {
@@ -900,21 +901,21 @@ export async function verifyTransaction(request, reply) {
             //   method: "IMPS",
             //   customer_id: request.user.customerId,
             // };
-           let body = {
-              "emailId": "test@payhub",
-              "amount": transaction.fromAmount,
-              "customer_name": "tushant",
-              "customer_email": request.user.email,
-              "customer_phone": phone,
-              "account_number": fiatAccount.fiatAccount,
-              "customer_upiId":"success@upi",
-              "bank_ifsc":  fiatAccount.ifsc,
-              "account_name": fiatAccount.account_name,
-              "bank_name": fiatAccount.bank_name,
-              "customer_address":"xyz",
-              "method":"bank",
-              "transaction_id":reference_id.toString()
-          }
+            let body = {
+              emailId: "test@payhub",
+              amount: transaction.fromAmount,
+              customer_name: "tushant",
+              customer_email: request.user.email,
+              customer_phone: phone,
+              account_number: fiatAccount.fiatAccount,
+              customer_upiId: "success@upi",
+              bank_ifsc: fiatAccount.ifsc,
+              account_name: fiatAccount.account_name,
+              bank_name: fiatAccount.bank_name,
+              customer_address: "xyz",
+              method: "bank",
+              transaction_id: reference_id.toString(),
+            };
             //console.log(body);
             // const payoutRequest = await createPayoutBankRequest(
             //   response.token,
@@ -930,22 +931,22 @@ export async function verifyTransaction(request, reply) {
               payoutRequest.responseCode == 200 &&
               payoutRequest.responseData.transaction_id
             ) {
-              let updatedData ={
-              name: fiatAccount.account_name,
-              email: request.user.email,
-              phone: phone,
-              amount: transaction.fromAmount,
-              account_number: fiatAccount.fiatAccount,
-              ifsc: fiatAccount.ifsc,
-              bank_name: fiatAccount.bank_name,
-              method: "IMPS",
-              customer_id: request.user.customerId,
-              }
+              let updatedData = {
+                name: fiatAccount.account_name,
+                email: request.user.email,
+                phone: phone,
+                amount: transaction.fromAmount,
+                account_number: fiatAccount.fiatAccount,
+                ifsc: fiatAccount.ifsc,
+                bank_name: fiatAccount.bank_name,
+                method: "IMPS",
+                customer_id: request.user.customerId,
+              };
               updatedData.transaction_id =
                 payoutRequest.responseData.transaction_id.toString();
-                updatedData.reference_id = reference_id.toString();
-                updatedData.user_id = request.user.id;
-                updatedData.txHash = txHash;
+              updatedData.reference_id = reference_id.toString();
+              updatedData.user_id = request.user.id;
+              updatedData.txHash = txHash;
               const payoutsData = await createNewRecord(Payout, updatedData);
               transaction.payout_id =
                 payoutRequest.responseData.transaction_id.toString();
@@ -970,21 +971,31 @@ export async function verifyTransaction(request, reply) {
         } else {
           console.log("transaction doesnt belong to our system");
           return reply
-          .status(400)
-          .send(responseMappingError(500, `transaction doesnt belong to our system`));
+            .status(400)
+            .send(
+              responseMappingError(
+                500,
+                `transaction doesnt belong to our system`
+              )
+            );
         }
         //const transaction = await OffRampTransaction.create(body)
         // Mark payment as successful in your system
       } else if (actualAmount !== expectedAmountInSun) {
         console.log("Transaction amount does not match the expected value.");
         return reply
-        .status(400)
-        .send(responseMappingError(500, `Transaction amount does not match the expected value.`));
+          .status(400)
+          .send(
+            responseMappingError(
+              500,
+              `Transaction amount does not match the expected value.`
+            )
+          );
       } else if (transactionStatus !== "SUCCESS") {
         console.log("Transaction was not successful.");
         return reply
-        .status(400)
-        .send(responseMappingError(500, `Transaction was not successful`));
+          .status(400)
+          .send(responseMappingError(500, `Transaction was not successful`));
       }
     } else {
       console.log("Transaction not found.");
@@ -995,8 +1006,8 @@ export async function verifyTransaction(request, reply) {
   } catch (error) {
     console.error("Error verifying transaction:", error);
     return reply
-        .status(500)
-        .send(responseMappingError(404, `Internal Server Error.`));
+      .status(500)
+      .send(responseMappingError(404, `Internal Server Error.`));
   }
 }
 
@@ -1119,26 +1130,26 @@ export async function getQuotesNew(request, reply) {
     // console.log("Converted Amount:", fromAmount * usdtRate);
     // console.log("Fees Breakdown:", { onrampFee, gatewayFee, tdsFee });
     console.log("Final Amount:", toAmountOfframp);
-    const offrampAmount ={
+    const offrampAmount = {
       status: 1,
       code: 200,
       data: {
-        fromCurrency: 'usdt',
-        toCurrency: 'INR',
-        fromAmount: '100',
+        fromCurrency: "usdt",
+        toCurrency: "INR",
+        fromAmount: "100",
         toAmount: toAmountOfframp.toFixed(2),
         rate: usdtRate,
-        fees:[
+        fees: [
           {
-            type: 'fiat',
+            type: "fiat",
             onrampFee: onrampFee.toFixed(2),
             gatewayFee: gatewayFee.toFixed(2),
-            tdsFee: tdsFee.toFixed(2)
-          }
-        ]
-      }
-    }
-    console.log(offrampAmount)
+            tdsFee: tdsFee.toFixed(2),
+          },
+        ],
+      },
+    };
+    console.log(offrampAmount);
     // if (cachedData) {
     //   let data_cache = await JSON.parse(cachedData);
     //   //console.log(data_cache);
@@ -1183,9 +1194,10 @@ export async function getQuotesNew(request, reply) {
     if (offrampAmount?.data) {
       let updatedData = offrampAmount.data;
       updatedData.feeInUsdt = (
-        Number(offrampAmount?.data?.fees[0]?.tdsFee) / Number(offrampAmount?.data?.rate)
+        Number(offrampAmount?.data?.fees[0]?.tdsFee) /
+        Number(offrampAmount?.data?.rate)
       ).toFixed(2);
-      console.log(updatedData)
+      console.log(updatedData);
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", updatedData));
