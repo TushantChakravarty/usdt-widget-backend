@@ -862,7 +862,7 @@ export async function verifyTransaction(request, reply) {
       } else {
         console.log("Invalid transaction data.");
       }
-      console.log(recipientAddress);
+      console.log("reciepent check",recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
       if (
         expectedAmountInSun.toString() == actualAmount.toString() &&
