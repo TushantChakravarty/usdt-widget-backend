@@ -838,6 +838,7 @@ export async function verifyTransaction(request, reply) {
           .status(400)
           .send(responseMappingError(400, `invalid amount`));
       }
+      // Check if the transaction was successful
       const transactionStatus = transactionInfo.ret && transactionInfo.ret[0].contractRet;
       const rawData = transactionInfo.raw_data;
       let recipientAddress;
@@ -851,17 +852,16 @@ export async function verifyTransaction(request, reply) {
           );
       
           if (transferContract) {
-            // Log the full contract parameter object for debugging
-            console.log("Transfer Contract Parameter:", transferContract.parameter);
+            // Extract the data field
+            const data = transferContract.parameter.value.data;
+            if (data && data.length >= 72) { // Minimum length check: 8 (function) + 64 (address)
+              // Get the recipient address part (32 bytes after the first 4 bytes for the function signature)
+              const recipientAddressHex = '41' + data.substring(10, 42); // Add '41' TRON prefix
       
-            // Get the parameter containing the recipient address in hex
-            const recipientAddressHex = transferContract.parameter.value.to_address;
-      
-            if (recipientAddressHex) {
-              // Convert the hex address to a base58 (TRON) address
+              // Convert hex address to base58 (TRON address)
               recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
             } else {
-              console.log("Recipient address (to_address) not found in the transaction parameter.");
+              console.log("Data field does not contain a valid recipient address.");
             }
           } else {
             console.log("No TriggerSmartContract found in transaction.");
