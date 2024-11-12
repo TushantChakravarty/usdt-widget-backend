@@ -859,11 +859,16 @@ if (transactionStatus === 'SUCCESS') {
         // Extract recipient address from data (skipping the first 8 characters for function signature)
         const recipientAddressHex = '41' + data.substring(8, 72); // Add '41' TRON prefix and take address from 8-72
 
-        // Log data and recipient address
+        // Log the extracted hex address for debugging
         console.log("Extracted Hex Address:", recipientAddressHex);
 
         // Convert hex address to base58 (TRON address)
-        recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
+        try {
+          recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
+          console.log("Recipient Address in Base58:", recipientAddress);
+        } catch (error) {
+          console.error("Error in address conversion:", error);
+        }
       } else {
         console.log("Data field does not contain a valid recipient address.");
       }
