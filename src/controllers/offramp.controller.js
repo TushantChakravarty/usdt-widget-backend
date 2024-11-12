@@ -35,7 +35,7 @@ import { generateRandomFiatId, generateTransactionId } from "../utils/utils.js";
 //   createPayoutBankRequest,
 //   generateToken,
 // } from "../ApiCalls/globalpay.js";
-import { tronWeb, walletAddress } from "../utils/tronUtils.js";
+import { getRecipientAddress, tronWeb, walletAddress } from "../utils/tronUtils.js";
 import {
   createPayoutBankRequestPayhub,
   generateToken,
@@ -839,53 +839,30 @@ export async function verifyTransaction(request, reply) {
           .send(responseMappingError(400, `invalid amount`));
       }
       // Check if the transaction was successful
-     // Check if the transaction was successful
-const transactionStatus = transactionInfo.ret && transactionInfo.ret[0].contractRet;
-const rawData = transactionInfo.raw_data;
-let recipientAddress;
+      const transactionStatus = transactionInfo.ret[0].contractRet;
+      const rawData = transactionInfo.raw_data;
+      let recipientAddress = await getRecipientAddress(txHash)
+      // Check if there are any contract calls
+      // if (rawData && rawData.contract && rawData.contract.length > 0) {
+      //   // Assuming the transaction is a transfer, find the contract type 'TransferContract'
+      //   const transferContract = rawData.contract.find(
+      //     (contract) => contract.type === "TriggerSmartContract"
+      //   );
 
-if (transactionStatus === 'SUCCESS') {
-  // Check if there are any contract calls
-  if (rawData && rawData.contract && rawData.contract.length > 0) {
-    // Find the TriggerSmartContract type
-    const transferContract = rawData.contract.find(
-      (contract) => contract.type === "TriggerSmartContract"
-    );
+      //   if (transferContract) {
+      //     // Get the parameter containing the recipient address
+      //     const recipientAddressHex =
+      //       transferContract.parameter.value.to_address;
 
-    if (transferContract) {
-      // Log the entire contract to inspect all parameters
-      console.log("Transfer Contract Parameter:", transferContract.parameter.value);
-
-      // Extract the 'data' field from the contract
-      const data = transferContract.parameter.value.data;
-
-      // Check if data exists and is of the expected length (64 for address and 64 for amount)
-      if (data && data.length >= 72) {
-        // Extract the recipient address (after function signature, which is the first 8 chars)
-        const recipientAddressHex = '41' + data.substring(8, 72); // Add '41' TRON prefix and take address from 8-72
-        console.log("Extracted Hex Address:", recipientAddressHex);
-
-        // Convert hex address to base58 (TRON address)
-        try {
-          recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
-          console.log("Recipient Address in Base58:", recipientAddress);
-        } catch (error) {
-          console.error("Error in address conversion:", error);
-        }
-      } else {
-        console.log("Data field does not contain a valid recipient address.");
-      }
-    } else {
-      console.log("No TriggerSmartContract found in transaction.");
-    }
-  } else {
-    console.log("Invalid transaction data.");
-  }
-} else {
-  console.log("Transaction was not successful.");
-}
-
-console.log("Recipient Address Check:", recipientAddress);
+      //     // Convert the hex address to a base58 (TRON) address
+      //     recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
+      //   } else {
+      //     console.log("No TransferContract found in transaction.");
+      //   }
+      // } else {
+      //   console.log("Invalid transaction data.");
+      // }
+      console.log("reciepent check",recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
       if (
         expectedAmountInSun.toString() == actualAmount.toString() &&

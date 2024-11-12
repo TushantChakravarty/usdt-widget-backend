@@ -121,3 +121,41 @@ async function checkTransactionStatus(txHash) {
       return { status: 'failed', amount: null };
     }
   }
+
+  export async function getRecipientAddress(txHash) {
+    try {
+      // Fetch the transaction info from the blockchain
+      const transactionInfo = await tronWeb.trx.getTransaction(txHash);
+  
+      // Check if the transaction was successful
+      if (!transactionInfo.ret || transactionInfo.ret[0].contractRet !== 'SUCCESS') {
+        console.log("Transaction was not successful.");
+        return;
+      }
+  
+      // Extract contract details from the transaction
+      const contract = transactionInfo.raw_data.contract.find(
+        (contract) => contract.type === "TriggerSmartContract"
+      );
+  
+      if (!contract) {
+        console.log("No TriggerSmartContract found in transaction.");
+        return;
+      }
+  
+      const data = contract.parameter.value.data;
+  
+      // Ensure that data exists and has the correct length for a TRC-20 transfer
+      if (data && data.length >= 72) {
+        // Extract recipient address from the data field (after the first 8 chars which is the function signature)
+        const recipientAddressHex = '41' + data.substring(8, 72); // '41' is the TRON address prefix
+        const recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
+        console.log("Recipient Address in Base58:", recipientAddress);
+        return recipientAddress;
+      } else {
+        console.log("Data field does not contain a valid recipient address.");
+      }
+    } catch (error) {
+      console.error("Error fetching or processing transaction:", error);
+    }
+  }
