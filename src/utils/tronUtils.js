@@ -131,7 +131,6 @@ export async function getRecipientAddress(txHash) {
   try {
     // Fetch the transaction info from the blockchain
     const transactionInfo = await tronWeb.trx.getTransaction(txHash);
-    console.log(transactionInfo.raw_data.contract[0].parameter);
 
     // Check if the transaction was successful
     if (
@@ -150,6 +149,8 @@ export async function getRecipientAddress(txHash) {
       // The recipient address is typically in the bytes 8 to 40 of the data (after the 4-byte function selector)
       const recipientAddressHex = contractData.substring(8, 72); // Get bytes 8 to 40 (padded address)
       
+      console.log("Extracted Recipient Address Hex:", recipientAddressHex);
+
       // Convert the hex address to a base58 (TRON) address by prepending '41' to the hex address
       const recipientAddress = tronWeb.address.fromHex("41" + recipientAddressHex);
 
