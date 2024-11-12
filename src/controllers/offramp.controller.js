@@ -996,16 +996,16 @@ export async function getQuotesNew(request, reply) {
     const usdt = await findRecord(Usdt, query);
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
-    if (fromAmount < 10) {
-      return reply
-        .status(500)
-        .send(
-          responseMappingError(
-            400,
-            `Amount should be greater than or equal to 10`
-          )
-        );
-    }
+    // if (fromAmount < 10) {
+    //   return reply
+    //     .status(500)
+    //     .send(
+    //       responseMappingError(
+    //         400,
+    //         `Amount should be greater than or equal to 10`
+    //       )
+    //     );
+    // }
     const body = {
       fromCurrency: fromCurrency,
       toCurrency: toCurrency,
