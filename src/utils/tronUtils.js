@@ -206,10 +206,10 @@ export async function getRecipientAddressWeb3(txHash) {
       console.log("Error fetching transaction receipt:", err);
     });
 }
-const apiKey = '2d605a31-7d67-48f7-aca7-a995042a6cee';
+const apiKey = process.env.tronscanApiKey;
 
 // Function to fetch the recipient address using Tronscan API
-export async function getRecipientAddressUsingTronscan(txHash, apiKey) {
+export async function getRecipientAddressUsingTronscan(txHash) {
   try {
     // Make a request to Tronscan API to get the transaction details
     const response = await axios.get(`https://api.tronscan.org/api/transaction-info?hash=${txHash}`, {
