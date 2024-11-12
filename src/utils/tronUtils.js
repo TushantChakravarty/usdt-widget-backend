@@ -131,7 +131,7 @@ export async function getRecipientAddress(txHash) {
   try {
     // Fetch the transaction info from the blockchain
     const transactionInfo = await tronWeb.trx.getTransaction(txHash);
-
+    console.log(transactionInfo.raw_data.contract[0].parameter);
     // Check if the transaction was successful
     if (
       !transactionInfo.ret ||
