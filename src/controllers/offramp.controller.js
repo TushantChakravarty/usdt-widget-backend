@@ -865,7 +865,7 @@ export async function verifyTransaction(request, reply) {
       console.log(recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
       if (
-        actualAmount === expectedAmountInSun &&
+        expectedAmountInSun.toString() == actualAmount.toString() &&
         transactionStatus === "SUCCESS" &&
         recipientAddress == walletAddress
       ) {
@@ -987,7 +987,7 @@ export async function verifyTransaction(request, reply) {
         }
         //const transaction = await OffRampTransaction.create(body)
         // Mark payment as successful in your system
-      } else if (actualAmount !== expectedAmountInSun) {
+      } else if (expectedAmountInSun.toString() !== actualAmount.toString()) {
         console.log("Transaction amount does not match the expected value.");
         return reply
           .status(400)
