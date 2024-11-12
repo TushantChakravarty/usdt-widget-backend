@@ -140,7 +140,7 @@ export async function getRecipientAddress(txHash) {
       console.log("Transaction was not successful.");
       return;
     }
-    console.log(transactionInfo.raw_data.contract.parameter);
+    console.log(transactionInfo.raw_data.contract);
     // Check if there are logs with the topics
     if (transactionInfo.log && transactionInfo.log.length > 0) {
       // Loop through the logs to find the Transfer event
