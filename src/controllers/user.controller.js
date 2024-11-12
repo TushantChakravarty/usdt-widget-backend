@@ -584,7 +584,7 @@ export async function getAllNetworksNew(request, reply) {
             ...item,
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
-            minBuy: networkData[0]?.minimumWithdrawal,
+            minBuy: 1,
             minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(1) * usdt?.inrRate) : Math.ceil(300),
             inSync:true
           })
