@@ -810,7 +810,7 @@ export async function verifyTransaction(request, reply) {
 
       if (transactionInfo.raw_data.contract[0].type === "TransferContract") {
         // Native TRX transfer
-        console.log('contract native')
+        console.log("contract native");
         actualAmount =
           transactionInfo.raw_data.contract[0].parameter.value.amount;
       } else if (
@@ -818,71 +818,84 @@ export async function verifyTransaction(request, reply) {
       ) {
         // Token transfer (e.g., USDT)
         const data = transactionInfo.raw_data.contract[0].parameter.value.data;
-        console.log('contract smart')
-    if (data && data.length >= 64) {
-        // If the data is present directly, get the amount from the last 32 characters
-        const amountHex = data.substring(data.length - 32);
-        actualAmount = BigInt(`0x${amountHex}`);
-    } else {
-        // Fallback: If data is not directly accessible, use raw_data_hex to extract the amount
-        const rawDataHex = transactionInfo.raw_data_hex;
-        const amountHex = rawDataHex.substring(rawDataHex.length - 64, rawDataHex.length - 32);
-        actualAmount = BigInt(`0x${amountHex}`);
-    }
+        console.log("contract smart");
+        if (data && data.length >= 64) {
+          // If the data is present directly, get the amount from the last 32 characters
+          const amountHex = data.substring(data.length - 32);
+          actualAmount = BigInt(`0x${amountHex}`);
+        } else {
+          // Fallback: If data is not directly accessible, use raw_data_hex to extract the amount
+          const rawDataHex = transactionInfo.raw_data_hex;
+          const amountHex = rawDataHex.substring(
+            rawDataHex.length - 64,
+            rawDataHex.length - 32
+          );
+          actualAmount = BigInt(`0x${amountHex}`);
+        }
       }
 
       const expectedAmountInSun = fromAmount * 1000000;
-      console.log("check check", expectedAmountInSun.toString(), actualAmount.toString());
+      console.log(
+        "check check",
+        expectedAmountInSun.toString(),
+        actualAmount.toString()
+      );
       if (expectedAmountInSun.toString() !== actualAmount.toString()) {
         return reply
           .status(400)
           .send(responseMappingError(400, `invalid amount`));
       }
       // Check if the transaction was successful
-     // Check if the transaction was successful
-const transactionStatus = transactionInfo.ret && transactionInfo.ret[0].contractRet;
-const rawData = transactionInfo.raw_data;
-let recipientAddress;
+      // Check if the transaction was successful
+      const transactionStatus =
+        transactionInfo.ret && transactionInfo.ret[0].contractRet;
+      const rawData = transactionInfo.raw_data;
+      let recipientAddress;
 
-if (transactionStatus === 'SUCCESS') {
-  // Check if there are any contract calls
-  if (rawData && rawData.contract && rawData.contract.length > 0) {
-    // Find the TriggerSmartContract type
-    const transferContract = rawData.contract.find(
-      (contract) => contract.type === "TriggerSmartContract"
-    );
+      if (transactionStatus === "SUCCESS") {
+        // Check if there are any contract calls
+        if (rawData && rawData.contract && rawData.contract.length > 0) {
+          // Find the TriggerSmartContract type
+          const transferContract = rawData.contract.find(
+            (contract) => contract.type === "TriggerSmartContract"
+          );
 
-    if (transferContract) {
-      // Extract the data field
-      const data = transferContract.parameter.value.data;
-      if (data && data.length >= 72) { // Minimum length check: 8 (function signature) + 64 (address)
-        // Extract recipient address from data (skipping the first 8 characters for function signature)
-        const recipientAddressHex = '41' + data.substring(8, 72); // Add '41' TRON prefix and take address from 8-72
+          if (transferContract) {
+            // Extract the data field
+            const data = transferContract.parameter.value.data;
+            console.log("Raw Transaction Data:", data);
 
-        // Log the extracted hex address for debugging
-        console.log("Extracted Hex Address:", recipientAddressHex);
+            if (data && data.length >= 72) {
+              // Minimum length check: 8 (function signature) + 64 (address)
+              // Extract recipient address from data (skipping the first 8 characters for function signature)
+              const recipientAddressHex = "41" + data.substring(8, 72); // Add '41' TRON prefix and take address from 8-72
 
-        // Convert hex address to base58 (TRON address)
-        try {
-          recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
-          console.log("Recipient Address in Base58:", recipientAddress);
-        } catch (error) {
-          console.error("Error in address conversion:", error);
+              // Log extracted hex address for debugging
+              console.log("Extracted Hex Address:", recipientAddressHex);
+
+              // Convert hex address to base58 (TRON address)
+              try {
+                recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
+                console.log("Recipient Address in Base58:", recipientAddress);
+              } catch (error) {
+                console.error("Error in address conversion:", error);
+              }
+            } else {
+              console.log(
+                "Data field does not contain a valid recipient address."
+              );
+            }
+          } else {
+            console.log("No TriggerSmartContract found in transaction.");
+          }
+        } else {
+          console.log("Invalid transaction data.");
         }
       } else {
-        console.log("Data field does not contain a valid recipient address.");
+        console.log("Transaction was not successful.");
       }
-    } else {
-      console.log("No TriggerSmartContract found in transaction.");
-    }
-  } else {
-    console.log("Invalid transaction data.");
-  }
-} else {
-  console.log("Transaction was not successful.");
-}
 
-console.log("Recipient Address Check:", recipientAddress);
+      console.log("Recipient Address Check:", recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
       if (
         expectedAmountInSun.toString() == actualAmount.toString() &&
