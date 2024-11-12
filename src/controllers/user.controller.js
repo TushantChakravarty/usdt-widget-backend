@@ -435,11 +435,11 @@ export async function getAllCoinsNew(request, reply) {
       const filteredCoins = coinsArray?.length > 0
       ? coinsArray.filter((coin) => coin.coinid === 54).map(coin => ({
           ...coin.dataValues,
-          minSellValue: 10 // Replace with actual logic
+          minSellValue: 1 // Replace with actual logic
         }))
       : coins.filter((coin) => coin.coinid === 54).map(coin => ({
           ...coin.dataValues,
-          minSellValue: 10 // Replace with actual logic
+          minSellValue: 1 // Replace with actual logic
         }));
 
 
@@ -584,7 +584,7 @@ export async function getAllNetworksNew(request, reply) {
             ...item,
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
-            minBuy: 1,
+            minBuy: networkData[0]?.minimumWithdrawal,
             minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(1) * usdt?.inrRate) : Math.ceil(300),
             inSync:true
           })
