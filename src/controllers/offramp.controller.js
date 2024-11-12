@@ -856,9 +856,14 @@ if (transactionStatus === 'SUCCESS') {
       // Log the entire contract to inspect all parameters
       console.log("Transfer Contract Parameter:", transferContract.parameter.value);
 
-      // Check if `to_address` exists in the contract parameter value
-      if (transferContract.parameter.value && transferContract.parameter.value.to_address) {
-        const recipientAddressHex = transferContract.parameter.value.to_address;
+      // Extract the 'data' field from the contract
+      const data = transferContract.parameter.value.data;
+
+      // Check if data exists and is of the expected length (64 for address and 64 for amount)
+      if (data && data.length >= 72) {
+        // Extract the recipient address (after function signature, which is the first 8 chars)
+        const recipientAddressHex = '41' + data.substring(8, 72); // Add '41' TRON prefix and take address from 8-72
+        console.log("Extracted Hex Address:", recipientAddressHex);
 
         // Convert hex address to base58 (TRON address)
         try {
@@ -868,7 +873,7 @@ if (transactionStatus === 'SUCCESS') {
           console.error("Error in address conversion:", error);
         }
       } else {
-        console.log("No 'to_address' found in the contract parameter.");
+        console.log("Data field does not contain a valid recipient address.");
       }
     } else {
       console.log("No TriggerSmartContract found in transaction.");
