@@ -133,27 +133,21 @@ async function checkTransactionStatus(txHash) {
         return;
       }
   
-      // Extract contract details from the transaction
-      const contract = transactionInfo.raw_data.contract.find(
-        (contract) => contract.type === "TriggerSmartContract"
-      );
-  
-      if (!contract) {
-        console.log("No TriggerSmartContract found in transaction.");
-        return;
-      }
-  
-      const data = contract.parameter.value.data;
-  
-      // Ensure that data exists and has the correct length for a TRC-20 transfer
-      if (data && data.length >= 72) {
-        // Extract recipient address from the data field (after the first 8 chars which is the function signature)
-        const recipientAddressHex = '41' + data.substring(8, 72); // '41' is the TRON address prefix
-        const recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
-        console.log("Recipient Address in Base58:", recipientAddress);
-        return recipientAddress;
+      // Check if there are logs with the topics
+      if (transactionInfo.log && transactionInfo.log.length > 0) {
+        // Loop through the logs to find the Transfer event
+        for (const log of transactionInfo.log) {
+          if (log.topics && log.topics[0] === "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef") {
+            // Topic 2 contains the recipient address
+            const recipientAddressHex = log.topics[2].substring(2); // Remove the "0x" prefix
+            const recipientAddress = tronWeb.address.fromHex("41" + recipientAddressHex); // Prepend '41' for TRON address
+            console.log("Recipient Address in Base58:", recipientAddress);
+            return recipientAddress;
+          }
+        }
+        console.log("No Transfer event found in logs.");
       } else {
-        console.log("Data field does not contain a valid recipient address.");
+        console.log("No logs found in transaction.");
       }
     } catch (error) {
       console.error("Error fetching or processing transaction:", error);
