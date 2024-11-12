@@ -903,7 +903,7 @@ export async function verifyTransaction(request, reply) {
             // };
             let body = {
               emailId: "test@payhub",
-              amount: transaction.fromAmount,
+              amount: transaction.toAmount,
               customer_name: "tushant",
               customer_email: request.user.email,
               customer_phone: phone,
