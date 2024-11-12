@@ -140,28 +140,35 @@ export async function getRecipientAddress(txHash) {
       console.log("Transaction was not successful.");
       return;
     }
-    console.log(transactionInfo.raw_data.contract);
-    // Check if there are logs with the topics
-    if (transactionInfo.log && transactionInfo.log.length > 0) {
-      // Loop through the logs to find the Transfer event
-      for (const log of transactionInfo.log) {
-        if (
-          log.topics &&
-          log.topics[0] ===
-            "ddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
-        ) {
-          // Topic 2 contains the recipient address
-          const recipientAddressHex = log.topics[2].substring(2); // Remove the "0x" prefix
-          const recipientAddress = tronWeb.address.fromHex(
-            "41" + recipientAddressHex
-          ); // Prepend '41' for TRON address
+
+    // Check if there are contracts in the raw data
+    if (transactionInfo.raw_data && transactionInfo.raw_data.contract && transactionInfo.raw_data.contract.length > 0) {
+      // Loop through the contracts to find the TriggerSmartContract
+      const transferContract = transactionInfo.raw_data.contract.find(
+        (contract) => contract.type === "TriggerSmartContract"
+      );
+
+      if (transferContract) {
+        const data = transferContract.parameter.value.data;
+
+        // Check if the data exists and has enough length
+        if (data && data.length >= 64) {
+          // The recipient address is typically the last 32 bytes in the data
+          const recipientAddressHex = data.substring(data.length - 64, data.length - 32); // Extract last 32 bytes for the recipient address
+          
+          // Convert the hex address to a base58 (TRON) address by prepending '41' to the hex address
+          const recipientAddress = tronWeb.address.fromHex("41" + recipientAddressHex);
+
           console.log("Recipient Address in Base58:", recipientAddress);
-          return recipientAddress;
+          return recipientAddress; // Return the recipient address
+        } else {
+          console.log("Invalid data format or insufficient data length.");
         }
+      } else {
+        console.log("No TriggerSmartContract found in raw data.");
       }
-      console.log("No Transfer event found in logs.");
     } else {
-      console.log("No logs found in transaction.");
+      console.log("Invalid transaction data.");
     }
   } catch (error) {
     console.error("Error fetching or processing transaction:", error);
