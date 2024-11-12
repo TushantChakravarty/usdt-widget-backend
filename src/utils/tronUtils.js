@@ -132,6 +132,7 @@ export async function getRecipientAddress(txHash) {
     // Fetch the transaction info from the blockchain
     const transactionInfo = await tronWeb.trx.getTransaction(txHash);
     console.log(transactionInfo.raw_data.contract[0].parameter);
+
     // Check if the transaction was successful
     if (
       !transactionInfo.ret ||
@@ -141,34 +142,21 @@ export async function getRecipientAddress(txHash) {
       return;
     }
 
-    // Check if there are contracts in the raw data
-    if (transactionInfo.raw_data && transactionInfo.raw_data.contract && transactionInfo.raw_data.contract.length > 0) {
-      // Loop through the contracts to find the TriggerSmartContract
-      const transferContract = transactionInfo.raw_data.contract.find(
-        (contract) => contract.type === "TriggerSmartContract"
-      );
+    // Get the raw data from the contract
+    const contractData = transactionInfo.raw_data.contract[0].parameter.value.data;
 
-      if (transferContract) {
-        const data = transferContract.parameter.value.data;
+    // Check if the data exists and has enough length
+    if (contractData && contractData.length >= 64) {
+      // The recipient address is typically in the bytes 8 to 40 of the data (after the 4-byte function selector)
+      const recipientAddressHex = contractData.substring(8, 72); // Get bytes 8 to 40 (padded address)
+      
+      // Convert the hex address to a base58 (TRON) address by prepending '41' to the hex address
+      const recipientAddress = tronWeb.address.fromHex("41" + recipientAddressHex);
 
-        // Check if the data exists and has enough length
-        if (data && data.length >= 64) {
-          // The recipient address is typically in the last 32 bytes of the data (after the function selector)
-          const recipientAddressHex = data.substring(64, 96); // Extract bytes 64 to 96 (the address is padded to 32 bytes)
-
-          // Convert the hex address to a base58 (TRON) address by prepending '41' to the hex address
-          const recipientAddress = tronWeb.address.fromHex("41" + recipientAddressHex);
-
-          console.log("Recipient Address in Base58:", recipientAddress);
-          return recipientAddress; // Return the recipient address
-        } else {
-          console.log("Invalid data format or insufficient data length.");
-        }
-      } else {
-        console.log("No TriggerSmartContract found in raw data.");
-      }
+      console.log("Recipient Address in Base58:", recipientAddress);
+      return recipientAddress; // Return the recipient address
     } else {
-      console.log("Invalid transaction data.");
+      console.log("Invalid data format or insufficient data length.");
     }
   } catch (error) {
     console.error("Error fetching or processing transaction:", error);
