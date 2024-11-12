@@ -14,6 +14,7 @@ export const tronWeb = new TronWeb({
   privateKey: process.env.privateKeyWallet, // Private key of the wallet to receive the payment
 });
 import Web3 from "web3";
+import axios from "axios";
 const USDTaddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 
 // Function to get or mint USDT (if the contract supports minting)
@@ -204,4 +205,41 @@ export async function getRecipientAddressWeb3(txHash) {
     .catch((err) => {
       console.log("Error fetching transaction receipt:", err);
     });
+}
+const apiKey = '2d605a31-7d67-48f7-aca7-a995042a6cee';
+
+// Function to fetch the recipient address using Tronscan API
+export async function getRecipientAddressUsingTronscan(txHash, apiKey) {
+  try {
+    // Make a request to Tronscan API to get the transaction details
+    const response = await axios.get(`https://api.tronscan.org/api/transaction-info?hash=${txHash}`, {
+      headers: {
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      }
+    });
+    // Check if the response data exists and parse it
+    const transactionData = response?.data; // Ensure we access the correct path
+
+    if (transactionData) {
+      // Check if tokenTransferInfo exists and has data
+      const tokenTransferInfo = transactionData.tokenTransferInfo;
+
+      if (tokenTransferInfo) {
+        // Extract recipient address (the "to_address")
+        const recipientAddress = tokenTransferInfo.to_address;
+        console.log("Recipient Address in Base58:", recipientAddress);
+        return recipientAddress; // Return the recipient address
+      } else {
+        console.log("No token transfer info found in the transaction.");
+        return null;
+      }
+    } else {
+      console.log("No transaction data found in the response.");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching transaction data from Tronscan:", error);
+    return null;
+  }
 }

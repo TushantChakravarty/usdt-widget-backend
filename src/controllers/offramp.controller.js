@@ -35,7 +35,7 @@ import { generateRandomFiatId, generateTransactionId } from "../utils/utils.js";
 //   createPayoutBankRequest,
 //   generateToken,
 // } from "../ApiCalls/globalpay.js";
-import { getRecipientAddress, tronWeb, walletAddress } from "../utils/tronUtils.js";
+import { getRecipientAddress, getRecipientAddressUsingTronscan, tronWeb, walletAddress } from "../utils/tronUtils.js";
 import {
   createPayoutBankRequestPayhub,
   generateToken,
@@ -841,7 +841,7 @@ export async function verifyTransaction(request, reply) {
       // Check if the transaction was successful
       const transactionStatus = transactionInfo.ret[0].contractRet;
       const rawData = transactionInfo.raw_data;
-      let recipientAddress = await getRecipientAddress(txHash)
+      let recipientAddress = await getRecipientAddressUsingTronscan(txHash)
       // Check if there are any contract calls
       // if (rawData && rawData.contract && rawData.contract.length > 0) {
       //   // Assuming the transaction is a transfer, find the contract type 'TransferContract'
