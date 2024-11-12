@@ -846,7 +846,7 @@ export async function verifyTransaction(request, reply) {
       if (rawData && rawData.contract && rawData.contract.length > 0) {
         // Assuming the transaction is a transfer, find the contract type 'TransferContract'
         const transferContract = rawData.contract.find(
-          (contract) => contract.type === "TransferContract"
+          (contract) => contract.type === "TriggerSmartContract"
         );
 
         if (transferContract) {
