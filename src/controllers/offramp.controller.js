@@ -810,7 +810,7 @@ export async function verifyTransaction(request, reply) {
 
       if (transactionInfo.raw_data.contract[0].type === "TransferContract") {
         // Native TRX transfer
-        console.log("contract native");
+        console.log('contract native')
         actualAmount =
           transactionInfo.raw_data.contract[0].parameter.value.amount;
       } else if (
@@ -818,54 +818,51 @@ export async function verifyTransaction(request, reply) {
       ) {
         // Token transfer (e.g., USDT)
         const data = transactionInfo.raw_data.contract[0].parameter.value.data;
-        console.log("contract smart");
-        if (data && data.length >= 64) {
-          // If the data is present directly, get the amount from the last 32 characters
-          const amountHex = data.substring(data.length - 32);
-          actualAmount = BigInt(`0x${amountHex}`);
-        } else {
-          // Fallback: If data is not directly accessible, use raw_data_hex to extract the amount
-          const rawDataHex = transactionInfo.raw_data_hex;
-          const amountHex = rawDataHex.substring(
-            rawDataHex.length - 64,
-            rawDataHex.length - 32
-          );
-          actualAmount = BigInt(`0x${amountHex}`);
-        }
+        console.log('contract smart')
+    if (data && data.length >= 64) {
+        // If the data is present directly, get the amount from the last 32 characters
+        const amountHex = data.substring(data.length - 32);
+        actualAmount = BigInt(`0x${amountHex}`);
+    } else {
+        // Fallback: If data is not directly accessible, use raw_data_hex to extract the amount
+        const rawDataHex = transactionInfo.raw_data_hex;
+        const amountHex = rawDataHex.substring(rawDataHex.length - 64, rawDataHex.length - 32);
+        actualAmount = BigInt(`0x${amountHex}`);
+    }
       }
 
       const expectedAmountInSun = fromAmount * 1000000;
-      console.log(
-        "check check",
-        expectedAmountInSun.toString(),
-        actualAmount.toString()
-      );
+      console.log("check check", expectedAmountInSun.toString(), actualAmount.toString());
       if (expectedAmountInSun.toString() !== actualAmount.toString()) {
         return reply
           .status(400)
           .send(responseMappingError(400, `invalid amount`));
       }
-      // Check if the transaction was successful
-      const transactionStatus =
-        transactionInfo.ret && transactionInfo.ret[0].contractRet;
+      const transactionStatus = transactionInfo.ret && transactionInfo.ret[0].contractRet;
       const rawData = transactionInfo.raw_data;
       let recipientAddress;
-
-      if (transactionStatus === "SUCCESS") {
+      
+      if (transactionStatus === 'SUCCESS') {
         // Check if there are any contract calls
         if (rawData && rawData.contract && rawData.contract.length > 0) {
           // Find the TriggerSmartContract type
           const transferContract = rawData.contract.find(
             (contract) => contract.type === "TriggerSmartContract"
           );
-
+      
           if (transferContract) {
+            // Log the full contract parameter object for debugging
+            console.log("Transfer Contract Parameter:", transferContract.parameter);
+      
             // Get the parameter containing the recipient address in hex
-            const recipientAddressHex =
-              transferContract.parameter.value.to_address;
-
-            // Convert the hex address to a base58 (TRON) address
-            recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
+            const recipientAddressHex = transferContract.parameter.value.to_address;
+      
+            if (recipientAddressHex) {
+              // Convert the hex address to a base58 (TRON) address
+              recipientAddress = tronWeb.address.fromHex(recipientAddressHex);
+            } else {
+              console.log("Recipient address (to_address) not found in the transaction parameter.");
+            }
           } else {
             console.log("No TriggerSmartContract found in transaction.");
           }
@@ -875,7 +872,7 @@ export async function verifyTransaction(request, reply) {
       } else {
         console.log("Transaction was not successful.");
       }
-
+      
       console.log("Recipient Address Check:", recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
       if (
