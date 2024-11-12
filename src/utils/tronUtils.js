@@ -50,7 +50,7 @@ export async function transferUSDT(receiverAddress, amount) {
   
       // Convert the amount to the smallest unit (JST uses 6 decimals)
      // const amountInSun = tronWeb.toSun(amount);
-  
+      console.log(amount)
       // Initiate the transfer and get the transaction hash
       const txHash = await contract.methods.transfer(receiverAddress, amount).send({
         from: tronWeb.defaultAddress.base58,
