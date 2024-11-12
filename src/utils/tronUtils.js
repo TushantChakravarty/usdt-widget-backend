@@ -153,9 +153,9 @@ export async function getRecipientAddress(txHash) {
 
         // Check if the data exists and has enough length
         if (data && data.length >= 64) {
-          // The recipient address is typically the last 32 bytes in the data
-          const recipientAddressHex = data.substring(data.length - 64, data.length - 32); // Extract last 32 bytes for the recipient address
-          
+          // The recipient address is typically in the last 32 bytes of the data (after the function selector)
+          const recipientAddressHex = data.substring(64, 96); // Extract bytes 64 to 96 (the address is padded to 32 bytes)
+
           // Convert the hex address to a base58 (TRON) address by prepending '41' to the hex address
           const recipientAddress = tronWeb.address.fromHex("41" + recipientAddressHex);
 
