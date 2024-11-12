@@ -32,7 +32,7 @@ import amqp from 'amqplib'
 import cron from './utils/cron/index.js'
 import { responseMappingError } from './utils/responseMapper.js'
 import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
-import { transferUSDT } from './utils/tronUtils.js'
+import { getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
 /**
@@ -45,7 +45,7 @@ export const server = Fastify({
 //generateTransaction()
 //createTronWallet()
 //verifyTransaction()
-
+//getRecipientAddressWeb3('0x5a8f3817af2446afdc359d5ba7280e7d3f7b93c4feb57fd6d711abe25c457f93')
 server.setErrorHandler(function (error, request, reply) {
   // Check if it's a validation error
   if (error.validation && error.validation.length > 0) {
