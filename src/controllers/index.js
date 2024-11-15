@@ -7,9 +7,10 @@ import * as User from "./user.controller.js"
 import * as Callback from "./callback.controller.js"
 import * as Onramp from "./onramp.controller.js"
 import * as Offramp from "./offramp.controller.js"
+import * as Admin from "./admin.controller.js"
 
 const Controller = {
-    User, Callback, Onramp, Offramp
+    User, Callback, Onramp, Offramp,Admin
 }
 
 export default Controller

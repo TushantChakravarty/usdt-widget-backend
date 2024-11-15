@@ -5,8 +5,10 @@
  */
 import * as User from "./user/user.validator.js"
 import * as Offramp from "./user/offramp.validator.js"
+import * as Admin from "./admin/admin.validator.js"
+
 const Validator = {
-    User, Offramp
+    User, Offramp, Admin
 };
 
 export default Validator;

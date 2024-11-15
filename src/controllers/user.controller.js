@@ -12,14 +12,14 @@ import {
 } from "../utils/responseMapper.js";
 import { Currencies } from "../utils/currencies.js";
 import { networks } from "../utils/networks.js";
-import { findRecord } from "../Dao/dao.js";
+import { findRecord, getFee } from "../Dao/dao.js";
 import { Sequelize } from "sequelize";
 import { countryCodes } from "../utils/countryCodes.js";
 import { generateRandomCustomerId } from "../utils/utils.js";
 import { CoinsData } from "../../blockchainData/coins_data.js";
 import { AllNetworksData } from "../../blockchainData/network_data.js";
 
-const { User, Coin, OnRampTransaction, Usdt,Otp } = db;
+const { User, Coin, OnRampTransaction, Usdt,Otp, Fees } = db;
 /**
  * Registers a new user.
  * @controller user
@@ -945,15 +945,6 @@ export async function getQuotes(request, reply) {
 export async function getQuotesNew(request, reply) {
   try {
     const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } = request.body
-    const apiKey = process.env.apiKey;
-    const secret = process.env.secret;
-    let body ={
-      fromCurrency: fromCurrency,
-      toCurrency: toCurrency,
-      fromAmount: fromAmount,
-      chain: chain,
-      paymentMethodType: paymentMethodType
-    }
     const dataNet = networks
     let updatedData = []
     const coinData = await Coin.findOne({
@@ -985,7 +976,20 @@ export async function getQuotesNew(request, reply) {
     const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
     if(minWithdrawl.minBuyInRupee>fromAmount)
     return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
+  const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`)
 
+    if(cachedData){
+      let data_cache = await JSON.parse(cachedData);
+      console.log(data_cache);
+      if(data_cache.data)
+      {
+        let updatedData = data_cache.data
+        updatedData.feeInUsdt = Number(data_cache?.data?.fees[0]?.gasFee)/Number(data_cache?.data?.rate)
+        return reply
+        .status(200)
+        .send(responseMappingWithData(200, "success", updatedData));
+    }
+    }
     // const timestamp = Date.now().toString();
     // const obj = {
     //   body,
@@ -1043,7 +1047,8 @@ export async function getQuotesNew(request, reply) {
     // let data = await response.json();
     // console.log(data);
     const TronData = updatedData.filter((item)=>item.chainSymbol == chain)
-    const platformfee = 0.0025
+    const feesData = await getFee()
+    const platformfee = feesData?feesData.onRampFee?.platformFee:0.0025
     const onRampFee = Number(fromAmount)*platformfee
     const toAmountUsdt = (Number(fromAmount)/usdt.inrRate) - ((Number(fromAmount)*platformfee)/usdt.inrRate) - TronData[0].fee
    

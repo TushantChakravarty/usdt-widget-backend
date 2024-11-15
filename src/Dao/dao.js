@@ -1,3 +1,6 @@
+import db from "../models/index.js";
+const { Fees } = db;
+
 export const findOneAndUpdate = async (Model, query, updateObj) => {
   try {
     // Find the record based on the query
@@ -57,4 +60,28 @@ export const findAllRecord = async (Model, query) => {
     throw error;  // Handle errors as needed
   }
 };
+
+export const getFee = async () => {
+  // Try to find the existing fee record
+  let fee = await Fees.findOne();
+
+  // If no record exists, create a default one
+  if (!fee) {
+      fee = await Fees.create({
+          onrampFee: {
+              platformFee: 2.5, // Default platform fee
+          },
+          offrampFee: {
+              offrampFeePercentage: 1.5,
+              gatewayFeePercentage: 2.0,
+              tdsFeePercentage: 0.5,
+          },
+      });
+  }
+
+  // Return the existing or newly created fee record
+  return fee;
+};
+
+
 
