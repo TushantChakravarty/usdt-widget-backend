@@ -69,6 +69,15 @@ const routes = async (route, options) => {
     handler: admin.getUsersOfframpTransactions,
   });
 
+   /**
+   * Route for admin get all users transactions.
+   * Handles getting all users transaction data.
+   */
+   route.get("/getUsersTransactions", {
+    preValidation: [validateAdminToken, validateRole(["master_admin"])],
+    handler: admin.getUsersTransactions,
+  });
+
   /**
    * Route for getting fees data.
    * Handles getting all fees data.
@@ -78,6 +87,17 @@ const routes = async (route, options) => {
     handler: admin.getFeesData,
   });
 
+
+    /**
+   * Route for getting fees data.
+   * Handles getting all fees data.
+   */
+    route.get("/getRates", {
+      preValidation: [validateAdminToken, validateRole(["master_admin"])],
+      handler: admin.getRatesData,
+    });
+  
+
   /**
    * Route for getting fees data.
    * Handles getting all fees data.
@@ -85,7 +105,7 @@ const routes = async (route, options) => {
   route.post("/updateFees", {
     schema: Validator.Admin.updateFeeSchema,
     preValidation: [validateAdminToken, validateRole(["master_admin"])],
-    handler: admin.updateFeesData,
+    handler: admin.updateFeesAndRatesData,
   });
 };
 

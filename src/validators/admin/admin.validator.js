@@ -48,11 +48,13 @@ export const updateFeeSchema = {
         properties: {
             onrampFee: { type: 'object' },
             offrampFee: { type: 'object' },
+            rates:{ type: 'object' }
         },
         additionalProperties: false,
         anyOf: [
             { required: ['onrampFee'] },
             { required: ['offrampFee'] },
+            { required: ['rates'] }
         ],
     },
 };
