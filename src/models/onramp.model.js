@@ -16,7 +16,8 @@ export default (sequelize, DataTypes) => {
             },
             reference_id: {
                 type: DataTypes.STRING,
-                allowNull: false
+                allowNull: false,
+                unique: true 
             },
             transaction_id: {
                 type: DataTypes.UUID,

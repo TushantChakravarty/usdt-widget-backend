@@ -5,17 +5,16 @@ export default (sequelize, DataTypes) => {
     class Payin extends Model {
         static associate(models) {
             // define association here
-            // Payin.belongsTo(models.OnRampTransaction, {
-            //     foreignKey: "reference_id",
-            //     targetKey: "reference_id", // match the target key
-            //     onDelete: "CASCADE",  // Optional: cascade deletes if the transaction is deleted
-            // });
+            Payin.belongsTo(models.OnRampTransaction, {
+                foreignKey: "reference_id",
+                targetKey: "reference_id", // match the target key
+                onDelete: "CASCADE",  // Optional: cascade deletes if the transaction is deleted
+            });
         }
     }
 
     Payin.init(
         {
-            
             name: {
                 type: DataTypes.STRING,
                 allowNull: false
@@ -38,7 +37,11 @@ export default (sequelize, DataTypes) => {
             },
             transaction_id: {
                 type: DataTypes.STRING,
-                allowNull: false
+                allowNull: false,
+                references: {
+                    model: 'on_ramp_transactions', // should match the name in OnRampTransaction
+                    key: 'reference_id',
+                }
             },
             user_id:{
                 type: DataTypes.STRING,

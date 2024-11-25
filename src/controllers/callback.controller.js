@@ -2,7 +2,7 @@ import { findOneAndUpdate, findRecord } from "../Dao/dao.js";
 import db from "../models/index.js";
 import { verifyTransactionDetails } from "./onramp.controller.js";
 
-const { User, OnRampTransaction, OffRampTransaction, Payout } = db;
+const { User, OnRampTransaction, OffRampTransaction, Payout, Payin } = db;
 
 /**
  * get otp callback kyc.
@@ -357,21 +357,28 @@ export async function offrampCallbackGsx(request, reply) {
 export async function onrampCallback(request, reply) {
   console.log("onramp callback",request.body);
   const data = request.body
-  const {
-    transaction_id,
-    amount,
-    status,
-    transaction_date,
-    utr,
-    usdtRate,
-    customer_id,
-    usdtValue,
-  } = request.body;
+  const transaction_id =data?.order_data?.order_id.toString()
+  const amount = data.order_data?.purchase_details?.order_amount
+  const status = data?.order_data?.payment_data?.payment_status.toLowerCase()
+  const utr =data.order_data?.payment_data.bank_refrance_number
+  // const {
+  //   transaction_id,
+  //   amount,
+  //   status,
+  //   transaction_date,
+  //   utr,
+  //   usdtRate,
+  //   customer_id,
+  //   usdtValue,
+  // } = request.body;
 
  
   const transaction = await findRecord(OnRampTransaction, {
     reference_id: transaction_id,
   });
+  const payin = await findRecord(Payin,{
+    transaction_id:transaction_id
+  })
   if(!transaction.reference_id)
   {
     reply.status(400).send({ message: "Tx not found" });
@@ -384,7 +391,12 @@ export async function onrampCallback(request, reply) {
       transaction.status = "SUCCESS";
       transaction.utr = utr
       transaction.amount = amount
+      payin.status ="SUCCESS",
+      payin.utr = utr
+      payin.amount = amount
+      payin.save()
       const updatedOnramp = await transaction.save();
+
       console.log("updated tx", updatedOnramp);
     //   console.log("updated payout", updatedPayout);
       if (updatedOnramp) {
@@ -396,6 +408,9 @@ export async function onrampCallback(request, reply) {
       transaction.status = "FAILED";
       transaction.utr = utr
       transaction.amount = amount
+      payin.status ="FAILED",
+      payin.utr = utr
+      payin.amount = amount
       const updatedOnramp = await transaction.save();
     //   console.log("updated tx", updatedOfframp);
     //   console.log("updated payout", updatedPayout);

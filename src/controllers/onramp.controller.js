@@ -167,10 +167,11 @@ export async function onRampRequest(request, reply) {
           customer_id:request.user.customerId,
           transaction_id:response?.data?.transaction_id,
           user_id:request.user.id,
+          // reference_id:response?.data?.transaction_id
 
         }
-        const payin = await Payin.create(bodyData)
         const transaction = await OnRampTransaction.create(updateObj)
+        const payin = await Payin.create(bodyData)
         if(transaction&&payin)
         {
 
