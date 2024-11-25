@@ -12,8 +12,9 @@ import { findOneAndUpdate, findRecord } from "../Dao/dao.js";
 import { createPayinBankRequest, generateToken } from "../ApiCalls/payhub.js";
 import { transferUSDT, tronWeb} from "../utils/tronUtils.js";
 import { AllNetworksData } from "../../blockchainData/network_data.js";
+import { createCardPaymentRequest, processKwikpaisaPageRequest } from "../gateways/kwikpaisa.js";
 
-const { User, Coin, OnRampTransaction, Usdt } = db;
+const { User, Coin, OnRampTransaction, Usdt, Payin } = db;
 
 export async function getAllOnRampTransaction(request, reply) {
     try {
@@ -135,21 +136,21 @@ export async function onRampRequest(request, reply) {
         rate: rate
       }
   
-     const userData = await generateToken()
+     //const userData = await generateToken()
    
      const phone = request.user.phone.replace("+91-", "");
 
      let bodyPayin ={
-        "emailId": process.env.payhubUsername,
         "amount": fromAmount,
         "username": request.user.email,
         "customer_email": request.user.email,
         "phone":phone
      }
-     const response = await createPayinBankRequest(userData.responseData,bodyPayin)
+     //const response = await createPayinBankRequest(userData.responseData,bodyPayin)
+     const response = await processKwikpaisaPageRequest(bodyPayin)
      console.log("resp check",response)
      
-      if(response?.responseData?.transaction_id)
+      if(response?.data?.transaction_id)
       {
         let updateObj = {
             ...body,
@@ -157,15 +158,25 @@ export async function onRampRequest(request, reply) {
           }
   
         updateObj.user_id = request.user.id,
-        updateObj.reference_id = response.responseData.transaction_id
-        
+        updateObj.reference_id = response?.data?.transaction_id
+        const bodyData ={
+          name:request.user.email,
+          email:request.user.email,
+          phone:phone,
+          amount:fromAmount,
+          customer_id:request.user.customerId,
+          transaction_id:response?.data?.transaction_id,
+          user_id:request.user.id,
+
+        }
+        const payin = await Payin.create(bodyData)
         const transaction = await OnRampTransaction.create(updateObj)
-        if(transaction)
+        if(transaction&&payin)
         {
 
             return reply
             .status(200)
-            .send(responseMappingWithData(200, "success", response.responseData));
+            .send(responseMappingWithData(200, "success", response.data));
         }else{
             return reply.status(500).send(responseMappingError(500, "Unable to process your request at the moment"))
             
