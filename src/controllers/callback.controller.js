@@ -355,7 +355,7 @@ export async function offrampCallbackGsx(request, reply) {
 }
 
 export async function onrampCallback(request, reply) {
-  console.log(request.body);
+  console.log("onramp callback",request.body);
   const data = request.body
   const {
     transaction_id,
