@@ -453,10 +453,10 @@ export async function createCardPaymentRequest(details) {
       customerPhone: phone,
       customerAddressLine1: customer_address
         ? customer_address
-        : "Capital Office, Kemp House",
+        : "cannaught place",
       customerAddressLine2: customer_address
         ? customer_address
-        : "152 - 160 City Road",
+        : "cannaught place",
       customerAddressCity: city ? city : "delhi",
       customerAddressState: state ? state : "delhi",
       customerAddressCountry: "INDIA",
