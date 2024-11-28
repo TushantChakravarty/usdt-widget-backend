@@ -84,12 +84,12 @@ export const findCombinedRecords = async (Model1, Model2, options) => {
     const modifiedData2 = data2.map((item) => ({ ...item.dataValues, type: "onramp" }));
 
     // Combine the modified data arrays
-    let combinedData = [...modifiedData2, ...modifiedData1];
+    let combinedData = [...modifiedData1, ...modifiedData2];
 
     // Sort the combined data based on the provided sort field and order
     combinedData = combinedData.sort((a, b) => {
-      const valueA = new Date(a[sortField]);
-      const valueB = new Date(b[sortField]);
+      const valueA = new Date(a['date']);
+      const valueB = new Date(b['date']);
 
       if (sortOrder === "asc") {
         return valueA - valueB; // Ascending order
