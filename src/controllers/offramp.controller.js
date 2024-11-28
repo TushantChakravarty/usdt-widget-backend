@@ -18,6 +18,7 @@ import {
   findAllRecord,
   findOneAndUpdate,
   findRecord,
+  getFee,
 } from "../Dao/dao.js";
 import { ethers } from "ethers";
 import {
@@ -1105,23 +1106,40 @@ export async function getQuotesNew(request, reply) {
     const cachedData = await request.server.redis.get(
       `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`
     );
+
+    if (cachedData) {
+      let data_cache = await JSON.parse(cachedData);
+      //console.log(data_cache);
+      if (data_cache.data) {
+        let updatedData = data_cache.data;
+        updatedData.feeInUsdt = (
+          Number(data_cache?.data?.fees[0]?.tdsFee) /
+          Number(data_cache?.data?.rate)
+        ).toFixed(2);
+        return reply
+          .status(200)
+          .send(responseMappingWithData(200, "success", updatedData));
+      }
+    }
+
     const usdtRate = usdt.inrRateOfframp; // constant exchange rate
     let onrampFeePercentage, gatewayFeePercentage, tdsFeePercentage;
 
     // Conditional percentages based on fromAmount
+    const feeData = await getFee()
     if (fromAmount === 10) {
-      onrampFeePercentage = 0.3;
-      gatewayFeePercentage = 0.96;
-      tdsFeePercentage = 1.003;
+      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage: 0.3;
+      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage: 0.96;
+      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:1.003;
     } else if (fromAmount > 10) {
-      onrampFeePercentage = 0.272;
-      gatewayFeePercentage = 0.943;
-      tdsFeePercentage = 0.988;
+      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage:0.272;
+      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage:0.943;
+      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:0.988;
     } else {
       // Set default values if needed
-      onrampFeePercentage = 0.3;
-      gatewayFeePercentage = 0.96;
-      tdsFeePercentage = 1.003;
+      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage:0.3;
+      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage:0.96;
+      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:1.003;
     }
 
     // Calculate fees
@@ -1158,37 +1176,6 @@ export async function getQuotesNew(request, reply) {
       },
     };
     console.log(offrampAmount);
-    // if (cachedData) {
-    //   let data_cache = await JSON.parse(cachedData);
-    //   //console.log(data_cache);
-    //   if (data_cache.data) {
-    //     let updatedData = data_cache.data;
-    //     updatedData.feeInUsdt = (
-    //       Number(data_cache?.data?.fees[0]?.tdsFee) /
-    //       Number(data_cache?.data?.rate)
-    //     ).toFixed(2);
-    //     return reply
-    //       .status(200)
-    //       .send(responseMappingWithData(200, "success", updatedData));
-    //   }
-    // }
-
-    // const url =
-    //   "https://api.onramp.money/onramp/api/v2/whiteLabel/offramp/quote";
-
-    // const response = await fetch(url, {
-    //   method: "POST",
-    //   headers: headers,
-    //   body: JSON.stringify(body),
-    // });
-
-    // if (!response.ok) {
-    //   // Handle HTTP errors, e.g., 404, 500, etc.
-    //   console.log(await response.json());
-    //   throw new Error(`HTTP error! Status: ${response.status}`);
-    // }
-
-    // let data = await response.json();
 
     const enter = await request.server.redis.set(
       `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`,
