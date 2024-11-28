@@ -545,14 +545,12 @@ async function initiatePayoutBankRequest(
   appId,
   secretKey,
   kwikXWalletID,
-  payoutDetails,
-  userData
-) {
+  payoutDetails) {
   const payload = {
     kwikx_wallet_id: kwikXWalletID,
     debit_account_type: "kwikx_wallet",
     transfer_type: "direct",
-    beneficiary_id: String(userData._id), // You can pass actual beneficiary_id if needed
+    beneficiary_id: String(details._id), // You can pass actual beneficiary_id if needed
     mobile: payoutDetails.customer_phone,
     email: payoutDetails.customer_email,
     address: null, // Address can be set if available
@@ -650,7 +648,7 @@ async function initiatePayoutUPIRequest(
   }
 }
 
-async function createInstantPayoutBankRequest(details,dao,mapper,userData,usrConst,gateway) {
+export async function createInstantPayoutBankRequest(details) {
   try {
     console.log(
       process.env.KWIKPAISAAPPIDPAYOUTS,
@@ -667,46 +665,46 @@ async function createInstantPayoutBankRequest(details,dao,mapper,userData,usrCon
     {
 
      
-      const timeElapsed = Date.now();
-      const today = new Date(timeElapsed);
-      const updateDetails = {
-        uuid: userData._id,
-        transactionId: response.unique_system_order_id,
-        merchant_ref_no: response.merchant_payout_order_id,
-        amount: details?.amount,
-        currency: "inr",
-        country: "india",
-        status: "pending",
-        transaction_type: "payout",
-        transaction_date: today.toISOString(),
-        gateway: gateway,
-        phone: details?.phone,
-        customer_name: details?.customer_name,
-        upiId: details?.customer_upiId,
-        account_number: details?.account_number,
-        account_name: details?.account_name,
-        ifsc_code: details?.bank_ifsc,
-        bank_name: details?.bank_name,
-        customer_email: details?.customer_email,
-        business_name: userData.business_name,
-        payoutAmount: details?.amount,
-        comission: 0,
-        utr:'',
-        method:'bank'
+      // const timeElapsed = Date.now();
+      // const today = new Date(timeElapsed);
+    //   const updateDetails = {
+    //     uuid: userData._id,
+    //     transactionId: response.unique_system_order_id,
+    //     merchant_ref_no: response.merchant_payout_order_id,
+    //     amount: details?.amount,
+    //     currency: "inr",
+    //     country: "india",
+    //     status: "pending",
+    //     transaction_type: "payout",
+    //     transaction_date: today.toISOString(),
+    //     gateway: gateway,
+    //     phone: details?.phone,
+    //     customer_name: details?.customer_name,
+    //     upiId: details?.customer_upiId,
+    //     account_number: details?.account_number,
+    //     account_name: details?.account_name,
+    //     ifsc_code: details?.bank_ifsc,
+    //     bank_name: details?.bank_name,
+    //     customer_email: details?.customer_email,
+    //     business_name: userData.business_name,
+    //     payoutAmount: details?.amount,
+    //     comission: 0,
+    //     utr:'',
+    //     method:'bank'
 
-      };
-     const updated = await dao.createTransaction(updateDetails);
-     let query = {
-      emailId: userData.emailId,
-    };
-     const user = await dao.getUserDetails(query)
-     const admin = await adminDao.getUserDetails({
-      emailId:'samir123@payhub'
-     })
-     user.payoutBalance = Number(user.payoutBalance) - Number(details.amount)
-     admin.payoutsBalance = Number(admin.payoutsBalance) - Number(details.amount)
-     const updatedUser = await user.save()
-     const adminUpdated = await admin.save()
+    //   };
+    //  const updated = await dao.createTransaction(updateDetails);
+    //  let query = {
+    //   emailId: userData.emailId,
+    // };
+    //  const user = await dao.getUserDetails(query)
+    //  const admin = await adminDao.getUserDetails({
+    //   emailId:'samir123@payhub'
+    //  })
+    //  user.payoutBalance = Number(user.payoutBalance) - Number(details.amount)
+    //  admin.payoutsBalance = Number(admin.payoutsBalance) - Number(details.amount)
+    //  const updatedUser = await user.save()
+    //  const adminUpdated = await admin.save()
     // console.log(updatedUser,adminUpdated)
      if (updated) {
       return mapper.responseMappingWithData(

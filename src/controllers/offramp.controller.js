@@ -40,6 +40,7 @@ import {
   createPayoutBankRequestPayhub,
   generateToken,
 } from "../ApiCalls/payhub.js";
+import { createInstantPayoutBankRequest } from "../gateways/kwikpaisa.js";
 
 const {
   User,
@@ -928,10 +929,11 @@ export async function verifyTransaction(request, reply) {
             //   body
             // );
 
-            const payoutRequest = await createPayoutBankRequestPayhub(
-              response.responseData,
-              body
-            );
+            // const payoutRequest = await createPayoutBankRequestPayhub(
+            //   response.responseData,
+            //   body
+            // );
+            const payoutRequest = await createInstantPayoutBankRequest(body)
             console.log(payoutRequest);
             if (
               payoutRequest.responseCode == 200 &&
