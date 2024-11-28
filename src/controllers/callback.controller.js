@@ -298,16 +298,20 @@ export async function callbackHandler(request, reply) {
 
 export async function offrampCallbackGsx(request, reply) {
   console.log(request.body);
-  const {
-    transaction_id,
-    amount,
-    status,
-    transaction_date,
-    utr,
-    usdtRate,
-    customer_id,
-    usdtValue,
-  } = request.body;
+  const details = request.body
+  const transaction_id = details.unique_system_order_id
+  const status = details.status
+  const utr = details.tranfer_rrn_number
+  // const {
+  //   transaction_id,
+  //   amount,
+  //   status,
+  //   transaction_date,
+  //   utr,
+  //   usdtRate,
+  //   customer_id,
+  //   usdtValue,
+  // } = request.body;
   const payoutTx = await findRecord(Payout, {
     transaction_id: transaction_id,
   });

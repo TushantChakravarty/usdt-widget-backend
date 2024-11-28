@@ -706,19 +706,13 @@ export async function createInstantPayoutBankRequest(details) {
     //  const updatedUser = await user.save()
     //  const adminUpdated = await admin.save()
     // console.log(updatedUser,adminUpdated)
-     if (updated) {
+    
       return responseMappingWithData(
         200,
         "success",
         {message:"Payment request submitted",transaction_id:response.unique_system_order_id}
       );
-    } else {
-      return responseMappingWithData(
-       500,
-       "Internal server error",
-        "Unable to process transaction at the moment"
-      );
-    }
+   
     }else{
       return responseMappingWithData(
         500,

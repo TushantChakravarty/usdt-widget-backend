@@ -798,7 +798,12 @@ export async function verifyTransaction(request, reply) {
         .send(responseMappingError(400, `Transaction belongs to another user`));
     }
 
-    const transactionInfo = await tronWeb.trx.getTransaction(txHash);
+    const transactionInfo = await tronWeb.trx.getTransaction(txHash)
+    .catch((error)=>{
+      return reply
+      .status(400)
+      .send(responseMappingError(404, `Transaction not found.`));
+    })
     console.log(transactionInfo);
     if (!transactionInfo || !transactionInfo.txID) {
       console.log("Transaction not found.");
@@ -938,8 +943,8 @@ export async function verifyTransaction(request, reply) {
             const payoutRequest = await createInstantPayoutBankRequest(body)
             console.log(payoutRequest);
             if (
-              payoutRequest.responseCode == 200 &&
-              payoutRequest.responseData.transaction_id
+              payoutRequest.code == 200 &&
+              payoutRequest.data.transaction_id
             ) {
               let updatedData = {
                 name: fiatAccount.account_name,
@@ -953,13 +958,13 @@ export async function verifyTransaction(request, reply) {
                 customer_id: request.user.customerId,
               };
               updatedData.transaction_id =
-                payoutRequest.responseData.transaction_id.toString();
+                payoutRequest.data.transaction_id.toString();
               updatedData.reference_id = reference_id.toString();
               updatedData.user_id = request.user.id;
               updatedData.txHash = txHash;
               const payoutsData = await createNewRecord(Payout, updatedData);
               transaction.payout_id =
-                payoutRequest.responseData.transaction_id.toString();
+                payoutRequest.data.transaction_id.toString();
               transaction.save();
               console.log(payoutsData);
               return reply
@@ -968,7 +973,7 @@ export async function verifyTransaction(request, reply) {
                   responseMappingWithData(
                     200,
                     "success",
-                    payoutRequest.responseData
+                    payoutRequest.data
                   )
                 );
             } else {
