@@ -910,6 +910,7 @@ export async function verifyTransaction(request, reply) {
             //   customer_id: request.user.customerId,
             // };
             let body = {
+              id:request.user.customerId,
               emailId: "test@payhub",
               amount: transaction.toAmount,
               customer_name: "tushant",

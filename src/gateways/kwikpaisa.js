@@ -546,11 +546,12 @@ async function initiatePayoutBankRequest(
   secretKey,
   kwikXWalletID,
   payoutDetails) {
+    console.log("details check",payoutDetails)
   const payload = {
     kwikx_wallet_id: kwikXWalletID,
     debit_account_type: "kwikx_wallet",
     transfer_type: "direct",
-    beneficiary_id: String(details._id), // You can pass actual beneficiary_id if needed
+    beneficiary_id: payoutDetails.id, // You can pass actual beneficiary_id if needed
     mobile: payoutDetails.customer_phone,
     email: payoutDetails.customer_email,
     address: null, // Address can be set if available
@@ -605,7 +606,7 @@ async function initiatePayoutUPIRequest(
     kwikx_wallet_id: kwikXWalletID,
     debit_account_type: "kwikx_wallet",
     transfer_type: "direct",
-    beneficiary_id: payoutDetails.customer_id, // You can pass actual beneficiary_id if needed
+    beneficiary_id: payoutDetails.id, // You can pass actual beneficiary_id if needed
     mobile: payoutDetails.phone,
     email: payoutDetails.email,
     address: null, // Address can be set if available
@@ -658,8 +659,7 @@ export async function createInstantPayoutBankRequest(details) {
       process.env.KWIKPAISAAPPIDPAYOUTS, // Your App ID
       process.env.KWIKPAISASECRETPAYOUTS, // Your Secret Key
       process.env.KWIKPAISAWALLETID,
-      details,
-      userData
+      details
     );
     if(response.code==200&&response.unique_system_order_id)
     {
@@ -707,30 +707,30 @@ export async function createInstantPayoutBankRequest(details) {
     //  const adminUpdated = await admin.save()
     // console.log(updatedUser,adminUpdated)
      if (updated) {
-      return mapper.responseMappingWithData(
-        usrConst.CODE.Success,
-        usrConst.MESSAGE.Success,
+      return responseMappingWithData(
+        200,
+        "success",
         {message:"Payment request submitted",transaction_id:response.unique_system_order_id}
       );
     } else {
-      return mapper.responseMappingWithData(
-        usrConst.CODE.INTRNLSRVR,
-        usrConst.MESSAGE.TransactionFailure,
+      return responseMappingWithData(
+       500,
+       "Internal server error",
         "Unable to process transaction at the moment"
       );
     }
     }else{
-      return mapper.responseMappingWithData(
-        usrConst.CODE.INTRNLSRVR,
-        usrConst.MESSAGE.TransactionFailure,
+      return responseMappingWithData(
+        500,
+        "Internal server error",
         "Unable to process transaction at the moment"
       );
     }
   } catch (error) {
     console.log("payout bank error kwikpaisa", error);
-    return mapper.responseMappingWithData(
-      usrConst.CODE.INTRNLSRVR,
-      usrConst.MESSAGE.TransactionFailure,
+    return responseMappingWithData(
+      500,
+      "Internal server error",
       "Unable to process transaction at the moment"
     );
   }
