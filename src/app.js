@@ -31,10 +31,25 @@ import migrateDb from './utils/db.util.js'
 import amqp from 'amqplib'
 //import cron from './utils/cron/index.js'
 import { responseMappingError } from './utils/responseMapper.js'
+import { sendFundTransferRequest } from './pkg/gennpayPayout.js' 
 import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
+
+sendFundTransferRequest(
+    '7b7d2684-ff99-46ae-9a1e-3b10fe101b6e',
+    '753235678',
+    '100.00',
+    '50100405686622',
+    'HDFC0000011',
+    'NEFT',
+    {
+        accountName: 'Shubhanshu tripathi',
+        bankName: 'HDFC',
+        bankBranch: 'VASANT VIHAR'
+    }
+  );
 /**
  * Fastify server instance
  * @type {FastifyInstance}
