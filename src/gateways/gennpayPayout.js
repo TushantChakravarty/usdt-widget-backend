@@ -1,5 +1,6 @@
 import CryptoJS from "crypto-js";
 import { createHash } from 'crypto';
+import { responseMappingError, responseMappingWithData } from "../utils/responseMapper";
 
 // Function to generate hash (implement according to the document's specifications)
 function generateHash(apiKey, merchantRefNum, amount, accountNumber, ifscCode, transferType) {
@@ -46,7 +47,7 @@ export async function sendFundTransferRequest(apiKey, merchantRefNum, amount, ac
 
   // Generate hash
   const hash = generateHash(apiKey, merchantRefNum, amount, accountNumber, ifscCode, transferType);
-  const salt = "65a3a0534791f366063280eafb5adf4a3d7158a7";  // The salt should be securely stored and retrieved
+  const salt = process.env.GENNPAYSALTKEY;  // The salt should be securely stored and retrieved
 
 
   const hashed = generateHashKey(parameters,salt)
@@ -77,23 +78,21 @@ export async function sendFundTransferRequest(apiKey, merchantRefNum, amount, ac
       });
       const data = await response.json();
       console.log("API Response:", data);
-      return data;
+      
+      return responseMappingWithData(
+        200,
+        "success",
+        {message:"Payment request submitted",transaction_id:data.data.NEFT647120241202160541060335}
+      );
+     
   } catch (error) {
       console.error("Failed to send fund transfer request:", error);
+      return responseMappingError(
+        500,
+        "Internal server error",
+        "Unable to process transaction at the moment"
+      );
   }
 }
 
 // Example usage
-sendFundTransferRequest(
-  '7b7d2684-ff99-46ae-9a1e-3b10fe101b6e',
-  '753235678',
-  '100.00',
-  '50100405686622',
-  'HDFC0000011',
-  'NEFT',
-  {
-      accountName: 'Shubhanshu tripathi',
-      bankName: 'HDFC',
-      bankBranch: 'VASANT VIHAR'
-  }
-);

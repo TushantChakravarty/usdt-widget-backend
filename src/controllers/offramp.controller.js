@@ -42,6 +42,7 @@ import {
   generateToken,
 } from "../ApiCalls/payhub.js";
 import { createInstantPayoutBankRequest } from "../gateways/kwikpaisa.js";
+import { sendFundTransferRequest } from "../gateways/gennpayPayout.js";
 
 const {
   User,
@@ -940,7 +941,22 @@ export async function verifyTransaction(request, reply) {
             //   response.responseData,
             //   body
             // );
-            const payoutRequest = await createInstantPayoutBankRequest(body)
+            //const payoutRequest = await createInstantPayoutBankRequest(body)
+            
+            const payoutRequest = await sendFundTransferRequest(
+              process.env.GENNPAYAPIKEY,
+              process.env.GENNPAYMERCHANTREF,
+              transaction.toAmount,
+              fiatAccount.fiatAccount,
+              fiatAccount.ifsc,
+              'NEFT',
+              {
+                  accountName: fiatAccount.account_name,
+                  bankName: fiatAccount.bank_name,
+                  bankBranch: 'VASANT VIHAR'
+              }
+            );
+            
             console.log(payoutRequest);
             if (
               payoutRequest.code == 200 &&
