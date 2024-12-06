@@ -78,12 +78,21 @@ export async function sendFundTransferRequest(apiKey, merchantRefNum, amount, ac
       });
       const data = await response.json();
       console.log("API Response:", data);
-      
-      return responseMappingWithData(
-        200,
-        "success",
-        {message:"Payment request submitted",transaction_id:data.data.NEFT647120241202160541060335}
-      );
+      if(data.data.status=="SUCCESS")
+      {
+
+        return responseMappingWithData(
+          200,
+          "success",
+          {message:"Payment request submitted",transaction_id:data.data.merchant_reference_number}
+          );
+        }else{
+          return responseMappingError(
+            500,
+            "Internal server error",
+            "Unable to process transaction at the moment"
+          );
+        }
      
   } catch (error) {
       console.error("Failed to send fund transfer request:", error);

@@ -942,10 +942,10 @@ export async function verifyTransaction(request, reply) {
             //   body
             // );
             //const payoutRequest = await createInstantPayoutBankRequest(body)
-            
+            const transactionID = generateTransactionId()
             const payoutRequest = await sendFundTransferRequest(
               process.env.GENNPAYAPIKEY,
-              process.env.GENNPAYMERCHANTREF,
+              transactionID,
               transaction.toAmount,
               fiatAccount.fiatAccount,
               fiatAccount.ifsc,
