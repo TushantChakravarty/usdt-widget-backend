@@ -361,9 +361,9 @@ export async function offrampCallbackGsx(request, reply) {
 export async function offrampCallbackGennpay(request, reply) {
   console.log(request.body);
   const details = request.body
-  const transaction_id = details.unique_system_order_id
+  const transaction_id = details.merchant_reference_number
   const status = details.status
-  const utr = details.tranfer_rrn_number
+  const utr = details.bank_reference_number
   // const {
   //   transaction_id,
   //   amount,

@@ -37,19 +37,19 @@ import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
 
-sendFundTransferRequest(
-    '7b7d2684-ff99-46ae-9a1e-3b10fe101b6e',
-    '7532356788',
-    '100.00',
-    '50100405686622',
-    'HDFC0000011',
-    'IMPS',
-    {
-        accountName: 'Shubhanshu tripathi',
-        bankName: 'HDFC',
-        bankBranch: 'VASANT VIHAR'
-    }
-  );
+// sendFundTransferRequest(
+//     '7b7d2684-ff99-46ae-9a1e-3b10fe101b6e',
+//     '7532356877',
+//     '100.00',
+//     '50100405686622',
+//     'HDFC0000011',
+//     'IMPS',
+//     {
+//         accountName: 'Shubhanshu tripathi',
+//         bankName: 'HDFC',
+//         bankBranch: 'VASANT VIHAR'
+//     }
+//   );
 /**
  * Fastify server instance
  * @type {FastifyInstance}
