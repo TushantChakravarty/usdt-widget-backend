@@ -1049,31 +1049,41 @@ export async function getQuotesNew(request, reply) {
     const TronData = updatedData.filter((item)=>item.chainSymbol == chain)
     const feesDataValues = await getFee()
     const feesData = feesDataValues?.dataValues?feesDataValues?.dataValues:feesDataValues
-    console.log("fee data check",feesData)
-    const platformfee = feesData?feesData.onrampFee?.platformFee:0.0025
-    const onRampFee = Number(fromAmount)*platformfee
+    console.log("fee data check", feesData);
 
-    const toAmountUsdt = (Number(fromAmount)/usdt.inrRate) - ((Number(fromAmount)*platformfee)/usdt.inrRate) - TronData[0].fee
-   
-   const quote ={
-    "fromCurrency": fromCurrency,
-    "toCurrency": toCurrency,
-    "toAmount": toAmountUsdt.toFixed(2),
-    "fromAmount": fromAmount,
-    "rate": usdt.inrRate,
-    "fees": [
-      {
-          "type": "fiat",
-          "onrampFee":onRampFee ,
-          "clientFee": "0",
-          "gatewayFee": "0",
-          "gasFee": TronData[0].fee
-      }
-    ],
-    "feeInUsdt": TronData[0].fee
-  }
-  
-  console.log("quiotess",quote)
+// Convert platform fee percentage to a decimal value
+const platformFeePercentage = feesData?.onrampFee?.platformFee || 2.5; // Default is 2.5%
+const platformFee = platformFeePercentage / 100;
+
+// Calculate the on-ramp fee
+const onRampFee = Number(fromAmount) * platformFee;
+
+// Calculate the final toAmount in USDT
+const toAmountUsdt = 
+  (Number(fromAmount) / usdt.inrRate) - 
+  ((Number(fromAmount) * platformFee) / usdt.inrRate) - 
+  TronData[0].fee;
+
+// Create the quote object
+const quote = {
+  fromCurrency: fromCurrency,
+  toCurrency: toCurrency,
+  toAmount: toAmountUsdt.toFixed(2),
+  fromAmount: fromAmount,
+  rate: usdt.inrRate,
+  fees: [
+    {
+      type: "fiat",
+      onrampFee: onRampFee.toFixed(2),
+      clientFee: "0",
+      gatewayFee: "0",
+      gasFee: TronData[0].fee.toFixed(10)
+    }
+  ],
+  feeInUsdt: TronData[0].fee.toFixed(10)
+};
+
+console.log("Corrected Quote", quote);
    const enter = await request.server.redis.set(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`,JSON.stringify(quote), 'EX', 7200);
     if(quote)
     {
