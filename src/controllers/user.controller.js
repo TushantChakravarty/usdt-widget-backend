@@ -1216,13 +1216,13 @@ export async function getQuotesNew(request, reply) {
       fees: [
         {
           type: "fiat",
-          onrampFee: onRampFee.toFixed(2),
+          onrampFee: onRampFee,
           clientFee: "0",
           gatewayFee: "0",
-          gasFee: TronData[0].fee.toFixed(10),
+          gasFee: TronData[0].fee,
         },
       ],
-      feeInUsdt: TronData[0].fee.toFixed(10),
+      feeInUsdt: TronData[0].fee,
     };
 
     console.log("Corrected Quote", quote);
