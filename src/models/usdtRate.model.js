@@ -13,12 +13,12 @@ export default (sequelize, DataTypes) => {
             inrRate: {
                 type: DataTypes.FLOAT,
                 allowNull: true,
-                //defaultValue:0.0
+                defaultValue:92
             },
             inrRateOfframp: {
                 type: DataTypes.FLOAT,
                 allowNull: true,
-                //defaultValue:0.0
+                defaultValue:85
             },
         },
         {
