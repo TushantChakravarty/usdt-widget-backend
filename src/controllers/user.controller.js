@@ -1047,7 +1047,8 @@ export async function getQuotesNew(request, reply) {
     // let data = await response.json();
     // console.log(data);
     const TronData = updatedData.filter((item)=>item.chainSymbol == chain)
-    const feesData = await getFee()
+    const feesDataValues = await getFee()
+    const feesData = feesDataValues?.dataValues?feesDataValues?.dataValues:feesDataValues
     console.log("fee data check",feesData)
     const platformfee = feesData?feesData.onRampFee?.platformFee:0.0025
     const onRampFee = Number(fromAmount)*platformfee
