@@ -1050,8 +1050,9 @@ export async function getQuotesNew(request, reply) {
     const feesDataValues = await getFee()
     const feesData = feesDataValues?.dataValues?feesDataValues?.dataValues:feesDataValues
     console.log("fee data check",feesData)
-    const platformfee = feesData?feesData.onRampFee?.platformFee:0.0025
+    const platformfee = feesData?feesData.onrampFee?.platformFee:0.0025
     const onRampFee = Number(fromAmount)*platformfee
+
     const toAmountUsdt = (Number(fromAmount)/usdt.inrRate) - ((Number(fromAmount)*platformfee)/usdt.inrRate) - TronData[0].fee
    
    const quote ={
