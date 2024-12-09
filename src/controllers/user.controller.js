@@ -976,20 +976,20 @@ export async function getQuotesNew(request, reply) {
     const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
     if(minWithdrawl.minBuyInRupee>fromAmount)
     return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
-  const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`)
+  // const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`)
 
-    if(cachedData){
-      let data_cache = await JSON.parse(cachedData);
-      console.log(data_cache);
-      if(data_cache.data)
-      {
-        let updatedData = data_cache.data
-        updatedData.feeInUsdt = Number(data_cache?.data?.fees[0]?.gasFee)/Number(data_cache?.data?.rate)
-        return reply
-        .status(200)
-        .send(responseMappingWithData(200, "success", updatedData));
-    }
-    }
+  //   if(cachedData){
+  //     let data_cache = await JSON.parse(cachedData);
+  //     console.log(data_cache);
+  //     if(data_cache.data)
+  //     {
+  //       let updatedData = data_cache.data
+  //       updatedData.feeInUsdt = Number(data_cache?.data?.fees[0]?.gasFee)/Number(data_cache?.data?.rate)
+  //       return reply
+  //       .status(200)
+  //       .send(responseMappingWithData(200, "success", updatedData));
+  //   }
+  //   }
     // const timestamp = Date.now().toString();
     // const obj = {
     //   body,
