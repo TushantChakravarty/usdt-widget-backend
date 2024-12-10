@@ -374,7 +374,7 @@ export async function getAllCoins(request, reply) {
   try {
     let coins = await Coin.findAll();
 
-    console.log("got coins", coins[0]);
+    console.log("got coins", coins);
     let coinsArray = [];
     if (coins.length <= 0) {
       let coinsData = await getAllCoinsData();
@@ -443,11 +443,13 @@ export async function getAllCoinsNew(request, reply) {
   try {
     let coins = await Coin.findAll();
 
-    console.log("got coins", coins[0]);
+    console.log("got coins", coins);
     let coinsArray = [];
     if (coins.length <= 0) {
       let coinsData = CoinsData; ////await getAllCoinsData();
-      coins = coinsData?.data;
+      console.log("clg coins json",coinsData)
+      coins = coinsData[0]?.data;
+      console.log('check', coins)
       if (coins) {
         coinsArray = Object.entries(coins).map(([coin, coinDetails]) => ({
           coin,
