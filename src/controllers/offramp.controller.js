@@ -768,14 +768,14 @@ export async function verifyTransaction(request, reply) {
         .status(400)
         .send(responseMappingError(400, `invalid amount`));
     }
-    // if (payoutHash.transaction_id) {
-    //   console.log('from here')
-    //   return reply
-    //     .status(400)
-    //     .send(
-    //       responseMappingError(400, `transaction has already been processed`)
-    //     );
-    // }
+    if (payoutHash.transaction_id) {
+      console.log('from here')
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(400, `transaction has already been processed`)
+        );
+    }
     if (transaction.txHash && transaction.txHash !== txHash) {
       return reply
         .status(400)
@@ -1057,16 +1057,16 @@ export async function getQuotesNew(request, reply) {
     const usdt = await findRecord(Usdt, query);
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
-    // if (fromAmount < 10) {
-    //   return reply
-    //     .status(500)
-    //     .send(
-    //       responseMappingError(
-    //         400,
-    //         `Amount should be greater than or equal to 10`
-    //       )
-    //     );
-    // }
+    if (fromAmount < 10) {
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be greater than or equal to 10`
+          )
+        );
+    }
     const body = {
       fromCurrency: fromCurrency,
       toCurrency: toCurrency,
@@ -1245,16 +1245,16 @@ export async function verifyQuotes(request) {
     const usdt = await findRecord(Usdt, query);
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
-    // if (fromAmount < 10) {
-    //   return reply
-    //     .status(500)
-    //     .send(
-    //       responseMappingError(
-    //         400,
-    //         `Amount should be greater than or equal to 10`
-    //       )
-    //     );
-    // }
+    if (fromAmount < 10) {
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be greater than or equal to 10`
+          )
+        );
+    }
     const body = {
       fromCurrency: fromCurrency,
       toCurrency: toCurrency,
