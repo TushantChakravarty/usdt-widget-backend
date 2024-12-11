@@ -447,7 +447,7 @@ export async function getAllCoinsNew(request, reply) {
     let coinsArray = [];
     if (coins.length <= 0) {
       let coinsData = CoinsData; ////await getAllCoinsData();
-      console.log("clg coins json",coinsData)
+      
       coins = coinsData[0]?.data;
       console.log('check', coins)
       if (coins) {

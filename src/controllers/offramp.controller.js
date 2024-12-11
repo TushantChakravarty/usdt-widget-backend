@@ -768,13 +768,14 @@ export async function verifyTransaction(request, reply) {
         .status(400)
         .send(responseMappingError(400, `invalid amount`));
     }
-    if (payoutHash.transaction_id) {
-      return reply
-        .status(400)
-        .send(
-          responseMappingError(400, `transaction has already been processed`)
-        );
-    }
+    // if (payoutHash.transaction_id) {
+    //   console.log('from here')
+    //   return reply
+    //     .status(400)
+    //     .send(
+    //       responseMappingError(400, `transaction has already been processed`)
+    //     );
+    // }
     if (transaction.txHash && transaction.txHash !== txHash) {
       return reply
         .status(400)
@@ -901,13 +902,13 @@ export async function verifyTransaction(request, reply) {
           updateDetails
         );
         if (transaction) {
-          const response = await generateToken();
-          if (response.responseData.token) {
+         
+        
             const fiatAccount = await findRecord(FiatAccount, {
               fiatAccountId: transaction.fiatAccountId,
             });
             console.log(fiatAccount);
-            console.log("token", response.responseData.token);
+          
             console.log(request.user);
             const phone = request.user.phone.replace("+91-", "");
             // let body = {
@@ -921,22 +922,22 @@ export async function verifyTransaction(request, reply) {
             //   method: "IMPS",
             //   customer_id: request.user.customerId,
             // };
-            let body = {
-              id:request.user.customerId,
-              emailId: "test@payhub",
-              amount: transaction.toAmount,
-              customer_name: "tushant",
-              customer_email: request.user.email,
-              customer_phone: phone,
-              account_number: fiatAccount.fiatAccount,
-              customer_upiId: "success@upi",
-              bank_ifsc: fiatAccount.ifsc,
-              account_name: fiatAccount.account_name,
-              bank_name: fiatAccount.bank_name,
-              customer_address: "xyz",
-              method: "bank",
-              transaction_id: reference_id.toString(),
-            };
+            // let body = {
+            //   id:request.user.customerId,
+            //   emailId: "test@payhub",
+            //   amount: transaction.toAmount,
+            //   customer_name: "tushant",
+            //   customer_email: request.user.email,
+            //   customer_phone: phone,
+            //   account_number: fiatAccount.fiatAccount,
+            //   customer_upiId: "success@upi",
+            //   bank_ifsc: fiatAccount.ifsc,
+            //   account_name: fiatAccount.account_name,
+            //   bank_name: fiatAccount.bank_name,
+            //   customer_address: "xyz",
+            //   method: "bank",
+            //   transaction_id: reference_id.toString(),
+            // };
             //console.log(body);
             // const payoutRequest = await createPayoutBankRequest(
             //   response.token,
@@ -951,15 +952,14 @@ export async function verifyTransaction(request, reply) {
             const transactionID = generateTransactionId()
             const payoutRequest = await sendFundTransferRequest(
               process.env.GENNPAYAPIKEY,
-              transactionID,
-              transaction.toAmount,
+              transactionID.toString(),
+              transaction.toAmount.toString(),
               fiatAccount.fiatAccount,
               fiatAccount.ifsc,
-              'NEFT',
+              'IMPS',
               {
                   accountName: fiatAccount.account_name,
                   bankName: fiatAccount.bank_name,
-                  bankBranch: 'VASANT VIHAR'
               }
             );
             
@@ -1003,7 +1003,7 @@ export async function verifyTransaction(request, reply) {
                 .status(500)
                 .send(responseMappingError(500, `Internal server error`));
             }
-          }
+          
           // console.log(transaction)
         } else {
           console.log("transaction doesnt belong to our system");
@@ -1057,16 +1057,16 @@ export async function getQuotesNew(request, reply) {
     const usdt = await findRecord(Usdt, query);
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
-    if (fromAmount < 10) {
-      return reply
-        .status(500)
-        .send(
-          responseMappingError(
-            400,
-            `Amount should be greater than or equal to 10`
-          )
-        );
-    }
+    // if (fromAmount < 10) {
+    //   return reply
+    //     .status(500)
+    //     .send(
+    //       responseMappingError(
+    //         400,
+    //         `Amount should be greater than or equal to 10`
+    //       )
+    //     );
+    // }
     const body = {
       fromCurrency: fromCurrency,
       toCurrency: toCurrency,
@@ -1245,16 +1245,16 @@ export async function verifyQuotes(request) {
     const usdt = await findRecord(Usdt, query);
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
-    if (fromAmount < 10) {
-      return reply
-        .status(500)
-        .send(
-          responseMappingError(
-            400,
-            `Amount should be greater than or equal to 10`
-          )
-        );
-    }
+    // if (fromAmount < 10) {
+    //   return reply
+    //     .status(500)
+    //     .send(
+    //       responseMappingError(
+    //         400,
+    //         `Amount should be greater than or equal to 10`
+    //       )
+    //     );
+    // }
     const body = {
       fromCurrency: fromCurrency,
       toCurrency: toCurrency,

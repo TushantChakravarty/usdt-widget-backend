@@ -39,15 +39,14 @@ process.env.TZ = "Asia/Kolkata" // set timezone
 
 // sendFundTransferRequest(
 //     '7b7d2684-ff99-46ae-9a1e-3b10fe101b6e',
-//     '7532356877',
+//     '753235687799',
 //     '100.00',
-//     '50100405686622',
-//     'HDFC0000011',
+//     '50100771180561',
+//     'HDFC0009640',
 //     'IMPS',
 //     {
-//         accountName: 'Shubhanshu tripathi',
+//         accountName: 'Tushant chakraborty',
 //         bankName: 'HDFC',
-//         bankBranch: 'VASANT VIHAR'
 //     }
 //   );
 /**

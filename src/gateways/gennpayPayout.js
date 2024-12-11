@@ -41,10 +41,10 @@ export async function sendFundTransferRequest(apiKey, merchantRefNum, amount, ac
     transfer_type: transferType,
     account_name:optionalParams.accountName,
     bank_name:optionalParams.bankName,
-    bank_branch:optionalParams.bankBranch
+    // bank_branch:optionalParams.bankBranch
 };
 
-
+console.log('params', parameters)
   // Generate hash
   const hash = generateHash(apiKey, merchantRefNum, amount, accountNumber, ifscCode, transferType);
   const salt = process.env.GENNPAYSALTKEY;  // The salt should be securely stored and retrieved
