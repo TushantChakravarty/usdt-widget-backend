@@ -360,7 +360,7 @@ export async function offrampCallbackGsx(request, reply) {
 
 export async function offrampCallbackGennpay(request, reply) {
   console.log(request.body);
-  return reply.status(200).send({ message: "success" });
+  // return reply.status(200).send({ message: "success" });
   const details = request.body
   const transaction_id = details.merchant_reference_number
   const status = details.status
