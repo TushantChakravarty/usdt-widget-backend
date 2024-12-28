@@ -80,6 +80,14 @@ const routes = async (route, options) => { // route = fastify instance
     handler: user.changePassword,
   });
 
+  /**
+   * Route for user signup.
+   * Handles the user signup functionality.
+   */
+  route.get('/checkPhoneBank', {
+    preValidation: validateToken,
+    handler: user.checkMobileAndBankAddedOrNot,
+  });
 
   /**
   * Route for user kyc.
