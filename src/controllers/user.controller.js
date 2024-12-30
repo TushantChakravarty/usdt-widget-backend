@@ -23,7 +23,7 @@ import { generateRandomCustomerId } from "../utils/utils.js";
 import { CoinsData } from "../../blockchainData/coins_data.js";
 import { AllNetworksData } from "../../blockchainData/network_data.js";
 
-const { User, Coin, OnRampTransaction, Usdt, Otp, Fees } = db;
+const { User, Coin, OnRampTransaction, Usdt,Otp, Fees,FiatAccount } = db;
 /**
  * Registers a new user.
  * @controller user
@@ -70,12 +70,15 @@ export async function signup(request, reply) {
       customerId: generateRandomCustomerId(),
     });
 
-    if (user)
-      return reply
-        .status(200)
-        .send(responseMappingWithData(200, "success", "Signup success"));
-    else
-      return reply.status(500).send(responseMappingError(500, `Signup failed`));
+    const token = await reply.jwtSign({
+      id: user.id,
+      role: user.role,
+      emailId: user.email,
+    });
+    
+   
+    if (user) return reply.status(200).send(responseMappingWithData(200, "success", {token:token}));
+    else return reply.status(500).send(responseMappingError(500, `Signup failed`));
   } catch (error) {
     return reply.status(500).send(responseMappingError(500, `Signup failed`));
   }
@@ -1505,5 +1508,28 @@ export async function generateOTP(email) {
   } catch (err) {
     logger.error(`generateOTP: ${err}`);
     throw err;
+  }
+}
+
+
+export async function checkMobileAndBankAddedOrNot(request,reply){
+  try{
+    const isPhoneAdded = request?.user?.isPhoneAdded || false
+    const bank_data = await FiatAccount.findOne({where:{user_id:request.user.id}})
+    let isBankAdded = false
+    if(bank_data && bank_data.delete === false){
+      isBankAdded = true
+    }
+
+
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", {isPhoneAdded,isBankAdded}));
+
+  }catch(error){
+   
+      console.log('user.controller.changePassword', error.message)
+      return reply.status(500).send(responseMappingError(500, `Internal server error`))
+
   }
 }
