@@ -182,7 +182,7 @@ export async function sendSignUpOtp(request, reply) {
     console.log("user.controller.changePassword", error.message);
     return reply
       .status(500)
-      .send(responseMappingError(500, `Internal server error`));
+      .send(responseMappingError(500, `Internal server error ${error.message}`));
   }
 }
 
