@@ -104,8 +104,8 @@ export async function sendSignUpOtp(request, reply) {
       port: 587,
       secure: false,
       auth: {
-        user: "ops@payhub.link",
-        pass: "payhub123$",
+        user: "tshubhanshu007@gmail.com",
+        pass: "wltf sfzq mlni tnhv",
       },
     });
     const otp = await generateOTP(email);
@@ -135,7 +135,7 @@ export async function sendSignUpOtp(request, reply) {
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "ops@payhub.link",
+        address: "tshubhanshu007@gmail.com",
       },
       to: email,
       subject: "Sign-up OTP",
@@ -182,7 +182,7 @@ export async function sendSignUpOtp(request, reply) {
     console.log("user.controller.changePassword", error.message);
     return reply
       .status(500)
-      .send(responseMappingError(500, `Internal server error ${error.message}`));
+      .send(responseMappingError(500, `Internal server error`));
   }
 }
 
