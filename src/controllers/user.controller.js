@@ -104,8 +104,8 @@ export async function sendSignUpOtp(request, reply) {
       port: 587,
       secure: false,
       auth: {
-        user: "tshubhanshu007@gmail.com",
-        pass: "zrni hfym gthq upiu",
+        user: "ops@payhub.link",
+        pass: "payhub123$",
       },
     });
     const otp = await generateOTP(email);
@@ -135,7 +135,7 @@ export async function sendSignUpOtp(request, reply) {
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "tshubhanshu007@gmail.com",
+        address: "ops@payhub.link",
       },
       to: email,
       subject: "Sign-up OTP",
