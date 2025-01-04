@@ -168,6 +168,68 @@ export async function sendSignUpOtp(request,reply){
 }
 
 
+
+import twilio from 'twilio'
+
+
+// Find your Account SID and Auth Token at twilio.com/console
+// and set the environment variables. See http://twil.io/secure
+
+
+async function createMessage(otp,phone) {
+  try{
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const client = twilio(accountSid, authToken);
+  const message = await client.messages.create({
+    body: `Your one time password (OTP) for Log-in USDT Marketplace is: ${otp}`,
+    to: `+91${phone}`,
+    from: process.env.TWILIIO_PHONE_NUMBER,
+  });
+  // console.log("message response ",message)
+  return message
+  }catch(error){
+    console.log(`user.controller.createMessage`,error.message)
+    return false
+
+  }
+
+
+}
+
+
+
+
+export async function sendLoginOtp(request,reply){
+  try{
+    const phone = request.query.phone;
+    const existingUser = await User.findOne({
+      where: {
+        phone,
+      }
+    });
+    if(!existingUser){
+      return reply.status(500).send(responseMappingError(500, `Account not exist`))
+    }
+    
+    const otp = await generateOTP(phone)
+
+    const send_message = await createMessage(otp,phone)
+
+    if(!send_message){
+      return reply.status(500).send(responseMappingError(500, `Unable to send otp, please try after some time`)) 
+    }
+    
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", "please check otp on the given email"));
+  }catch(error){
+    console.log('user.controller.changePassword', error.message)
+    return reply.status(500).send(responseMappingError(500, `Internal server error`))
+
+  }
+}
+
 /**
  * Authenticates an  user and generates a login token.
  * @controller admin

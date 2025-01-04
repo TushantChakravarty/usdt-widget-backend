@@ -54,6 +54,17 @@ export const signupOtp = {
 }
 
 
+export const loginpOtp = {
+    querystring: {
+        type: 'object',
+        properties: {
+            phone: { type: 'string',minLength:10, maxLength: 10 },
+        },
+        required: ['phone'],
+        additionalProperties: false,
+    }
+}
+
 export const changePassword = {
     body: {
         type: 'object',
