@@ -280,6 +280,27 @@ export async function getAllFiatAccount(request, reply) {
   }
 }
 
+export async function getCountries(request, reply) {
+  try {
+    const countries = [
+      {
+        name: 'India',
+        dialCode: '+91',
+        code: 'IN',
+        flag: 'https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg',
+    }    
+    ]
+    return reply
+      .status(200)
+      .send(responseMappingWithData(200, "success", countries));
+  } catch (error) {
+    console.log("this is error", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
+  }
+}
+
 export async function offRampRequest(request, reply) {
   try {
     const apiKey = process.env.apiKey;
