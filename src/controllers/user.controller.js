@@ -188,6 +188,88 @@ export async function sendSignUpOtp(request, reply) {
 
 
 
+export async function sendLoginOtp(request, reply) {
+  try {
+    const email = request.query.email;
+    const existingUser = await User.findOne({
+      where: {
+        email,
+      },
+    });
+    if (!existingUser) {
+      return reply
+        .status(500)
+        .send(responseMappingError(500, `Account not exist`));
+    }
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "tshubhanshu007@gmail.com",
+        pass: "wltf sfzq mlni tnhv",
+      },
+    });
+    const otp = await generateOTP(email);
+   
+    const mailOptions = {
+      from: {
+        name: "GSX solutions",
+        address: "tshubhanshu007@gmail.com",
+      },
+      to: email,
+      subject: "Login OTP",
+      text: `Hello, your Login OTP is ${otp}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            
+            <h2 style="text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">USDT Marketplace</h2>
+            
+            <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
+            <p style="font-size: 16px; line-height: 1.5;">Your One-Time Password (OTP) for Login in USDT Marketplace is:</p>
+    
+            <div style="text-align: center; padding: 20px; margin: 20px 0; background-color: #f1f1f1; border-radius: 8px;">
+              <p style="font-size: 36px; font-weight: bold; color: #007bff; margin: 0;">${otp}</p>
+            </div>
+    
+            <p style="font-size: 16px; line-height: 1.5;">Please enter this OTP to complete your login process. This OTP is valid for <strong>10 minutes</strong>.</p>
+    
+            <div style="background-color: #007bff; color: white; padding: 10px; border-radius: 8px; text-align: center; margin: 20px 0;">
+              <p>If you did not request this OTP, please <a href="mailto:support@usdtmarketplace.com" style="color: white; text-decoration: underline;">contact our support team</a> immediately.</p>
+            </div>
+    
+            <p style="font-size: 16px; line-height: 1.5;">Thank you,</p>
+            <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
+    
+            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+            <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
+          </div>
+        </div>
+      `,
+    };
+    await transporter.sendMail(mailOptions);
+    return reply
+      .status(200)
+      .send(
+        responseMappingWithData(
+          200,
+          "success",
+          "please check otp on the given email"
+        )
+      );
+  } catch (error) {
+    console.log("user.controller.changePassword", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
+  }
+}
+
+
+
+
 import twilio from 'twilio'
 
 
@@ -219,16 +301,16 @@ async function createMessage(otp,phone) {
 
 
 
-export async function sendLoginOtp(request,reply){
+export async function sendAddPhoneOtp(request,reply){
   try{
     const phone = request.query.phone;
     const existingUser = await User.findOne({
       where: {
-        phone,
+        email:request.user.email,
       }
     });
     if(!existingUser){
-      return reply.status(500).send(responseMappingError(500, `Account not exist`))
+      return reply.status(500).send(responseMappingError(401, `Unauthorized`))
     }
     
     const otp = await generateOTP(phone)
@@ -241,9 +323,57 @@ export async function sendLoginOtp(request,reply){
     
     return reply
     .status(200)
-    .send(responseMappingWithData(200, "success", "please check otp on the given email"));
+    .send(responseMappingWithData(200, "success", "please check otp on the given phone number"));
   }catch(error){
     console.log('user.controller.changePassword', error.message)
+    return reply.status(500).send(responseMappingError(500, `Internal server error`))
+
+  }
+}
+
+export async function addPhone(request,reply){
+  try{
+    const {phone,otp} = request.body
+
+    let user = await User.findOne({where:{
+      email:request.user.email
+    }})
+
+    if(!user){
+      return reply.status(500).send(responseMappingError(401, `Unauthorized`))
+    }
+
+    if(user.isPhoneAdded){
+      return reply.status(500).send(responseMappingError(500, `Phone is already added`))
+    }
+
+    const activeOtp = await Otp.findOne({
+      where: {
+        email: phone,
+        otp,
+        sent_at: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+    if (!activeOtp)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(500, `Incorrect otp or your otp is expired`)
+        );
+    // encrypt password
+    await Otp.destroy({
+      where: { email: phone },
+    });
+    user.phone= phone
+    user.isPhoneAdded = true
+    await user.save()
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", "Phone is added"));
+  }catch(error){
+    console.log(`user.controller.addPhone`,error.message)
     return reply.status(500).send(responseMappingError(500, `Internal server error`))
 
   }
@@ -260,7 +390,7 @@ export async function sendLoginOtp(request,reply){
 export async function login(request, reply) {
   // login for admin team members
   try {
-    const { emailId, password } = request.body;
+    const { emailId, password,otp } = request.body;
     // find user by username where role is not empty, and compare password
     const user = await User.scope("private").findOne({
       where: {
@@ -273,6 +403,22 @@ export async function login(request, reply) {
         .status(404)
         .send(responseMappingError(404, "User doesnt exist")); // generic error to prevent bruteforce
     // compare password
+
+    const activeOtp = await Otp.findOne({
+      where: {
+        email: emailId,
+        otp,
+        sent_at: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+    if (!activeOtp)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(500, `Incorrect otp or your otp is expired`)
+        );
     const match = await compare(password, user.password);
     if (!match)
       return reply
@@ -287,6 +433,10 @@ export async function login(request, reply) {
 
     user.token = token;
     await user.save();
+
+    await Otp.destroy({
+      where: { email: emailId },
+    });
     // set token in cookie
     reply.setCookie("token", token, {
       httpOnly: true,
@@ -375,8 +525,7 @@ export async function getCountryCodes(request, reply) {
 export async function updatePhone(request, reply) {
   // login for admin team members
   try {
-    const { phone_number } = request.body;
-    console.log(phone_number);
+    const { phone_number,otp } = request.body;
     // find user by username where role is not empty, and compare password
     const User1 = request.user;
     let user = await User.scope("private").findOne({
@@ -392,13 +541,38 @@ export async function updatePhone(request, reply) {
     if (phoneExists)
       return reply.status(400).send({ error: "Phone number already exists" });
 
-    if (!user)
+
+
+    if (!user){
       return reply
         .status(400)
-        .send(responseMappingError(400, "Invalid User details")); // generic error to prevent bruteforce'
+        .send(responseMappingError(400, "Invalid User details"));
+
+    }
+       // generic error to prevent bruteforce'
+
+    const activeOtp = await Otp.findOne({
+      where: {
+        email: phone_number,
+        otp,
+        sent_at: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+    if (!activeOtp)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(500, `Incorrect otp or your otp is expired`)
+        );
+        // encrypt password
+           
     user.phone = phone_number;
     const updated = await user.save();
-    console.log("updates", updated);
+    await Otp.destroy({
+      where: { email: phone_number },
+    });
     if (updated?.dataValues?.phone) {
       user.isPhoneAdded = true;
       await user.save();

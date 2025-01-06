@@ -15,6 +15,7 @@ export const login = {
         properties: {
             emailId: { type: 'string', minLength: 3, maxLength: 40 },
             password: { type: 'string', minLength: 8, maxLength: 56 },
+            otp:{ type: 'string', minLength: 4, maxLength: 4 },
         },
         required: ['emailId', 'password'],
     },
@@ -53,14 +54,24 @@ export const signupOtp = {
     }
 }
 
-
-export const loginpOtp = {
+export const sendAddPhoneOtp = {
     querystring: {
         type: 'object',
         properties: {
             phone: { type: 'string',minLength:10, maxLength: 10 },
         },
         required: ['phone'],
+        additionalProperties: false,
+    }
+}
+
+export const loginOtp = {
+    querystring: {
+        type: 'object',
+        properties: {
+            email: { type: 'string', format:"email",minLength:5, maxLength: 40 },
+        },
+        required: ['email'],
         additionalProperties: false,
     }
 }
