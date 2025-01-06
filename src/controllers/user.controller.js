@@ -1,10 +1,14 @@
 import cryptoJs from "crypto-js";
 import db from "../models/index.js";
 import { compare, encrypt } from "../utils/password.util.js";
-import { Op } from "sequelize"
+import { Op } from "sequelize";
 import logger from "../utils/logger.util.js";
-import nodemailer from "nodemailer"
-import { getAllCoinsData, getAllNetworkData, getWithdrawFee } from "../ApiCalls/usdtapicalls.js";
+import nodemailer from "nodemailer";
+import {
+  getAllCoinsData,
+  getAllNetworkData,
+  getWithdrawFee,
+} from "../ApiCalls/usdtapicalls.js";
 import {
   responseMapping,
   responseMappingError,
@@ -30,33 +34,40 @@ const { User, Coin, OnRampTransaction, Usdt,Otp, Fees,FiatAccount } = db;
  */
 export async function signup(request, reply) {
   try {
-    const { emailId, otp,password } = request.body;
+    const { emailId, otp, password } = request.body;
     // check if emailId exists. although we have checked above that no users exist, still this check is good for future additions to this route
     const userExists = await User.findOne({ where: { email: emailId } });
-    console.log(userExists)
+    console.log(userExists);
     if (userExists)
-      return reply.status(409).send(responseMappingError(500, `User already exist`));
+      return reply
+        .status(409)
+        .send(responseMappingError(500, `User already exist`));
 
     const activeOtp = await Otp.findOne({
       where: {
-        email:emailId,
+        email: emailId,
         otp,
         sent_at: {
           [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
         },
       },
     });
-    if (!activeOtp)  return reply.status(500).send(responseMappingError(500, `Incorrect otp or your otp is expired`))
+    if (!activeOtp)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(500, `Incorrect otp or your otp is expired`)
+        );
     // encrypt password
-    const encryptedPassword = await  encrypt(password);
+    const encryptedPassword = await encrypt(password);
     await Otp.destroy({
-      where: { email:emailId },
+      where: { email: emailId },
     });
     // create user
     const user = await User.create({
       email: emailId,
       password: encryptedPassword,
-      customerId:generateRandomCustomerId()
+      customerId: generateRandomCustomerId(),
     });
 
     const token = await reply.jwtSign({
@@ -69,35 +80,36 @@ export async function signup(request, reply) {
     if (user) return reply.status(200).send(responseMappingWithData(200, "success", {token:token}));
     else return reply.status(500).send(responseMappingError(500, `Signup failed`));
   } catch (error) {
-  return reply.status(500).send(responseMappingError(500, `Signup failed`));
+    return reply.status(500).send(responseMappingError(500, `Signup failed`));
   }
 }
 
-
-export async function sendSignUpOtp(request,reply){
-  try{
+export async function sendSignUpOtp(request, reply) {
+  try {
     const email = request.query.email;
     const existingUser = await User.findOne({
       where: {
         email,
-      }
+      },
     });
-    console.log(email)
-    if(existingUser){
-      return reply.status(500).send(responseMappingError(500, `Account already exist`))
+    console.log(email);
+    if (existingUser) {
+      return reply
+        .status(500)
+        .send(responseMappingError(500, `Account already exist`));
     }
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      host: 'smtp.gmail.com',
+      service: "gmail",
+      host: "smtp.gmail.com",
       port: 587,
       secure: false,
       auth: {
         user: "tshubhanshu007@gmail.com",
-        pass: "zrni hfym gthq upiu"
-      }
-    })
-    const otp = await generateOTP(email)
-    console.log(otp)
+        pass: "wltf sfzq mlni tnhv",
+      },
+    });
+    const otp = await generateOTP(email);
+    console.log(otp);
     // const mailOptions = {
     //   from: {
     //     name: "GSX solutions",
@@ -123,7 +135,7 @@ export async function sendSignUpOtp(request,reply){
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "tshubhanshu007@gmail.com"
+        address: "tshubhanshu007@gmail.com",
       },
       to: email,
       subject: "Sign-up OTP",
@@ -154,16 +166,23 @@ export async function sendSignUpOtp(request,reply){
             <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
           </div>
         </div>
-      `
+      `,
     };
-    await transporter.sendMail(mailOptions)
+    await transporter.sendMail(mailOptions);
     return reply
-    .status(200)
-    .send(responseMappingWithData(200, "success", "please check otp on the given email"));
-  }catch(error){
-    console.log('user.controller.changePassword', error.message)
-    return reply.status(500).send(responseMappingError(500, `Internal server error`))
-
+      .status(200)
+      .send(
+        responseMappingWithData(
+          200,
+          "success",
+          "please check otp on the given email"
+        )
+      );
+  } catch (error) {
+    console.log("user.controller.changePassword", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
   }
 }
 
@@ -250,11 +269,15 @@ export async function login(request, reply) {
     });
     console.log(user);
     if (!user)
-      return reply.status(404).send(responseMappingError(404, "User doesnt exist")); // generic error to prevent bruteforce
+      return reply
+        .status(404)
+        .send(responseMappingError(404, "User doesnt exist")); // generic error to prevent bruteforce
     // compare password
     const match = await compare(password, user.password);
     if (!match)
-      return reply.status(401).send(responseMappingError(401, "Invalid username or password")); // generic error to prevent bruteforce
+      return reply
+        .status(401)
+        .send(responseMappingError(401, "Invalid username or password")); // generic error to prevent bruteforce
     // generate token
     const token = await reply.jwtSign({
       id: user.id,
@@ -273,7 +296,9 @@ export async function login(request, reply) {
       expires: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), // 1 days
       path: "/",
     });
-    return reply.status(200).send(responseMappingWithData(200, "Logged in", token ));
+    return reply
+      .status(200)
+      .send(responseMappingWithData(200, "Logged in", token));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
@@ -303,9 +328,14 @@ export async function getProfile(request, reply) {
       delete user.token;
     }
 
-    if (!user) return reply.status(404).send(responseMappingError(404, "Invalid User details")); // generic error to prevent bruteforce
+    if (!user)
+      return reply
+        .status(404)
+        .send(responseMappingError(404, "Invalid User details")); // generic error to prevent bruteforce
 
-    return reply.status(200).send(responseMappingWithData(200, "Success", user ));
+    return reply
+      .status(200)
+      .send(responseMappingWithData(200, "Success", user));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
@@ -320,18 +350,19 @@ export async function getProfile(request, reply) {
  * @throws {Error} If an error occurs while get codes
  */
 export async function getCountryCodes(request, reply) {
-  
   try {
-    console.log('here')
-    const CountryCodes = countryCodes
-    if (!CountryCodes) return reply.status(404).send(responseMappingError(200, [])); // generic error to prevent bruteforce
+    console.log("here");
+    const CountryCodes = countryCodes;
+    if (!CountryCodes)
+      return reply.status(404).send(responseMappingError(200, [])); // generic error to prevent bruteforce
 
-    return reply.status(200).send(responseMappingWithData(200, "Success", CountryCodes ));
+    return reply
+      .status(200)
+      .send(responseMappingWithData(200, "Success", CountryCodes));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
 }
-
 
 /**
  * updates user phone number.
@@ -355,13 +386,16 @@ export async function updatePhone(request, reply) {
     });
     let phoneExists = await User.findOne({
       where: {
-        phone: phone_number
-      }
-    })
+        phone: phone_number,
+      },
+    });
     if (phoneExists)
       return reply.status(400).send({ error: "Phone number already exists" });
 
-    if (!user) return reply.status(400).send(responseMappingError(400, "Invalid User details")); // generic error to prevent bruteforce'
+    if (!user)
+      return reply
+        .status(400)
+        .send(responseMappingError(400, "Invalid User details")); // generic error to prevent bruteforce'
     user.phone = phone_number;
     const updated = await user.save();
     console.log("updates", updated);
@@ -370,7 +404,9 @@ export async function updatePhone(request, reply) {
       await user.save();
       return reply.status(200).send(responseMapping(200, "Success"));
     } else
-      reply.status(500).send(responseMappingError(500, "unable to update user phone number"));
+      reply
+        .status(500)
+        .send(responseMappingError(500, "unable to update user phone number"));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
@@ -378,17 +414,17 @@ export async function updatePhone(request, reply) {
 
 export async function logout(request, reply) {
   try {
-    const user = await User.findOne({where:{id:request.user.id}})
-    if(!user){
+    const user = await User.findOne({ where: { id: request.user.id } });
+    if (!user) {
       return reply.status(400).send(responseMappingError(400, "Invalid token"));
     }
-    user.token = null
-    await user.save()
-     reply.clearCookie("token");
-    return reply.status(200).send({ message: "Logged out" })
+    user.token = null;
+    await user.save();
+    reply.clearCookie("token");
+    return reply.status(200).send({ message: "Logged out" });
   } catch (error) {
-    logger.error(`users.controller.logout: ${error}`)
-    return reply.status(500).send({ error: error.message })
+    logger.error(`users.controller.logout: ${error}`);
+    return reply.status(500).send({ error: error.message });
   }
 }
 
@@ -403,8 +439,8 @@ export async function logout(request, reply) {
 export async function getAllCoins(request, reply) {
   try {
     let coins = await Coin.findAll();
-  
-    console.log("got coins", coins[0])
+
+    console.log("got coins", coins);
     let coinsArray = [];
     if (coins.length <= 0) {
       let coinsData = await getAllCoinsData();
@@ -415,7 +451,7 @@ export async function getAllCoins(request, reply) {
           coinid: coinDetails.coinId,
           ...coinDetails,
         }));
-        console.log('here', coinsArray[0])
+        console.log("here", coinsArray[0]);
         try {
           await Coin.bulkCreate(coinsArray, {
             updateOnDuplicate: [
@@ -436,22 +472,26 @@ export async function getAllCoins(request, reply) {
     //console.log("data array", coinsArray);
 
     if (coins?.length > 0 || coinsArray?.length > 0) {
-      const filteredCoins = coinsArray?.length > 0
-      ? coinsArray.filter((coin) => coin.coinid === 54).map(coin => ({
-          ...coin.dataValues,
-          minSellValue: 10 // Replace with actual logic
-        }))
-      : coins.filter((coin) => coin.coinid === 54).map(coin => ({
-          ...coin.dataValues,
-          minSellValue: 10 // Replace with actual logic
-        }));
-
-
+      const filteredCoins =
+        coinsArray?.length > 0
+          ? coinsArray
+              .filter((coin) => coin.coinid === 54)
+              .map((coin) => ({
+                ...coin.dataValues,
+                minSellValue: 10, // Replace with actual logic
+              }))
+          : coins
+              .filter((coin) => coin.coinid === 54)
+              .map((coin) => ({
+                ...coin.dataValues,
+                minSellValue: 10, // Replace with actual logic
+              }));
 
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", filteredCoins));
-    } else reply.status(500).send(responseMappingError(500, "unable to get coins"));
+    } else
+      reply.status(500).send(responseMappingError(500, "unable to get coins"));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
@@ -468,19 +508,21 @@ export async function getAllCoins(request, reply) {
 export async function getAllCoinsNew(request, reply) {
   try {
     let coins = await Coin.findAll();
-  
-    console.log("got coins", coins[0])
+
+    console.log("got coins", coins);
     let coinsArray = [];
     if (coins.length <= 0) {
-      let coinsData = CoinsData////await getAllCoinsData();
-      coins = coinsData?.data;
+      let coinsData = CoinsData; ////await getAllCoinsData();
+      
+      coins = coinsData[0]?.data;
+      console.log('check', coins)
       if (coins) {
         coinsArray = Object.entries(coins).map(([coin, coinDetails]) => ({
           coin,
           coinid: coinDetails.coinId,
           ...coinDetails,
         }));
-        console.log('here', coinsArray[0])
+        console.log("here", coinsArray[0]);
         try {
           await Coin.bulkCreate(coinsArray, {
             updateOnDuplicate: [
@@ -501,22 +543,26 @@ export async function getAllCoinsNew(request, reply) {
     //console.log("data array", coinsArray);
 
     if (coins?.length > 0 || coinsArray?.length > 0) {
-      const filteredCoins = coinsArray?.length > 0
-      ? coinsArray.filter((coin) => coin.coinid === 54).map(coin => ({
-          ...coin.dataValues,
-          minSellValue: 10 // Replace with actual logic
-        }))
-      : coins.filter((coin) => coin.coinid === 54).map(coin => ({
-          ...coin.dataValues,
-          minSellValue: 10 // Replace with actual logic
-        }));
-
-
+      const filteredCoins =
+        coinsArray?.length > 0
+          ? coinsArray
+              .filter((coin) => coin.coinid === 54)
+              .map((coin) => ({
+                ...coin.dataValues,
+                minSellValue: 10, // Replace with actual logic
+              }))
+          : coins
+              .filter((coin) => coin.coinid === 54)
+              .map((coin) => ({
+                ...coin.dataValues,
+                minSellValue: 10, // Replace with actual logic
+              }));
 
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", filteredCoins));
-    } else reply.status(500).send(responseMappingError(500, "unable to get coins"));
+    } else
+      reply.status(500).send(responseMappingError(500, "unable to get coins"));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
@@ -533,19 +579,22 @@ export async function getAllCoinsNew(request, reply) {
 export async function getAllCurrencies(request, reply) {
   try {
     const data = Currencies;
-    let query ={
-      id:1
-    }
-    const usdt = await findRecord(Usdt,query)
-    const updatedData = data.map(currency => ({
+    let query = {
+      id: 1,
+    };
+    const usdt = await findRecord(Usdt, query);
+    const updatedData = data.map((currency) => ({
       ...currency,
-      minSellValue: (Number(10)*Number(usdt.inrRateOfframp)).toFixed(2) - 50
+      minSellValue: (Number(10) * Number(usdt.inrRateOfframp)).toFixed(2) - 50,
     }));
     if (data) {
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", updatedData));
-    } else reply.status(500).send(responseMappingError(500, "unable to get currencies"));
+    } else
+      reply
+        .status(500)
+        .send(responseMappingError(500, "unable to get currencies"));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
@@ -561,50 +610,58 @@ export async function getAllCurrencies(request, reply) {
  */
 export async function getAllNetworks(request, reply) {
   try {
-    console.log(request.query.id)
+    console.log(request.query.id);
     if (!request.query.id) {
       reply.status(500).send(responseMappingError(500, "please send coin id"));
     }
-    if (request.query.id !== '54') {
+    if (request.query.id !== "54") {
       reply.status(500).send(responseMappingError(500, "invalid coin id"));
     }
-    const data = networks
-    let updatedData = []
+    const data = networks;
+    let updatedData = [];
     const coinData = await Coin.findOne({
       where: {
-        coinid: request.query.id
-      }
-    })
-    const networkData = await getAllNetworkData()
-    const filteredNetworks = networkData.filter(item => item.coinid == 54)
+        coinid: request.query.id,
+      },
+    });
+    const networkData = await getAllNetworkData();
+    const filteredNetworks = networkData.filter((item) => item.coinid == 54);
     //console.log("network data",filteredNetworks)
     //console.log(coinData)
-    let query ={
-      id:1
-    }
-    const usdt = await findRecord(Usdt,query)
-      if (coinData) {
+    let query = {
+      id: 1,
+    };
+    const usdt = await findRecord(Usdt, query);
+    if (coinData) {
       data.map((item) => {
-        const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+        const networkData = filteredNetworks.filter(
+          (Item) => Item.networkId == item.chainId
+        );
         //console.log("here", networkData)
         if (networkData[0]?.withdrawalFee) {
-
           updatedData.push({
             ...item,
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
             minBuy: networkData[0]?.minimumWithdrawal,
-            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal),
-            inSync:true
-          })
+            minBuyInRupee: usdt?.inrRate
+              ? Math.ceil(
+                  Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate
+                )
+              : Math.ceil(networkData[0]?.minimumWithdrawal),
+            inSync: true,
+          });
         }
-      })
+      });
     }
     if (updatedData) {
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", updatedData));
-    } else reply.status(500).send(responseMappingError(500, "unable to get networks"));
+    } else
+      reply
+        .status(500)
+        .send(responseMappingError(500, "unable to get networks"));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
@@ -620,53 +677,60 @@ export async function getAllNetworks(request, reply) {
  */
 export async function getAllNetworksNew(request, reply) {
   try {
-    
-    console.log(request.query.id)
+    console.log(request.query.id);
     if (!request.query.id) {
       reply.status(500).send(responseMappingError(500, "please send coin id"));
     }
-    if (request.query.id !== '54') {
+    if (request.query.id !== "54") {
       reply.status(500).send(responseMappingError(500, "invalid coin id"));
     }
-    const data = networks
-    let updatedData = []
+    const data = networks;
+    let updatedData = [];
     const coinData = await Coin.findOne({
       where: {
-        coinid: request.query.id
-      }
-    })
-    const networkData = AllNetworksData//await getAllNetworkData()
-    const filteredNetworks = networkData.filter(item => item.coinid == 54)
+        coinid: request.query.id,
+      },
+    });
+    const networkData = AllNetworksData; //await getAllNetworkData()
+    const filteredNetworks = networkData.filter((item) => item.coinid == 54);
     //console.log("network data",filteredNetworks)
     //console.log(coinData)
-    let query ={
-      id:1
-    }
-    const usdt = await findRecord(Usdt,query)
-      if (coinData) {
+    let query = {
+      id: 1,
+    };
+    const usdt = await findRecord(Usdt, query);
+    if (coinData) {
       data.map((item) => {
-        const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+        const networkData = filteredNetworks.filter(
+          (Item) => Item.networkId == item.chainId
+        );
         //console.log("here", networkData)
         if (networkData[0]?.withdrawalFee) {
-
           updatedData.push({
             ...item,
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
             minBuy: networkData[0]?.minimumWithdrawal,
-            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal),
-            inSync:true
-          })
+            minBuyInRupee: usdt?.inrRate
+              ? Math.ceil(
+                  Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate
+                )
+              : Math.ceil(networkData[0]?.minimumWithdrawal),
+            inSync: true,
+          });
         }
-      })
+      });
     }
     if (updatedData) {
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", updatedData));
-    } else reply.status(500).send(responseMappingError(500, "unable to get networks"));
+    } else
+      reply
+        .status(500)
+        .send(responseMappingError(500, "unable to get networks"));
   } catch (error) {
-    console.log("error check",error)
+    console.log("error check", error);
     reply.status(500).send(responseMappingError(500, error.message));
   }
 }
@@ -693,14 +757,21 @@ export async function getKycUrl(request, reply) {
     });
     console.log("user", user.phone);
     if (!user) {
-      return reply.status(400).send(responseMappingError(200, "User not found"));
+      return reply
+        .status(400)
+        .send(responseMappingError(200, "User not found"));
     }
-    if(!user.phone)
-    {
-      return reply.status(400).send(responseMappingError(200, "please add phone number"));
+    if (!user.phone) {
+      return reply
+        .status(400)
+        .send(responseMappingError(200, "please add phone number"));
     }
     if (user.kycUrl) {
-      return reply.status(200).send(responseMappingWithData(200,"success",{kyc_url: user.kycUrl }));
+      return reply
+        .status(200)
+        .send(
+          responseMappingWithData(200, "success", { kyc_url: user.kycUrl })
+        );
     }
     const body = {
       email: user.email,
@@ -733,8 +804,7 @@ export async function getKycUrl(request, reply) {
     };
 
     // Make the fetch request
-    const url =
-      "https://api.onramp.money/onramp/api/v2/whiteLabel/kyc/url";
+    const url = "https://api.onramp.money/onramp/api/v2/whiteLabel/kyc/url";
 
     const response = await fetch(url, {
       method: "POST",
@@ -760,58 +830,84 @@ export async function getKycUrl(request, reply) {
     console.log(response);
     return reply
       .status(200)
-      .send(responseMappingWithData(200,"success",{kyc_url: response.data.kycUrl }));
+      .send(
+        responseMappingWithData(200, "success", {
+          kyc_url: response.data.kycUrl,
+        })
+      );
   } catch (error) {
     reply.status(500).send({ status: 500, error: error.message });
   }
 }
-
 
 export async function onRampRequest(request, reply) {
   try {
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
 
-    const { fromCurrency, toCurrency, chain, paymentMethodType, depositAddress, fromAmount, toAmount, rate } = request.body
+    const {
+      fromCurrency,
+      toCurrency,
+      chain,
+      paymentMethodType,
+      depositAddress,
+      fromAmount,
+      toAmount,
+      rate,
+    } = request.body;
 
     if (!request.user.isKycCompleted) {
-      return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
+      return reply
+        .status(500)
+        .send(responseMappingError(500, "Please complete your kyc"));
     }
-    const dataNet = networks
-    let updatedData = []
+    const dataNet = networks;
+    let updatedData = [];
     const coinData = await Coin.findOne({
       where: {
-        coinid: 54
-      }
-    })
-    const networkData = await getAllNetworkData()
-    const filteredNetworks = networkData.filter(item => item.coinid == 54)
+        coinid: 54,
+      },
+    });
+    const networkData = await getAllNetworkData();
+    const filteredNetworks = networkData.filter((item) => item.coinid == 54);
     //console.log("network data",filteredNetworks)
     //console.log(coinData)
-    let query ={
-      id:1
-    }
-    const usdt = await findRecord(Usdt,query)
-      if (coinData) {
-        dataNet.map((item) => {
-        const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+    let query = {
+      id: 1,
+    };
+    const usdt = await findRecord(Usdt, query);
+    if (coinData) {
+      dataNet.map((item) => {
+        const networkData = filteredNetworks.filter(
+          (Item) => Item.networkId == item.chainId
+        );
         //console.log("here", networkData)
         if (networkData[0]?.withdrawalFee) {
-
           updatedData.push({
             ...item,
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
             minBuy: networkData[0]?.minimumWithdrawal,
-            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
-          })
+            minBuyInRupee: usdt?.inrRate
+              ? Math.ceil(
+                  Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate
+                )
+              : Math.ceil(networkData[0]?.minimumWithdrawal),
+          });
         }
-      })
+      });
     }
-    const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-    console.log(minWithdrawl)
-    if(minWithdrawl.minBuyInRupee>fromAmount)
-    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
+    const minWithdrawl = updatedData.find((item) => item.chainSymbol == chain);
+    console.log(minWithdrawl);
+    if (minWithdrawl.minBuyInRupee > fromAmount)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be greater than ${minWithdrawl.minBuyInRupee}`
+          )
+        );
 
     let body = {
       fromCurrency: fromCurrency,
@@ -822,9 +918,8 @@ export async function onRampRequest(request, reply) {
       customerId: request.user.customerId,
       fromAmount: fromAmount,
       toAmount: toAmount,
-      rate: rate
-    }
-
+      rate: rate,
+    };
 
     const timestamp = Date.now().toString();
     const obj = {
@@ -848,9 +943,8 @@ export async function onRampRequest(request, reply) {
       signature: signature,
     };
 
-
     const url =
-      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/createTransaction"
+      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/createTransaction";
 
     const response = await fetch(url, {
       method: "POST",
@@ -860,78 +954,104 @@ export async function onRampRequest(request, reply) {
 
     if (!response.ok) {
       // Handle HTTP errors, e.g., 404, 500, etc.
-       const errResponse = await response.json()
-            console.log(errResponse)
-            throw new Error(`${errResponse.error}`);
+      const errResponse = await response.json();
+      console.log(errResponse);
+      throw new Error(`${errResponse.error}`);
     }
 
     const data = await response.json();
     console.log(data);
-    if(data.data.transactionId)
-    {
+    if (data.data.transactionId) {
+      (body.user_id = request.user.id),
+        (body.reference_id = data.data.transactionId);
 
-      body.user_id = request.user.id,
-      body.reference_id = data.data.transactionId
-      
-      const transaction = await OnRampTransaction.create(body)
-      
+      const transaction = await OnRampTransaction.create(body);
+
       return reply
-      .status(200)
-      .send(responseMappingWithData(200, "success", data.data.fiatPaymentInstructions));
-    }else{
-      return reply.status(500).send(responseMappingError(500, "Unable to process your request at the moment"))
-
+        .status(200)
+        .send(
+          responseMappingWithData(
+            200,
+            "success",
+            data.data.fiatPaymentInstructions
+          )
+        );
+    } else {
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(
+            500,
+            "Unable to process your request at the moment"
+          )
+        );
     }
   } catch (error) {
-    console.log("this is error", error.message)
-    return reply.status(500).send(responseMappingError(500, `internal server error`))
+    console.log("this is error", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `internal server error`));
   }
 }
 
 export async function getQuotes(request, reply) {
   try {
-    const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } = request.body
+    const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } =
+      request.body;
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
-    let body ={
+    let body = {
       fromCurrency: fromCurrency,
       toCurrency: toCurrency,
       fromAmount: fromAmount,
       chain: chain,
-      paymentMethodType: paymentMethodType
-    }
-    const dataNet = networks
-    let updatedData = []
+      paymentMethodType: paymentMethodType,
+    };
+    const dataNet = networks;
+    let updatedData = [];
     const coinData = await Coin.findOne({
       where: {
-        coinid: 54
-      }
-    })
-    const networkData = await getAllNetworkData()
-    const filteredNetworks = networkData.filter(item => item.coinid == 54)
-  
-    let query ={
-      id:1
-    }
-    const usdt = await findRecord(Usdt,query)
-      if (coinData) {
-        dataNet.map((item) => {
-        const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+        coinid: 54,
+      },
+    });
+    const networkData = await getAllNetworkData();
+    const filteredNetworks = networkData.filter((item) => item.coinid == 54);
+
+    let query = {
+      id: 1,
+    };
+    const usdt = await findRecord(Usdt, query);
+    if (coinData) {
+      dataNet.map((item) => {
+        const networkData = filteredNetworks.filter(
+          (Item) => Item.networkId == item.chainId
+        );
         //console.log("here", networkData)
         if (networkData[0]?.withdrawalFee) {
-
           updatedData.push({
             ...item,
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
             minBuy: networkData[0]?.minimumWithdrawal,
-            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)          })
+            minBuyInRupee: usdt?.inrRate
+              ? Math.ceil(
+                  Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate
+                )
+              : Math.ceil(networkData[0]?.minimumWithdrawal),
+          });
         }
-      })
+      });
     }
-    const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-    if(minWithdrawl.minBuyInRupee>fromAmount)
-    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
+    const minWithdrawl = updatedData.find((item) => item.chainSymbol == chain);
+    if (minWithdrawl.minBuyInRupee > fromAmount)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be greater than ${minWithdrawl.minBuyInRupee}`
+          )
+        );
     const timestamp = Date.now().toString();
     const obj = {
       body,
@@ -954,23 +1074,26 @@ export async function getQuotes(request, reply) {
       signature: signature,
     };
 
-    const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`)
+    const cachedData = await request.server.redis.get(
+      `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`
+    );
 
-    if(cachedData){
+    if (cachedData) {
       let data_cache = await JSON.parse(cachedData);
       console.log(data_cache);
-      if(data_cache.data)
-      {
-        let updatedData = data_cache.data
-        updatedData.feeInUsdt = Number(data_cache?.data?.fees[0]?.gasFee)/Number(data_cache?.data?.rate)
+      if (data_cache.data) {
+        let updatedData = data_cache.data;
+        updatedData.feeInUsdt =
+          Number(data_cache?.data?.fees[0]?.gasFee) /
+          Number(data_cache?.data?.rate);
         return reply
-        .status(200)
-        .send(responseMappingWithData(200, "success", updatedData));
-    }
+          .status(200)
+          .send(responseMappingWithData(200, "success", updatedData));
+      }
     }
 
     const url =
-      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote"
+      "https://api.onramp.money/onramp/api/v2/whiteLabel/onramp/quote";
 
     const response = await fetch(url, {
       method: "POST",
@@ -980,85 +1103,101 @@ export async function getQuotes(request, reply) {
 
     if (!response.ok) {
       // Handle HTTP errors, e.g., 404, 500, etc.
-      const errResponse = await response.json()
-      console.log(errResponse)
+      const errResponse = await response.json();
+      console.log(errResponse);
       throw new Error(`${errResponse.error}`);
-      
     }
 
     let data = await response.json();
     console.log(data);
 
-   const enter = await request.server.redis.set(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`,JSON.stringify(data), 'EX', 7200);
-    if(data.data)
-    {
-      let updatedData = data.data
-      updatedData.feeInUsdt = Number(data?.data?.fees[0]?.gasFee)/Number(data?.data?.rate)
+    const enter = await request.server.redis.set(
+      `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`,
+      JSON.stringify(data),
+      "EX",
+      7200
+    );
+    if (data.data) {
+      let updatedData = data.data;
+      updatedData.feeInUsdt =
+        Number(data?.data?.fees[0]?.gasFee) / Number(data?.data?.rate);
       return reply
-      .status(200)
-      .send(responseMappingWithData(200, "success", updatedData));
-    }else{
-      return reply
-      .status(200)
-      .send(responseMappingWithData(200, "success", 0));
+        .status(200)
+        .send(responseMappingWithData(200, "success", updatedData));
+    } else {
+      return reply.status(200).send(responseMappingWithData(200, "success", 0));
     }
-
   } catch (error) {
-    logger.error("user.controller.getQuotes", error.message)
-    console.log('user.controller.getQUotes', error.message)
-    return reply.status(500).send(responseMappingError(500, `${error.message}`))
-
+    logger.error("user.controller.getQuotes", error.message);
+    console.log("user.controller.getQUotes", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `${error.message}`));
   }
 }
 
 export async function getQuotesNew(request, reply) {
   try {
-    const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } = request.body
-    const dataNet = networks
-    let updatedData = []
+    const { fromCurrency, toCurrency, fromAmount, chain, paymentMethodType } =
+      request.body;
+    const dataNet = networks;
+    let updatedData = [];
     const coinData = await Coin.findOne({
       where: {
-        coinid: 54
-      }
-    })
-    const networkData = AllNetworksData//await getAllNetworkData()
-    const filteredNetworks = networkData.filter(item => item.coinid == 54)
-  
-    let query ={
-      id:1
-    }
-    const usdt = await findRecord(Usdt,query)
-      if (coinData) {
-        dataNet.map((item) => {
-        const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+        coinid: 54,
+      },
+    });
+    const networkData = AllNetworksData; //await getAllNetworkData()
+    const filteredNetworks = networkData.filter((item) => item.coinid == 54);
+
+    let query = {
+      id: 1,
+    };
+    const usdt = await findRecord(Usdt, query);
+    if (coinData) {
+      dataNet.map((item) => {
+        const networkData = filteredNetworks.filter(
+          (Item) => Item.networkId == item.chainId
+        );
         if (networkData[0]?.withdrawalFee) {
-          
           updatedData.push({
             ...item,
             icon: coinData.coinIcon,
             fee: networkData[0]?.withdrawalFee,
             minBuy: networkData[0]?.minimumWithdrawal,
-            minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)          })
+            minBuyInRupee: usdt?.inrRate
+              ? Math.ceil(
+                  Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate
+                )
+              : Math.ceil(networkData[0]?.minimumWithdrawal),
+          });
         }
-      })
+      });
     }
-    const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-    if(minWithdrawl.minBuyInRupee>fromAmount)
-    return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
-  const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`)
+    const minWithdrawl = updatedData.find((item) => item.chainSymbol == chain);
+    if (minWithdrawl.minBuyInRupee > fromAmount)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be greater than ${minWithdrawl.minBuyInRupee}`
+          )
+        );
+    // const cachedData =await request.server.redis.get(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`)
 
-    if(cachedData){
-      let data_cache = await JSON.parse(cachedData);
-      console.log(data_cache);
-      if(data_cache.data)
-      {
-        let updatedData = data_cache.data
-        updatedData.feeInUsdt = Number(data_cache?.data?.fees[0]?.gasFee)/Number(data_cache?.data?.rate)
-        return reply
-        .status(200)
-        .send(responseMappingWithData(200, "success", updatedData));
-    }
-    }
+    //   if(cachedData){
+    //     let data_cache = await JSON.parse(cachedData);
+    //     console.log(data_cache);
+    //     if(data_cache.data)
+    //     {
+    //       let updatedData = data_cache.data
+    //       updatedData.feeInUsdt = Number(data_cache?.data?.fees[0]?.gasFee)/Number(data_cache?.data?.rate)
+    //       return reply
+    //       .status(200)
+    //       .send(responseMappingWithData(200, "success", updatedData));
+    //   }
+    //   }
     // const timestamp = Date.now().toString();
     // const obj = {
     //   body,
@@ -1110,151 +1249,179 @@ export async function getQuotesNew(request, reply) {
     //   const errResponse = await response.json()
     //   console.log(errResponse)
     //   throw new Error(`${errResponse.error}`);
-      
+
     // }
 
     // let data = await response.json();
     // console.log(data);
-    const TronData = updatedData.filter((item)=>item.chainSymbol == chain)
-    const feesData = await getFee()
-    const platformfee = feesData?feesData.onRampFee?.platformFee:0.0025
-    const onRampFee = Number(fromAmount)*platformfee
-    const toAmountUsdt = (Number(fromAmount)/usdt.inrRate) - ((Number(fromAmount)*platformfee)/usdt.inrRate) - TronData[0].fee
-   
-   const quote ={
-    "fromCurrency": fromCurrency,
-    "toCurrency": toCurrency,
-    "toAmount": toAmountUsdt.toFixed(2),
-    "fromAmount": fromAmount,
-    "rate": usdt.inrRate,
-    "fees": [
-      {
-          "type": "fiat",
-          "onrampFee":onRampFee ,
-          "clientFee": "0",
-          "gatewayFee": "0",
-          "gasFee": TronData[0].fee
-      }
-    ],
-    "feeInUsdt": TronData[0].fee
-  }
-  
-  console.log("quiotess",quote)
-   const enter = await request.server.redis.set(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`,JSON.stringify(quote), 'EX', 7200);
-    if(quote)
-    {
-      let updatedData = quote
-     // updatedData.feeInUsdt = Number(data?.data?.fees[0]?.gasFee)/Number(data?.data?.rate)
-     // console.log(updatedData)
+    const TronData = updatedData.filter((item) => item.chainSymbol == chain);
+    const feesDataValues = await getFee();
+    const feesData = feesDataValues?.dataValues
+      ? feesDataValues?.dataValues
+      : feesDataValues;
+    console.log("fee data check", feesData);
+
+    // Convert platform fee percentage to a decimal value
+    const platformFeePercentage = feesData?.onrampFee?.platformFee || 2.5; // Default is 2.5%
+    const platformFee = platformFeePercentage / 100;
+
+    // Calculate the on-ramp fee
+    const onRampFee = Number(fromAmount) * platformFee;
+
+    // Calculate the final toAmount in USDT
+    const toAmountUsdt =
+      Number(fromAmount) / usdt.inrRate -
+      (Number(fromAmount) * platformFee) / usdt.inrRate -
+      TronData[0].fee;
+    console.log(toAmountUsdt);
+    // Create the quote object
+    const quote = {
+      fromCurrency: fromCurrency,
+      toCurrency: toCurrency,
+      toAmount: toAmountUsdt.toFixed(2),
+      fromAmount: fromAmount,
+      rate: usdt.inrRate,
+      fees: [
+        {
+          type: "fiat",
+          onrampFee: onRampFee,
+          clientFee: "0",
+          gatewayFee: "0",
+          gasFee: TronData[0].fee,
+        },
+      ],
+      feeInUsdt: TronData[0].fee,
+    };
+
+    console.log("Corrected Quote", quote);
+    const enter = await request.server.redis.set(
+      `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`,
+      JSON.stringify(quote),
+      "EX",
+      7200
+    );
+    if (quote) {
+      let updatedData = quote;
+      // updatedData.feeInUsdt = Number(data?.data?.fees[0]?.gasFee)/Number(data?.data?.rate)
+      // console.log(updatedData)
       return reply
-      .status(200)
-      .send(responseMappingWithData(200, "success", updatedData));
-    }else{
-      return reply
-      .status(200)
-      .send(responseMappingWithData(200, "success", 0));
+        .status(200)
+        .send(responseMappingWithData(200, "success", updatedData));
+    } else {
+      return reply.status(200).send(responseMappingWithData(200, "success", 0));
     }
-
   } catch (error) {
-    logger.error("user.controller.getQuotes", error.message)
-    console.log('user.controller.getQUotes', error.message)
-    return reply.status(500).send(responseMappingError(500, `${error.message}`))
-
+    logger.error("user.controller.getQuotes", error.message);
+    console.log("user.controller.getQUotes", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `${error.message}`));
   }
 }
-
 
 export async function getAllOnRampTransaction(request, reply) {
   try {
     const all_on_ramp = await OnRampTransaction.findAll({
       where: {
-        uuid: request.user.id
-      }
-    })
-
+        uuid: request.user.id,
+      },
+    });
   } catch (error) {
-    logger.error("user.controller.getQuotes", error.message)
-    console.log('user.controller.getQUotes', error.message)
-    return reply.status(500).send(responseMapping(500, `Internal server error`))
-
+    logger.error("user.controller.getQuotes", error.message);
+    console.log("user.controller.getQUotes", error.message);
+    return reply
+      .status(500)
+      .send(responseMapping(500, `Internal server error`));
   }
 }
 
 export async function getUsdtRate(request, reply) {
   try {
-    let query ={
-      id:1
-    }
-    const cachedData = await request.server.redis.get(`${query.id}-getUsdtRate`)
-    if(cachedData){
-      const data = await JSON.parse(cachedData)
+    let query = {
+      id: 1,
+    };
+    const cachedData = await request.server.redis.get(
+      `${query.id}-getUsdtRate`
+    );
+    if (cachedData) {
+      const data = await JSON.parse(cachedData);
       return reply
-      .status(200)
-      .send(responseMappingWithData(200, "success", data.inrRate));
+        .status(200)
+        .send(responseMappingWithData(200, "success", data.inrRate));
     }
-    const usdt = await findRecord(Usdt,query)
-    const enter = await request.server.redis.set(`${query.id}-getUsdtRate`,JSON.stringify({inrRate:usdt.inrRate}), 'EX', 10);
-    if(usdt)
-    {
+    const usdt = await findRecord(Usdt, query);
+    const enter = await request.server.redis.set(
+      `${query.id}-getUsdtRate`,
+      JSON.stringify({ inrRate: usdt.inrRate }),
+      "EX",
+      10
+    );
+    if (usdt) {
       return reply
-      .status(200)
-      .send(responseMappingWithData(200, "success", usdt.inrRate));
-    }else{
-      return reply.status(500).send(responseMappingError(500, 0))
-
+        .status(200)
+        .send(responseMappingWithData(200, "success", usdt.inrRate));
+    } else {
+      return reply.status(500).send(responseMappingError(500, 0));
     }
   } catch (error) {
-    logger.error("user.controller.getQuotes", error.message)
-    console.log('user.controller.getQUotes', error.message)
-    return reply.status(500).send(responseMappingError(500, `Internal server error`))
-
-  }
-}
-
-
-export async function changePassword(request,reply){
-  try{
-    const {newPassword,oldPassword} = request.body
-    const user = await  User.scope("private").findOne({where:{id:request.user.id}})
-    const match =await compare(oldPassword, user.password);
-    if (!match) return reply.status(401).send(responseMappingError(500, `Wrong password`)); // generic error to prevent bruteforce
-    const encryptedPassword =await encrypt(newPassword);
-    user.password = encryptedPassword
-    await user.save()
+    logger.error("user.controller.getQuotes", error.message);
+    console.log("user.controller.getQUotes", error.message);
     return reply
-    .status(200)
-    .send(responseMappingWithData(200, "success", "success"));
-  }catch(error){
-    console.log('user.controller.changePassword', error.message)
-    return reply.status(500).send(responseMappingError(500, `${error.message}`))
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
   }
 }
 
+export async function changePassword(request, reply) {
+  try {
+    const { newPassword, oldPassword } = request.body;
+    const user = await User.scope("private").findOne({
+      where: { id: request.user.id },
+    });
+    const match = await compare(oldPassword, user.password);
+    if (!match)
+      return reply
+        .status(401)
+        .send(responseMappingError(500, `Wrong password`)); // generic error to prevent bruteforce
+    const encryptedPassword = await encrypt(newPassword);
+    user.password = encryptedPassword;
+    await user.save();
+    return reply
+      .status(200)
+      .send(responseMappingWithData(200, "success", "success"));
+  } catch (error) {
+    console.log("user.controller.changePassword", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `${error.message}`));
+  }
+}
 
-export async function sendForgetPasswordOtp(request,reply){
-  try{
+export async function sendForgetPasswordOtp(request, reply) {
+  try {
     const email = request.query.email;
     const existingUser = await User.findOne({
       where: {
         email,
-      }
+      },
     });
 
-    if(!existingUser){
-      return reply.status(500).send(responseMappingError(500, `Email doesn't exist`))
-
+    if (!existingUser) {
+      return reply
+        .status(500)
+        .send(responseMappingError(500, `Email doesn't exist`));
     }
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      host: 'smtp.gmail.com',
+      service: "gmail",
+      host: "smtp.gmail.com",
       port: 587,
       secure: false,
       auth: {
         user: "tshubhanshu007@gmail.com",
-        pass: "zrni hfym gthq upiu"
-      }
-    })
-    const otp = await generateOTP(email)
+        pass: "zrni hfym gthq upiu",
+      },
+    });
+    const otp = await generateOTP(email);
     // const mailOptions = {
     //   from: {
     //     name: "GSX solutions",
@@ -1280,7 +1447,7 @@ export async function sendForgetPasswordOtp(request,reply){
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "tshubhanshu007@gmail.com"
+        address: "tshubhanshu007@gmail.com",
       },
       to: email,
       subject: "Forget Password OTP",
@@ -1311,24 +1478,29 @@ export async function sendForgetPasswordOtp(request,reply){
             <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
           </div>
         </div>
-      `
+      `,
     };
-    await transporter.sendMail(mailOptions)
+    await transporter.sendMail(mailOptions);
     return reply
-    .status(200)
-    .send(responseMappingWithData(200, "success", "please check otp on the given email"));
-  }catch(error){
-    console.log('user.controller.changePassword', error.message)
-    return reply.status(500).send(responseMappingError(500, `Internal server error`))
-
+      .status(200)
+      .send(
+        responseMappingWithData(
+          200,
+          "success",
+          "please check otp on the given email"
+        )
+      );
+  } catch (error) {
+    console.log("user.controller.changePassword", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
   }
 }
 
-
-export async function changeForgetPassword (request,reply){
-  try{
-
-    const { email,otp,newPassword} = request.body
+export async function changeForgetPassword(request, reply) {
+  try {
+    const { email, otp, newPassword } = request.body;
     const activeOtp = await Otp.findOne({
       where: {
         email,
@@ -1339,38 +1511,43 @@ export async function changeForgetPassword (request,reply){
       },
     });
 
-    if (!activeOtp)  return reply.status(500).send(responseMappingError(500, `Incorrect otp or your otp is expired`))
+    if (!activeOtp)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(500, `Incorrect otp or your otp is expired`)
+        );
 
-    let user = await User.findOne({where:{email:email}})
-    if (!user){
-      return reply.status(500).send(responseMappingError(500, `Email doesn't exist`))
+    let user = await User.findOne({ where: { email: email } });
+    if (!user) {
+      return reply
+        .status(500)
+        .send(responseMappingError(500, `Email doesn't exist`));
     }
-    const encryptedPassword =await encrypt(newPassword);
-    user.password = encryptedPassword
-    await user.save()
+    const encryptedPassword = await encrypt(newPassword);
+    user.password = encryptedPassword;
+    await user.save();
 
     await Otp.destroy({
       where: { email },
     });
     return reply
-    .status(200)
-    .send(responseMappingWithData(200, "success", "success"));
-
-
-  }catch(error){
-    console.log('user.controller.changePassword', error.message)
-    return reply.status(500).send(responseMappingError(500, `Internal server error`))
+      .status(200)
+      .send(responseMappingWithData(200, "success", "success"));
+  } catch (error) {
+    console.log("user.controller.changePassword", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
   }
 }
-
-
 
 /**
  * Generates a one-time password (OTP) for the given phone number.
  * @param {string} phone - The phone number for which to generate the OTP.
  * @returns {Promise<string>} - A promise that resolves to the generated OTP.
  * @throws {Error} - If there is an error while generating the OTP.
-*/
+ */
 export async function generateOTP(email) {
   try {
     let otp;

@@ -8,7 +8,7 @@ import {
   responseMappingWithData,
 } from "../utils/responseMapper.js";
 import { networks } from "../utils/networks.js";
-import { findOneAndUpdate, findRecord } from "../Dao/dao.js";
+import { findOneAndUpdate, findRecord, getFee } from "../Dao/dao.js";
 import { createPayinBankRequest, generateToken } from "../ApiCalls/payhub.js";
 import { transferUSDT, tronWeb} from "../utils/tronUtils.js";
 import { AllNetworksData } from "../../blockchainData/network_data.js";
@@ -85,7 +85,7 @@ export async function onRampRequest(request, reply) {
           coinid: 54
         }
       })
-      const networkData = await getAllNetworkData()
+      const networkData = AllNetworksData//await getAllNetworkData()
       const filteredNetworks = networkData.filter(item => item.coinid == 54)
       //console.log("network data",filteredNetworks)
       //console.log(coinData)
@@ -500,28 +500,44 @@ export async function onRampRequest(request, reply) {
   
      
       const TronData = updatedData.filter((item)=>item.chainSymbol == chain)
-      const platformfee = 0.0025
-      const onRampFee = Number(fromAmount)*platformfee
-      const toAmountUsdt = (Number(fromAmount)/usdt.inrRate) - ((Number(fromAmount)*platformfee)/usdt.inrRate) - TronData[0].fee
-     
-     const quote ={
-      "fromCurrency": fromCurrency,
-      "toCurrency": toCurrency,
-      "toAmount": toAmountUsdt.toFixed(2),
-      "fromAmount": fromAmount,
-      "rate": usdt.inrRate,
-      "fees": [
+      const feesDataValues = await getFee();
+    const feesData = feesDataValues?.dataValues
+      ? feesDataValues?.dataValues
+      : feesDataValues;
+    console.log("fee data check", feesData);
+
+    // Convert platform fee percentage to a decimal value
+    const platformFeePercentage = feesData?.onrampFee?.platformFee || 2.5; // Default is 2.5%
+    const platformFee = platformFeePercentage / 100;
+
+    // Calculate the on-ramp fee
+    const onRampFee = Number(fromAmount) * platformFee;
+
+    // Calculate the final toAmount in USDT
+    const toAmountUsdt =
+      Number(fromAmount) / usdt.inrRate -
+      (Number(fromAmount) * platformFee) / usdt.inrRate -
+      TronData[0].fee;
+    console.log(toAmountUsdt);
+    // Create the quote object
+    const quote = {
+      fromCurrency: fromCurrency,
+      toCurrency: toCurrency,
+      toAmount: toAmountUsdt.toFixed(2),
+      fromAmount: fromAmount,
+      rate: usdt.inrRate,
+      fees: [
         {
-            "type": "fiat",
-            "onrampFee":onRampFee ,
-            "clientFee": "0",
-            "gatewayFee": "0",
-            "gasFee": TronData[0].fee
-        }
+          type: "fiat",
+          onrampFee: onRampFee,
+          clientFee: "0",
+          gatewayFee: "0",
+          gasFee: TronData[0].fee,
+        },
       ],
-      "feeInUsdt": TronData[0].fee
-    }
-    
+      feeInUsdt: TronData[0].fee,
+    };
+
     console.log("quiotess",quote)
     // const enter = await request.server.redis.set(`${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-${paymentMethodType}`,JSON.stringify(quote), 'EX', 7200);
       if(quote)

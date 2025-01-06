@@ -42,6 +42,7 @@ import {
   generateToken,
 } from "../ApiCalls/payhub.js";
 import { createInstantPayoutBankRequest } from "../gateways/kwikpaisa.js";
+import { sendFundTransferRequest } from "../gateways/gennpayPayout.js";
 
 const {
   User,
@@ -271,6 +272,27 @@ export async function getAllFiatAccount(request, reply) {
     return reply
       .status(200)
       .send(responseMappingWithData(200, "success", all_fiat_account));
+  } catch (error) {
+    console.log("this is error", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
+  }
+}
+
+export async function getCountries(request, reply) {
+  try {
+    const countries = [
+      {
+        name: 'India',
+        dialCode: '+91',
+        code: 'IN',
+        flag: 'https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg',
+    }    
+    ]
+    return reply
+      .status(200)
+      .send(responseMappingWithData(200, "success", countries));
   } catch (error) {
     console.log("this is error", error.message);
     return reply
@@ -660,6 +682,12 @@ export async function generateTransaction(request, reply) {
   if (!request.user) {
     return reply.status(500).send(responseMappingError(500, "Invalid request"));
   }
+  const verified = await verifyQuotes(request.body)
+  console.log("verify check",verified)
+  if(!verified)
+  {
+    return reply.status(400).send(responseMappingError(400, "Quote has changed. please try again"))
+  }
   const tronQrCode = await generateQRCode(walletAddress);
 
   try {
@@ -762,6 +790,7 @@ export async function verifyTransaction(request, reply) {
         .send(responseMappingError(400, `invalid amount`));
     }
     if (payoutHash.transaction_id) {
+      console.log('from here')
       return reply
         .status(400)
         .send(
@@ -894,13 +923,13 @@ export async function verifyTransaction(request, reply) {
           updateDetails
         );
         if (transaction) {
-          const response = await generateToken();
-          if (response.responseData.token) {
+         
+        
             const fiatAccount = await findRecord(FiatAccount, {
               fiatAccountId: transaction.fiatAccountId,
             });
             console.log(fiatAccount);
-            console.log("token", response.responseData.token);
+          
             console.log(request.user);
             const phone = request.user.phone.replace("+91-", "");
             // let body = {
@@ -914,22 +943,22 @@ export async function verifyTransaction(request, reply) {
             //   method: "IMPS",
             //   customer_id: request.user.customerId,
             // };
-            let body = {
-              id:request.user.customerId,
-              emailId: "test@payhub",
-              amount: transaction.toAmount,
-              customer_name: "tushant",
-              customer_email: request.user.email,
-              customer_phone: phone,
-              account_number: fiatAccount.fiatAccount,
-              customer_upiId: "success@upi",
-              bank_ifsc: fiatAccount.ifsc,
-              account_name: fiatAccount.account_name,
-              bank_name: fiatAccount.bank_name,
-              customer_address: "xyz",
-              method: "bank",
-              transaction_id: reference_id.toString(),
-            };
+            // let body = {
+            //   id:request.user.customerId,
+            //   emailId: "test@payhub",
+            //   amount: transaction.toAmount,
+            //   customer_name: "tushant",
+            //   customer_email: request.user.email,
+            //   customer_phone: phone,
+            //   account_number: fiatAccount.fiatAccount,
+            //   customer_upiId: "success@upi",
+            //   bank_ifsc: fiatAccount.ifsc,
+            //   account_name: fiatAccount.account_name,
+            //   bank_name: fiatAccount.bank_name,
+            //   customer_address: "xyz",
+            //   method: "bank",
+            //   transaction_id: reference_id.toString(),
+            // };
             //console.log(body);
             // const payoutRequest = await createPayoutBankRequest(
             //   response.token,
@@ -940,7 +969,21 @@ export async function verifyTransaction(request, reply) {
             //   response.responseData,
             //   body
             // );
-            const payoutRequest = await createInstantPayoutBankRequest(body)
+            //const payoutRequest = await createInstantPayoutBankRequest(body)
+            const transactionID = generateTransactionId()
+            const payoutRequest = await sendFundTransferRequest(
+              process.env.GENNPAYAPIKEY,
+              transactionID.toString(),
+              transaction.toAmount.toString(),
+              fiatAccount.fiatAccount,
+              fiatAccount.ifsc,
+              'IMPS',
+              {
+                  accountName: fiatAccount.account_name,
+                  bankName: fiatAccount.bank_name,
+              }
+            );
+            
             console.log(payoutRequest);
             if (
               payoutRequest.code == 200 &&
@@ -981,7 +1024,7 @@ export async function verifyTransaction(request, reply) {
                 .status(500)
                 .send(responseMappingError(500, `Internal server error`));
             }
-          }
+          
           // console.log(transaction)
         } else {
           console.log("transaction doesnt belong to our system");
@@ -1168,7 +1211,7 @@ export async function getQuotesNew(request, reply) {
       data: {
         fromCurrency: "usdt",
         toCurrency: "INR",
-        fromAmount: "100",
+        fromAmount: fromAmount,
         toAmount: toAmountOfframp.toFixed(2),
         rate: usdtRate,
         fees: [
@@ -1211,5 +1254,188 @@ export async function getQuotesNew(request, reply) {
     return reply
       .status(500)
       .send(responseMappingError(500, `${error.message}`));
+  }
+}
+
+export async function verifyQuotes(request) {
+  try {
+    const { fromCurrency, toCurrency, fromAmount, chain, toAmount } = request;
+    let query = {
+      id: 1,
+    };
+    const usdt = await findRecord(Usdt, query);
+    const apiKey = process.env.apiKey;
+    const secret = process.env.secret;
+    if (fromAmount < 10) {
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be greater than or equal to 10`
+          )
+        );
+    }
+    const body = {
+      fromCurrency: fromCurrency,
+      toCurrency: toCurrency,
+      fromAmount: fromAmount,
+      chain: chain,
+      // paymentMethodType: paymentMethodType
+    };
+    //   const dataNet = networks
+    //   let updatedData = []
+    //   const coinData = await Coin.findOne({
+    //     where: {
+    //       coinid: 54
+    //     }
+    //   })
+    //   const networkData = await getAllNetworkData()
+    //   const filteredNetworks = networkData.filter(item => item.coinid == 54)
+    //   //console.log("network data",filteredNetworks)
+    //   //console.log(coinData)
+    //   let query ={
+    //     id:1
+    //   }
+    //   const usdt = await findRecord(Usdt,query)
+    //     if (coinData) {
+    //       dataNet.map((item) => {
+    //       const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
+    //       //console.log("here", networkData)
+    //       if (networkData[0]?.withdrawalFee) {
+
+    //         updatedData.push({
+    //           ...item,
+    //           icon: coinData.coinIcon,
+    //           fee: networkData[0]?.withdrawalFee,
+    //           minBuy: networkData[0]?.minimumWithdrawal,
+    //           minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
+    //         })
+    //       }
+    //     })
+    //   }
+    //   const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
+    //   console.log(minWithdrawl)
+    //   if(minWithdrawl.minBuyInRupee>fromAmount)
+    //   return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
+    // const timestamp = Date.now().toString();
+    // const obj = {
+    //   body,
+    //   timestamp,
+    // };
+
+    // // Create the payload and signature
+    // const payload = cryptoJs.enc.Base64.stringify(
+    //   cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
+    // );
+    // const signature = cryptoJs.enc.Hex.stringify(
+    //   cryptoJs.HmacSHA512(payload, secret)
+    // );
+
+    // // Create the headers
+    // const headers = {
+    //   "Content-Type": "application/json",
+    //   apiKey: apiKey,
+    //   payload: payload,
+    //   signature: signature,
+    // };
+
+    // const cachedData = await request.server.redis.get(
+    //   `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`
+    // );
+
+    // if (cachedData) {
+    //   let data_cache = await JSON.parse(cachedData);
+    //   //console.log(data_cache);
+    //   if (data_cache.data) {
+    //     let updatedData = data_cache.data;
+    //     updatedData.feeInUsdt = (
+    //       Number(data_cache?.data?.fees[0]?.tdsFee) /
+    //       Number(data_cache?.data?.rate)
+    //     ).toFixed(2);
+    //     return reply
+    //       .status(200)
+    //       .send(responseMappingWithData(200, "success", updatedData));
+    //   }
+    // }
+
+    const usdtRate = usdt.inrRateOfframp; // constant exchange rate
+    let onrampFeePercentage, gatewayFeePercentage, tdsFeePercentage;
+
+    // Conditional percentages based on fromAmount
+    const feeData = await getFee()
+    if (fromAmount === 10) {
+      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage: 0.3;
+      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage: 0.96;
+      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:1.003;
+    } else if (fromAmount > 10) {
+      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage:0.272;
+      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage:0.943;
+      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:0.988;
+    } else {
+      // Set default values if needed
+      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage:0.3;
+      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage:0.96;
+      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:1.003;
+    }
+
+    // Calculate fees
+    const onrampFee = fromAmount * (onrampFeePercentage / 100) * usdtRate;
+    const gatewayFee = fromAmount * (gatewayFeePercentage / 100) * usdtRate;
+    const tdsFee = fromAmount * (tdsFeePercentage / 100) * usdtRate;
+
+    // Calculate final amount after fees
+    const toAmountOfframp =
+      fromAmount * usdtRate - (onrampFee + gatewayFee + tdsFee);
+
+    // // Log results
+    // console.log("Total Fees:", onrampFee + gatewayFee + tdsFee);
+    // console.log("Converted Amount:", fromAmount * usdtRate);
+    // console.log("Fees Breakdown:", { onrampFee, gatewayFee, tdsFee });
+    console.log("Final Amount:", toAmountOfframp);
+    const offrampAmount = {
+      status: 1,
+      code: 200,
+      data: {
+        fromCurrency: "usdt",
+        toCurrency: "INR",
+        fromAmount: fromAmount,
+        toAmount: toAmountOfframp.toFixed(2),
+        rate: usdtRate,
+        fees: [
+          {
+            type: "fiat",
+            onrampFee: onrampFee.toFixed(2),
+            gatewayFee: gatewayFee.toFixed(2),
+            tdsFee: tdsFee.toFixed(2),
+          },
+        ],
+      },
+    };
+    console.log(offrampAmount);
+
+    // const enter = await request.server.redis.set(
+    //   `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`,
+    //   JSON.stringify(offrampAmount),
+    //   "EX",
+    //   7200
+    // );
+
+    // console.log(data);
+    // console.log(data?.data?.fees, data?.data?.rate);
+    if (offrampAmount?.data) {
+      if(offrampAmount?.data?.toAmount==toAmount)
+      {
+        return true
+      }else{
+        return false
+      }
+    } else {
+      return false
+    }
+  } catch (error) {
+    logger.error("user.controller.getQuotes", error.message);
+    console.log("user.controller.getQUotes", error.message);
+    return false
   }
 }

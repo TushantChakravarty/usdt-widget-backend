@@ -358,6 +358,69 @@ export async function offrampCallbackGsx(request, reply) {
   }
 }
 
+export async function offrampCallbackGennpay(request, reply) {
+  console.log(request.body);
+  // return reply.status(200).send({ message: "success" });
+  const details = request.body
+  const transaction_id = details.merchant_reference_number
+  const status = details.status
+  const utr = details.bank_reference_number
+  // const {
+  //   transaction_id,
+  //   amount,
+  //   status,
+  //   transaction_date,
+  //   utr,
+  //   usdtRate,
+  //   customer_id,
+  //   usdtValue,
+  // } = request.body;
+  const payoutTx = await findRecord(Payout, {
+    transaction_id: transaction_id,
+  });
+//   console.log(payoutTx)
+  if(!payoutTx.transaction_id)
+  {
+    reply.status(400).send({ message: "Tx not found" });
+  }
+  const transaction = await findRecord(OffRampTransaction, {
+    reference_id: payoutTx.reference_id,
+  });
+  if (payoutTx && transaction) {
+    if (status?.toLowerCase() == "success") {
+    //   console.log("payout found", payoutTx);
+    //   console.log("offramp tx found", transaction);
+
+      transaction.processed = "SUCCESS";
+      transaction.status = "SUCCESS";
+      payoutTx.status = "SUCCESS";
+      payoutTx.utr = utr;
+      const updatedOfframp = await transaction.save();
+      const updatedPayout = await payoutTx.save();
+       console.log("updated tx", updatedOfframp);
+      console.log("updated payout", updatedPayout);
+      if (updatedOfframp && updatedPayout) {
+        reply.status(200).send({ message: "success" });
+      }
+    } else {
+      transaction.processed = "FAILED";
+      payoutTx.status = "FAILED";
+      payoutTx.utr = utr;
+      const updatedOfframp = await transaction.save();
+      const updatedPayout = await payoutTx.save();
+       console.log("updated tx", updatedOfframp);
+      console.log("updated payout", updatedPayout);
+      if (updatedOfframp && updatedPayout) {
+        reply.status(200).send({ message: "success" });
+      }
+    }
+  } else {
+   
+      reply.status(400).send({ message: "Tx not found" });
+    
+  }
+}
+
 export async function onrampCallback(request, reply) {
   console.log("onramp callback",request.body);
   const data = request.body

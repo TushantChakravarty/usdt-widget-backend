@@ -33,20 +33,20 @@ import amqp from 'amqplib'
 import { responseMappingError } from './utils/responseMapper.js'
 import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
+import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
 
 // sendFundTransferRequest(
 //     '7b7d2684-ff99-46ae-9a1e-3b10fe101b6e',
-//     '753235678',
+//     '753235687799',
 //     '100.00',
-//     '50100405686622',
-//     'HDFC0000011',
-//     'NEFT',
+//     '50100771180561',
+//     'HDFC0009640',
+//     'IMPS',
 //     {
-//         accountName: 'Shubhanshu tripathi',
+//         accountName: 'Tushant chakraborty',
 //         bankName: 'HDFC',
-//         bankBranch: 'VASANT VIHAR'
 //     }
 //   );
 /**
@@ -120,6 +120,7 @@ await server.register(cookie, {
  * Register redis caching plugin
  */
  await server.register(redisPlugin)
+ await server.register(require('@fastify/formbody')); // Enables parsing of URL-encoded form data
 
 // await server.register(fastifyJwt, {
 //     secret: 'hereismysecretkey'

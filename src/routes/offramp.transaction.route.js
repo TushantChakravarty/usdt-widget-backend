@@ -118,6 +118,15 @@ const routes = async (route, options) => { // route = fastify instance
     handler: offramp.getAllFiatAccount,
   });
 
+  route.get('/getCountries', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    preValidation: validateToken,
+    handler: offramp.getCountries,
+  });
+
   /**
 * Route for getting quote for offramp 
 * Handles getting quotes for a given coin-currency pair
