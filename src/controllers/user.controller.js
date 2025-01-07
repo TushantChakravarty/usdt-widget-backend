@@ -313,7 +313,7 @@ export async function sendAddPhoneOtp(request,reply){
       return reply.status(500).send(responseMappingError(401, `Unauthorized`))
     }
     
-    const otp = await generateOTP(phone)
+    const otp = await generateOTP(`+${phone}`)
 
     const send_message = await createMessage(otp,phone)
 
