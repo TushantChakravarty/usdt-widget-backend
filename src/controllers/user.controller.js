@@ -199,7 +199,7 @@ export async function sendLoginOtp(request, reply) {
     if (!existingUser) {
       return reply
         .status(500)
-        .send(responseMappingError(500, `Account not exist`));
+        .send(responseMappingError(500, `Account does not exist`));
     }
     const transporter = nodemailer.createTransport({
       service: "gmail",
