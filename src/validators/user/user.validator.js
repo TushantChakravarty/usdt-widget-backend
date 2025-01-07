@@ -58,7 +58,7 @@ export const sendAddPhoneOtp = {
     querystring: {
         type: 'object',
         properties: {
-            phone: { type: 'string',minLength:10, maxLength: 10 },
+            phone: { type: 'string',minLength:1, maxLength: 25 },
         },
         required: ['phone'],
         additionalProperties: false,
