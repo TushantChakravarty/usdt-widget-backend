@@ -284,7 +284,7 @@ async function createMessage(otp,phone) {
     const client = twilio(accountSid, authToken);
   const message = await client.messages.create({
     body: `Your one time password (OTP) for Log-in USDT Marketplace is: ${otp}`,
-    to: phone,
+    to: `+${phone},
     from: process.env.TWILIIO_PHONE_NUMBER,
   });
   // console.log("message response ",message)
