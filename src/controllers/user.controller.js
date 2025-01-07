@@ -284,7 +284,7 @@ async function createMessage(otp,phone) {
     const client = twilio(accountSid, authToken);
   const message = await client.messages.create({
     body: `Your one time password (OTP) for Log-in USDT Marketplace is: ${otp}`,
-    to: `+${phone}`,
+    to: `${phone}`,
     from: process.env.TWILIIO_PHONE_NUMBER,
   });
   // console.log("message response ",message)
@@ -303,7 +303,8 @@ async function createMessage(otp,phone) {
 
 export async function sendAddPhoneOtp(request,reply){
   try{
-    const phone = request.query.phone;
+    const phone = request.body.phone
+    // const phone = request.query.phone;
     const existingUser = await User.findOne({
       where: {
         email:request.user.email,
@@ -313,7 +314,7 @@ export async function sendAddPhoneOtp(request,reply){
       return reply.status(500).send(responseMappingError(401, `Unauthorized`))
     }
     
-    const otp = await generateOTP(`+${phone}`)
+    const otp = await generateOTP(`${phone}`)
 
     const send_message = await createMessage(otp,phone)
 

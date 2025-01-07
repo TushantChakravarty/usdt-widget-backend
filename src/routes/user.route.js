@@ -55,7 +55,7 @@ const routes = async (route, options) => { // route = fastify instance
     handler: user.sendSignUpOtp,
   });
 
-  route.get('/sendAddPhoneOtp', {
+  route.post('/sendAddPhoneOtp', {
     schema: validator.sendAddPhoneOtp,
     preValidation: validateToken,
     handler: user.sendAddPhoneOtp,

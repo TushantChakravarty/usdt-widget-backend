@@ -55,7 +55,7 @@ export const signupOtp = {
 }
 
 export const sendAddPhoneOtp = {
-    querystring: {
+    body: {
         type: 'object',
         properties: {
             phone: { type: 'string',minLength:1, maxLength: 25 },
