@@ -71,9 +71,9 @@ export async function AddFiatAccountId(request, reply) {
       fiat_account_exist.delete === false
     ) {
       return reply
-        .status(500)
+        .status(400)
         .send(
-          responseMappingError(500, "You already have a fiat account with this")
+          responseMappingError(400, "You already have a fiat account with this")
         );
     }
     if (
@@ -89,8 +89,8 @@ export async function AddFiatAccountId(request, reply) {
     }
     if (fiat_account_exist && fiat_account_exist.delete === false) {
       return reply
-        .status(500)
-        .send(responseMappingError(500, "This account already in use"));
+        .status(400)
+        .send(responseMappingError(400, "This account already in use"));
     }
     if (fiat_account_exist && fiat_account_exist.delete === true) {
       fiat_account_exist.delete = false;
