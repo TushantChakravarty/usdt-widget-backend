@@ -269,3 +269,88 @@ export async function updateFeesAndRatesData(request, reply) {
     }
 }
   
+
+import { countTodayTransactions,successfullTxCount24hr, allOnrampTransactionCount, sumTodaySuccessTransactionsToAmount, sumTodaySuccessTransactionsFromAmount, sumYesterdaySuccessTransactionsToAmount, sumYesterdaySuccessTransactionsFromAmount, totalVolumeToAmount, totalVolumeFromAmount, sumTodaySuccessTransactionsOffRampToAmount, sumTodaySuccessTransactionsOffRampFromAmount, sumYesterdaySuccessTransactionsOfframpToAmount, sumYesterdaySuccessTransactionsOfframpFromAmount, allOfframpTransactionCount, countTodayTransactionsOfframp, successfullTxCount24hrofframp, totalVolumeOfframpToAmount, totalVolumeOfframpFromAmount} from "../services/metrics.service.js";
+
+/**
+ * 
+ */
+
+
+
+
+
+export async function metricsDataOnRamp(request,reply){
+  try{
+    const todaySuccessfullTransactionTotalToAmount = await sumTodaySuccessTransactionsToAmount()
+    const todaySuccessfullTransactionTotalFromAmount = await sumTodaySuccessTransactionsFromAmount()
+    const yesterdaySuccessfullTransactionTotalToAmount = await sumYesterdaySuccessTransactionsToAmount()
+    const yesterdaySuccessfullTransactionTotalFromAmount = await sumYesterdaySuccessTransactionsFromAmount()
+
+    const allOnrampTxCount =await allOnrampTransactionCount()
+    const countTodayAllTransaction = await countTodayTransactions()
+    const successfullTxCount24hrcount = await successfullTxCount24hr()
+    const totalVolumeOnRampToAmount = await totalVolumeToAmount()
+    const totalVolumeOnRampFromAmount = await totalVolumeFromAmount()
+
+
+    const successRate =(successfullTxCount24hrcount/countTodayAllTransaction)*100
+
+
+    const response_data = {
+      todayToAmountSuccessVolume :todaySuccessfullTransactionTotalToAmount,
+      todayFromAmountSuccessVolume :todaySuccessfullTransactionTotalFromAmount,
+      yesterdayToAmountSuccessVolume :yesterdaySuccessfullTransactionTotalToAmount,
+      yesterdayFromAmountSuccessVolume :yesterdaySuccessfullTransactionTotalFromAmount,
+      totalAllTxCount : allOnrampTxCount,
+      todayAllTxCount : countTodayAllTransaction,
+      todaySuccessfullTxCount: successfullTxCount24hrcount,
+      totalToAmountSuccessfullVolume : totalVolumeOnRampToAmount,
+      totalFromAmountSuccessfullVolume : totalVolumeOnRampFromAmount,
+      successRate:successRate
+    }
+
+    return reply.status(200).send(responseMappingWithData(200, "Success", response_data));
+
+  }catch(error){
+     console.log(error.message)
+  }
+}
+
+
+export async function metricsDataOffRamp(request,reply){
+  try{
+    const todaySuccessfullTransactionTotalToAmount = await sumTodaySuccessTransactionsOffRampToAmount()
+    const todaySuccessfullTransactionTotalFromAmount = await sumTodaySuccessTransactionsOffRampFromAmount()
+    const yesterdaySuccessfullTransactionTotalToAmount = await sumYesterdaySuccessTransactionsOfframpToAmount()
+    const yesterdaySuccessfullTransactionTotalFromAmount = await sumYesterdaySuccessTransactionsOfframpFromAmount()
+
+    const allOfframpTxCount =await allOfframpTransactionCount()
+    const countTodayAllTransaction = await countTodayTransactionsOfframp()
+    const successfullTxCount24hrcount = await successfullTxCount24hrofframp()
+    const totalVolumeOffRampToAmount = await totalVolumeOfframpToAmount()
+    const totalVolumeOffRampFromAmount = await totalVolumeOfframpFromAmount()
+
+
+    const successRate =(successfullTxCount24hrcount/countTodayAllTransaction)*100
+
+
+    const response_data = {
+      todayToAmountSuccessVolume :todaySuccessfullTransactionTotalToAmount,
+      todayFromAmountSuccessVolume :todaySuccessfullTransactionTotalFromAmount,
+      yesterdayToAmountSuccessVolume :yesterdaySuccessfullTransactionTotalToAmount,
+      yesterdayFromAmountSuccessVolume :yesterdaySuccessfullTransactionTotalFromAmount,
+      totalAllTxCount : allOfframpTxCount,
+      todayAllTxCount : countTodayAllTransaction,
+      todaySuccessfullTxCount: successfullTxCount24hrcount,
+      totalToAmountSuccessfullVolume : totalVolumeOffRampToAmount,
+      totalFromAmountSuccessfullVolume : totalVolumeOffRampFromAmount,
+      successRate:successRate
+    }
+
+    return reply.status(200).send(responseMappingWithData(200, "Success", response_data));
+
+  }catch(error){
+     console.log(error.message)
+  }
+}
