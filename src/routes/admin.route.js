@@ -107,6 +107,28 @@ const routes = async (route, options) => {
     preValidation: [validateAdminToken, validateRole(["master_admin"])],
     handler: admin.updateFeesAndRatesData,
   });
+
+
+  /**
+   * Route for getting fees data.
+   * Handles getting all fees data.
+   */
+  route.get("/onrampMetrics", {
+  //  schema: Validator.Admin.updateFeeSchema,
+   preValidation: [validateAdminToken, validateRole(["master_admin"])],
+    handler: admin.metricsDataOnRamp,
+  });
+
+
+  /**
+   * Route for getting off ramp metrices.
+   */
+  route.get("/offrampMetrics", {
+    // schema: Validator.Admin.updateFeeSchema,
+     preValidation: [validateAdminToken, validateRole(["master_admin"])],
+     handler: admin.metricsDataOffRamp,
+   });
 };
 
 export default routes;
+  
