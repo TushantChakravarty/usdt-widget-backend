@@ -56,7 +56,7 @@ export async function signup(request, reply) {
       return reply
         .status(500)
         .send(
-          responseMappingError(500, `Incorrect otp or your otp is expired`)
+          responseMappingError(500, `Invalid or expired OTP.`)
         );
     // encrypt password
     const encryptedPassword = await encrypt(password);
@@ -175,7 +175,7 @@ export async function sendSignUpOtp(request, reply) {
         responseMappingWithData(
           200,
           "success",
-          "please check otp on the given email"
+          "Check your email for the OTP."
         )
       );
   } catch (error) {
@@ -199,7 +199,7 @@ export async function sendLoginOtp(request, reply) {
     if (!existingUser) {
       return reply
         .status(500)
-        .send(responseMappingError(500, `Account does not exist`));
+        .send(responseMappingError(500, `Account not found.`));
     }
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -256,7 +256,7 @@ export async function sendLoginOtp(request, reply) {
         responseMappingWithData(
           200,
           "success",
-          "please check otp on the given email"
+          "Check your email for the OTP."
         )
       );
   } catch (error) {
@@ -319,12 +319,12 @@ export async function sendAddPhoneOtp(request,reply){
     const send_message = await createMessage(otp,phone)
 
     if(!send_message){
-      return reply.status(500).send(responseMappingError(500, `Unable to send otp, please try after some time`)) 
+      return reply.status(500).send(responseMappingError(500, `Failed to send OTP.`)) 
     }
     
     return reply
     .status(200)
-    .send(responseMappingWithData(200, "success", "please check otp on the given phone number"));
+    .send(responseMappingWithData(200, "success", "Check your phone for the OTP."));
   }catch(error){
     console.log('user.controller.changePassword', error.message)
     return reply.status(500).send(responseMappingError(500, `Internal server error`))
@@ -345,7 +345,7 @@ export async function addPhone(request,reply){
     }
 
     if(user.isPhoneAdded){
-      return reply.status(500).send(responseMappingError(500, `Phone is already added`))
+      return reply.status(500).send(responseMappingError(500, `Phone already registered.`))
     }
 
     const activeOtp = await Otp.findOne({
@@ -361,7 +361,7 @@ export async function addPhone(request,reply){
       return reply
         .status(500)
         .send(
-          responseMappingError(500, `Incorrect otp or your otp is expired`)
+          responseMappingError(500, `Invalid or expired OTP.`)
         );
     // encrypt password
     await Otp.destroy({
@@ -402,7 +402,7 @@ export async function login(request, reply) {
     if (!user)
       return reply
         .status(404)
-        .send(responseMappingError(404, "User doesnt exist")); // generic error to prevent bruteforce
+        .send(responseMappingError(404, "Account not found")); // generic error to prevent bruteforce
     // compare password
 
     const activeOtp = await Otp.findOne({
@@ -418,7 +418,7 @@ export async function login(request, reply) {
       return reply
         .status(500)
         .send(
-          responseMappingError(500, `Incorrect otp or your otp is expired`)
+          responseMappingError(500, `Invalid or expired OTP.`)
         );
     const match = await compare(password, user.password);
     if (!match)
@@ -565,7 +565,7 @@ export async function updatePhone(request, reply) {
       return reply
         .status(500)
         .send(
-          responseMappingError(500, `Incorrect otp or your otp is expired`)
+          responseMappingError(500, `Invalid or expired OTP.`)
         );
         // encrypt password
            
@@ -581,7 +581,7 @@ export async function updatePhone(request, reply) {
     } else
       reply
         .status(500)
-        .send(responseMappingError(500, "unable to update user phone number"));
+        .send(responseMappingError(500, "Failed to update phone number."));
   } catch (error) {
     reply.status(500).send(responseMappingError(500, error.message));
   }
@@ -790,7 +790,7 @@ export async function getAllNetworks(request, reply) {
       reply.status(500).send(responseMappingError(500, "please send coin id"));
     }
     if (request.query.id !== "54") {
-      reply.status(500).send(responseMappingError(500, "invalid coin id"));
+      reply.status(500).send(responseMappingError(500, "Invalid coin id"));
     }
     const data = networks;
     let updatedData = [];
@@ -854,10 +854,10 @@ export async function getAllNetworksNew(request, reply) {
   try {
     console.log(request.query.id);
     if (!request.query.id) {
-      reply.status(500).send(responseMappingError(500, "please send coin id"));
+      reply.status(500).send(responseMappingError(500, "Please send coin id"));
     }
     if (request.query.id !== "54") {
-      reply.status(500).send(responseMappingError(500, "invalid coin id"));
+      reply.status(500).send(responseMappingError(500, "Invalid coin id"));
     }
     const data = networks;
     let updatedData = [];
@@ -903,7 +903,7 @@ export async function getAllNetworksNew(request, reply) {
     } else
       reply
         .status(500)
-        .send(responseMappingError(500, "unable to get networks"));
+        .send(responseMappingError(500, "Unable to get networks"));
   } catch (error) {
     console.log("error check", error);
     reply.status(500).send(responseMappingError(500, error.message));
@@ -939,7 +939,7 @@ export async function getKycUrl(request, reply) {
     if (!user.phone) {
       return reply
         .status(400)
-        .send(responseMappingError(200, "please add phone number"));
+        .send(responseMappingError(200, "Add a phone number."));
     }
     if (user.kycUrl) {
       return reply
@@ -1165,7 +1165,7 @@ export async function onRampRequest(request, reply) {
     console.log("this is error", error.message);
     return reply
       .status(500)
-      .send(responseMappingError(500, `internal server error`));
+      .send(responseMappingError(500, `Internal server error`));
   }
 }
 
@@ -1584,7 +1584,7 @@ export async function sendForgetPasswordOtp(request, reply) {
     if (!existingUser) {
       return reply
         .status(500)
-        .send(responseMappingError(500, `Email doesn't exist`));
+        .send(responseMappingError(500, `Email not exist`));
     }
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -1662,7 +1662,7 @@ export async function sendForgetPasswordOtp(request, reply) {
         responseMappingWithData(
           200,
           "success",
-          "please check otp on the given email"
+          "Check your email for the OTP."
         )
       );
   } catch (error) {
@@ -1690,14 +1690,14 @@ export async function changeForgetPassword(request, reply) {
       return reply
         .status(500)
         .send(
-          responseMappingError(500, `Incorrect otp or your otp is expired`)
+          responseMappingError(500, `Invalid or expired OTP.`)
         );
 
     let user = await User.findOne({ where: { email: email } });
     if (!user) {
       return reply
         .status(500)
-        .send(responseMappingError(500, `Email doesn't exist`));
+        .send(responseMappingError(500, `Email not exist`));
     }
     const encryptedPassword = await encrypt(newPassword);
     user.password = encryptedPassword;
@@ -1765,9 +1765,7 @@ export async function checkMobileAndBankAddedOrNot(request,reply){
     .send(responseMappingWithData(200, "success", {isPhoneAdded,isBankAdded}));
 
   }catch(error){
-   
       console.log('user.controller.changePassword', error.message)
       return reply.status(500).send(responseMappingError(500, `Internal server error`))
-
   }
 }
