@@ -683,16 +683,16 @@ export async function generateTransaction(request, reply) {
   if (!request.user) {
     return reply.status(500).send(responseMappingError(500, "Invalid request"));
   }
-  // if (fromAmount < 10) {
-  //   return reply
-  //     .status(500)
-  //     .send(
-  //       responseMappingError(
-  //         400,
-  //         `Amount should be greater than or equal to 10`
-  //       )
-  //     );
-  // }
+  if (fromAmount < 10) {
+    return reply
+      .status(500)
+      .send(
+        responseMappingError(
+          400,
+          `Amount should be greater than or equal to 10`
+        )
+      );
+  }
   const verified = await verifyQuotes(request.body)
   console.log("verify check",verified)
   if(!verified)
@@ -1138,16 +1138,16 @@ export async function getQuotesNew(request, reply) {
     };
     const usdt = await findRecord(Usdt, query);
 
-    // if (fromAmount < 10) {
-    //   return reply
-    //     .status(500)
-    //     .send(
-    //       responseMappingError(
-    //         400,
-    //         `Amount should be greater than or equal to 10`
-    //       )
-    //     );
-    // }
+    if (fromAmount < 10) {
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be greater than or equal to 10`
+          )
+        );
+    }
 
     const cachedData = await request.server.redis.get(
       `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`
