@@ -212,7 +212,7 @@ export async function sendLoginOtp(request, reply) {
       },
     });
     const otp = await generateOTP(email);
-   
+    console.log(otp);
     const mailOptions = {
       from: {
         name: "GSX solutions",

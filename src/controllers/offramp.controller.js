@@ -43,6 +43,7 @@ import {
 } from "../ApiCalls/payhub.js";
 import { createInstantPayoutBankRequest } from "../gateways/kwikpaisa.js";
 import { sendFundTransferRequest } from "../gateways/gennpayPayout.js";
+import { createRazorpayPayoutService } from "../gateways/razorpay.js";
 
 const {
   User,
@@ -943,22 +944,22 @@ export async function verifyTransaction(request, reply) {
             //   method: "IMPS",
             //   customer_id: request.user.customerId,
             // };
-            // let body = {
-            //   id:request.user.customerId,
-            //   emailId: "test@payhub",
-            //   amount: transaction.toAmount,
-            //   customer_name: "tushant",
-            //   customer_email: request.user.email,
-            //   customer_phone: phone,
-            //   account_number: fiatAccount.fiatAccount,
-            //   customer_upiId: "success@upi",
-            //   bank_ifsc: fiatAccount.ifsc,
-            //   account_name: fiatAccount.account_name,
-            //   bank_name: fiatAccount.bank_name,
-            //   customer_address: "xyz",
-            //   method: "bank",
-            //   transaction_id: reference_id.toString(),
-            // };
+            let body = {
+              id:request.user.customerId,
+              emailId: "test@payhub",
+              amount: transaction.toAmount,
+              customer_name: "tushant",
+              customer_email: request.user.email,
+              customer_phone: phone,
+              account_number: fiatAccount.fiatAccount,
+              customer_upiId: "success@upi",
+              bank_ifsc: fiatAccount.ifsc,
+              account_name: fiatAccount.account_name,
+              bank_name: fiatAccount.bank_name,
+              customer_address: "xyz",
+              method: "bank",
+              transaction_id: reference_id.toString(),
+            };
             //console.log(body);
             // const payoutRequest = await createPayoutBankRequest(
             //   response.token,
@@ -970,19 +971,22 @@ export async function verifyTransaction(request, reply) {
             //   body
             // );
             //const payoutRequest = await createInstantPayoutBankRequest(body)
+
             const transactionID = generateTransactionId()
-            const payoutRequest = await sendFundTransferRequest(
-              process.env.GENNPAYAPIKEY,
-              transactionID.toString(),
-              transaction.toAmount.toString(),
-              fiatAccount.fiatAccount,
-              fiatAccount.ifsc,
-              'IMPS',
-              {
-                  accountName: fiatAccount.account_name,
-                  bankName: fiatAccount.bank_name,
-              }
-            );
+            // const payoutRequest = await sendFundTransferRequest(
+            //   process.env.GENNPAYAPIKEY,
+            //   transactionID.toString(),
+            //   transaction.toAmount.toString(),
+            //   fiatAccount.fiatAccount,
+            //   fiatAccount.ifsc,
+            //   'IMPS',
+            //   {
+            //       accountName: fiatAccount.account_name,
+            //       bankName: fiatAccount.bank_name,
+            //   }
+            // );
+
+            const payoutRequest = await createRazorpayPayoutService(body,'bank')
             
             console.log(payoutRequest);
             if (
