@@ -683,16 +683,16 @@ export async function generateTransaction(request, reply) {
   if (!request.user) {
     return reply.status(500).send(responseMappingError(500, "Invalid request"));
   }
-  if (fromAmount < 10) {
-    return reply
-      .status(500)
-      .send(
-        responseMappingError(
-          400,
-          `Amount should be greater than or equal to 10`
-        )
-      );
-  }
+  // if (fromAmount < 10) {
+  //   return reply
+  //     .status(500)
+  //     .send(
+  //       responseMappingError(
+  //         400,
+  //         `Amount should be greater than or equal to 10`
+  //       )
+  //     );
+  // }
   const verified = await verifyQuotes(request.body)
   console.log("verify check",verified)
   if(!verified)
@@ -1137,81 +1137,17 @@ export async function getQuotesNew(request, reply) {
       id: 1,
     };
     const usdt = await findRecord(Usdt, query);
-    const apiKey = process.env.apiKey;
-    const secret = process.env.secret;
-    if (fromAmount < 10) {
-      return reply
-        .status(500)
-        .send(
-          responseMappingError(
-            400,
-            `Amount should be greater than or equal to 10`
-          )
-        );
-    }
-    const body = {
-      fromCurrency: fromCurrency,
-      toCurrency: toCurrency,
-      fromAmount: fromAmount,
-      chain: chain,
-      // paymentMethodType: paymentMethodType
-    };
-    //   const dataNet = networks
-    //   let updatedData = []
-    //   const coinData = await Coin.findOne({
-    //     where: {
-    //       coinid: 54
-    //     }
-    //   })
-    //   const networkData = await getAllNetworkData()
-    //   const filteredNetworks = networkData.filter(item => item.coinid == 54)
-    //   //console.log("network data",filteredNetworks)
-    //   //console.log(coinData)
-    //   let query ={
-    //     id:1
-    //   }
-    //   const usdt = await findRecord(Usdt,query)
-    //     if (coinData) {
-    //       dataNet.map((item) => {
-    //       const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
-    //       //console.log("here", networkData)
-    //       if (networkData[0]?.withdrawalFee) {
 
-    //         updatedData.push({
-    //           ...item,
-    //           icon: coinData.coinIcon,
-    //           fee: networkData[0]?.withdrawalFee,
-    //           minBuy: networkData[0]?.minimumWithdrawal,
-    //           minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
-    //         })
-    //       }
-    //     })
-    //   }
-    //   const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-    //   console.log(minWithdrawl)
-    //   if(minWithdrawl.minBuyInRupee>fromAmount)
-    //   return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
-    // const timestamp = Date.now().toString();
-    // const obj = {
-    //   body,
-    //   timestamp,
-    // };
-
-    // // Create the payload and signature
-    // const payload = cryptoJs.enc.Base64.stringify(
-    //   cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
-    // );
-    // const signature = cryptoJs.enc.Hex.stringify(
-    //   cryptoJs.HmacSHA512(payload, secret)
-    // );
-
-    // // Create the headers
-    // const headers = {
-    //   "Content-Type": "application/json",
-    //   apiKey: apiKey,
-    //   payload: payload,
-    //   signature: signature,
-    // };
+    // if (fromAmount < 10) {
+    //   return reply
+    //     .status(500)
+    //     .send(
+    //       responseMappingError(
+    //         400,
+    //         `Amount should be greater than or equal to 10`
+    //       )
+    //     );
+    // }
 
     const cachedData = await request.server.redis.get(
       `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`
