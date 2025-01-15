@@ -14,72 +14,6 @@ function generateTransactionId(length = 12) {
   return result;
 }
 
-// Function to generate hash key
-function generateHashKey(parameters, salt, hashingMethod = "sha512") {
-  const sortedKeys = Object.keys(parameters).sort();
-  let hashData = salt;
-
-  sortedKeys.forEach(key => {
-    const value = parameters[key];
-    if (value) {
-      hashData += `|${value.trim()}`;
-    }
-  });
-
-  return createHash(hashingMethod).update(hashData).digest("hex").toUpperCase();
-}
-
-// Razorpay instance
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET
-});
-
-export async function createPaymentLinkViaRazorpay(details) {
-  try {
-    const txId = generateTransactionId();
-    const currentTime = new Date();
-    const expiryTime = new Date(currentTime.getTime() + 15 * 60 * 1000);
-    const istUnixTimestamp = Math.floor(expiryTime.getTime() / 1000);
-
-    const response = await razorpay.paymentLink.create({
-      amount: Number(details.amount) * 100,
-      currency: "INR",
-      accept_partial: true,
-      first_min_partial_amount: 100,
-      expire_by: istUnixTimestamp,
-      reference_id: txId,
-      customer: {
-        name: details.customer_name,
-        email: details.customer_emailId,
-        contact: details.customer_phone
-      },
-      notify: {
-        sms: true,
-        email: true
-      },
-      options: {
-        checkout: {
-          name: "GSX Solutions",
-          theme: { hide_topbar: true },
-          method: {
-            netbanking: "1",
-            card: "1",
-            upi: "1",
-            wallet: "1"
-          }
-        }
-      }
-    });
-
-    if (!response) throw new Error("Unable to generate payment link");
-    return responseMappingWithData(200, "Payment link created successfully", response);
-  } catch (error) {
-    console.error("Error in createPaymentLinkViaRazorpay:", error);
-    return responseMappingError(500, "Internal server error", "Unable to create payment link");
-  }
-}
-
 export async function createQrCode() {
   try {
     const currentUnixTime = Math.floor(Date.now() / 1000);
@@ -103,21 +37,17 @@ export async function createQrCode() {
   }
 }
 
-export async function createRazorpayPayoutService(details, type) {
+export async function createRazorpayPayoutService(details) {
   try {
     const referenceId = generateTransactionId();
     const contactId = await createRazorpayContact(details);
 
     let payoutData;
-    if (type === "vpa") {
-      const fundAccountId = await createRazorpayFundAccountForVpa(details, contactId);
-      payoutData = await createPayout(fundAccountId, details.amount, "UPI",referenceId);
-    } else if (type === "bank") {
+
       const fundAccountId = await createRazorpayFundAccountForBank(details, contactId);
       payoutData = await createPayout(fundAccountId, details.amount, "IMPS",referenceId);
-    }
 
-    return responseMappingWithData(200, "Payout created successfully", payoutData);
+    return responseMappingWithData(200, "Payout created successfully",{ transaction_id: payoutData.id});
   } catch (error) {
     console.error("Error in createRazorpayPayoutService:", error);
     return responseMappingError(500, "Internal server error", "Unable to create payout");
@@ -125,74 +55,119 @@ export async function createRazorpayPayoutService(details, type) {
 }
 
 async function createRazorpayContact(details) {
-  const requestBody = {
-    name: details.account_name,
-    email: details.customer_email,
-    contact: details.customer_phone,
-    type: "employee"
-  };
-
   try {
-    const response = await razorpay.contacts.create(requestBody);
-    return response.id;
-  } catch (error) {
-    console.error("Error in createRazorpayContact:", error);
-    throw new Error("Unable to create contact");
-  }
-}
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-async function createRazorpayFundAccountForBank(details, contactId) {
-  const requestBody = {
-    contact_id: contactId,
-    account_type: "bank_account",
-    bank_account: {
-      name: details.account_name,
-      ifsc: details.bank_ifsc,
-      account_number: details.account_number
+    const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+    const request_body = {
+      name: details.account_name ? details.account_name : "Test",
+      email: details.email ? details.email : "test@gmail.com",
+      contact: details.contact,
+      type: "employee",
+      reference_id: "Acme Contact ID 12345",
+      notes: {
+        random_key_1: "Make it so.",
+        random_key_2: "Tea. Earl Grey. Hot.",
+      },
+    };
+    const response = await fetch("https://api.razorpay.com/v1/contacts", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${basicAuth}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request_body),
+    });
+    console.log("resppnse", response);
+    if (!response.ok) {
+      console.log("coming inside this");
+      throw new Error("Network response was not ok");
     }
-  };
-
-  try {
-    const response = await razorpay.fundAccounts.create(requestBody);
-    return response.id;
-  } catch (error) {
-    console.error("Error in createRazorpayFundAccountForBank:", error);
-    throw new Error("Unable to create fund account");
+    const data = await response.json();
+    console.log("returning datat id", data);
+    return data?.id;
+  } catch (err) {
+    console.log(`razorpayService.js-createRazorpayContact`, err);
+    throw new Error("Unable to do payout");
   }
 }
 
-async function createRazorpayFundAccountForVpa(details, contactId) {
-  const requestBody = {
-    contact_id: contactId,
-    account_type: "vpa",
-    vpa: { address: details.customer_upiId }
-  };
-
+async function createRazorpayFundAccountForBank(details, contact_id) {
   try {
-    const response = await razorpay.fundAccounts.create(requestBody);
-    return response.id;
-  } catch (error) {
-    console.error("Error in createRazorpayFundAccountForVpa:", error);
-    throw new Error("Unable to create VPA fund account");
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
+    const request_body = {
+      contact_id: contact_id,
+      account_type: "bank_account",
+      bank_account: {
+        name: details.account_name,
+        ifsc: details.bank_ifsc,
+        account_number: details.account_number,
+      },
+    };
+    console.log("request_body fund acc", request_body);
+    const response = await fetch("https://api.razorpay.com/v1/fund_accounts", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${basicAuth}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(request_body),
+    });
+    console.log("resp", response);
+    if (!response.ok) {
+      console.log("fund account response",response);
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    return data.id;
+  } catch (err) {
+    console.log(`razorpayService.js-create fund account`, err);
   }
 }
 
-async function createPayout(fundAccountId, amount, mode,reference_id) {
+const createPayout = async (fund_account_id, amount, method) => {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  const keySecret = process.env.RAZORPAY_KEY_SECRET;
+  console.log()
+  const basicAuth = Buffer.from(`${keyId}:${keySecret}`).toString("base64");
   const payoutData = {
     account_number: process.env.RAZORPAY_ACCOUNT_ID,
-    fund_account_id: fundAccountId,
+    fund_account_id: fund_account_id,
     amount: amount * 100,
     currency: "INR",
-    mode: mode,
+    mode: method,
     purpose: "payout",
-    reference_id: `${reference_id}`
+    queue_if_low_balance: true,
+    reference_id: `${Date.now()}`,
+    narration: "Acme Corp Fund Transfer",
+    notes: {
+      notes_key_1: "Tea, Earl Grey, Hot",
+      notes_key_2: "Tea, Earl Grey… decaf.",
+    },
   };
 
   try {
-    const response = await razorpay.payouts.create(payoutData);
-    return response;
+    const response = await fetch("https://api.razorpay.com/v1/payouts", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${basicAuth}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payoutData),
+    });
+    //console.log("resp", response);
+    if (!response.ok) {
+      console.log(await response.json());
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    console.log("here 1",data);
+    return data;
   } catch (error) {
-    console.error("Error in createPayout:", error);
-    throw new Error("Unable to create payout");
+    console.error("Error creating payout:", error);
+    throw new Error("Unable to do payout");
   }
-}
+};

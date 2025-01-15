@@ -683,6 +683,16 @@ export async function generateTransaction(request, reply) {
   if (!request.user) {
     return reply.status(500).send(responseMappingError(500, "Invalid request"));
   }
+  if (fromAmount < 10) {
+    return reply
+      .status(500)
+      .send(
+        responseMappingError(
+          400,
+          `Amount should be greater than or equal to 10`
+        )
+      );
+  }
   const verified = await verifyQuotes(request.body)
   console.log("verify check",verified)
   if(!verified)
@@ -778,6 +788,14 @@ export async function verifyTransaction(request, reply) {
     });
     console.log(transaction);
     console.log(payoutTx.transaction_id);
+    if (transaction && transaction?.status === "PENDING" && transaction?.txHash && transaction?.payout_id ) {
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(400, `transaction is already under process please check status from history`)
+        );
+    }
+
     if (transaction.length == 0) {
       return reply
         .status(400)
@@ -944,6 +962,11 @@ export async function verifyTransaction(request, reply) {
             //   method: "IMPS",
             //   customer_id: request.user.customerId,
             // };
+   
+            const transactionID = generateTransactionId()
+
+            /*
+            kwikpaisa payouts
             let body = {
               id:request.user.customerId,
               emailId: "test@payhub",
@@ -960,34 +983,68 @@ export async function verifyTransaction(request, reply) {
               method: "bank",
               transaction_id: reference_id.toString(),
             };
-            //console.log(body);
-            // const payoutRequest = await createPayoutBankRequest(
-            //   response.token,
-            //   body
-            // );
+            console.log(body);
+            const payoutRequest = await createPayoutBankRequest(
+              response.token,
+              body
+            );
 
-            // const payoutRequest = await createPayoutBankRequestPayhub(
-            //   response.responseData,
-            //   body
-            // );
-            //const payoutRequest = await createInstantPayoutBankRequest(body)
-
-            const transactionID = generateTransactionId()
-            // const payoutRequest = await sendFundTransferRequest(
-            //   process.env.GENNPAYAPIKEY,
-            //   transactionID.toString(),
-            //   transaction.toAmount.toString(),
-            //   fiatAccount.fiatAccount,
-            //   fiatAccount.ifsc,
-            //   'IMPS',
-            //   {
-            //       accountName: fiatAccount.account_name,
-            //       bankName: fiatAccount.bank_name,
-            //   }
-            // );
-
-            const payoutRequest = await createRazorpayPayoutService(body,'bank')
+            const payoutRequest = await createPayoutBankRequestPayhub(
+              response.responseData,
+              body
+            );
+            const payoutRequest = await createInstantPayoutBankRequest(body)
+            */
             
+            /*gennpay payouts
+            let body = {
+              id:request.user.customerId,
+              emailId: "test@payhub",
+              amount: transaction.toAmount,
+              customer_name: "tushant",
+              customer_email: request.user.email,
+              customer_phone: phone,
+              account_number: fiatAccount.fiatAccount,
+              customer_upiId: "success@upi",
+              bank_ifsc: fiatAccount.ifsc,
+              account_name: fiatAccount.account_name,
+              bank_name: fiatAccount.bank_name,
+              customer_address: "xyz",
+              method: "bank",
+              transaction_id: reference_id.toString(),
+            };
+            const payoutRequest = await sendFundTransferRequest(
+              process.env.GENNPAYAPIKEY,
+              transactionID.toString(),
+              transaction.toAmount.toString(),
+              fiatAccount.fiatAccount,
+              fiatAccount.ifsc,
+              'IMPS',
+              {
+                  accountName: fiatAccount.account_name,
+                  bankName: fiatAccount.bank_name,
+              }
+            );
+            */
+           //razorpay payouts
+            let body = {
+              id:request.user.customerId,
+              emailId: request.user.email,
+              amount: transaction.toAmount,
+              customer_name: "tushant",
+              customer_email: request.user.email,
+              customer_phone: phone,
+              account_number: fiatAccount.fiatAccount,
+              customer_upiId: "success@upi",
+              bank_ifsc: fiatAccount.ifsc,
+              account_name: fiatAccount.account_name,
+              bank_name: fiatAccount.bank_name,
+              customer_address: "xyz",
+              method: "bank",
+              transaction_id: reference_id.toString(),
+            };
+            const payoutRequest = await createRazorpayPayoutService(body)
+            //razorpay payouts end
             console.log(payoutRequest);
             if (
               payoutRequest.code == 200 &&
@@ -1270,16 +1327,7 @@ export async function verifyQuotes(request) {
     const usdt = await findRecord(Usdt, query);
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
-    if (fromAmount < 10) {
-      return reply
-        .status(500)
-        .send(
-          responseMappingError(
-            400,
-            `Amount should be greater than or equal to 10`
-          )
-        );
-    }
+
     const body = {
       fromCurrency: fromCurrency,
       toCurrency: toCurrency,
