@@ -424,10 +424,10 @@ export async function offrampCallbackGennpay(request, reply) {
 export async function offrampCallbackRazorpay(request, reply) {
   console.log(request.body);
   // return reply.status(200).send({ message: "success" });
-  const details = request.body
-  const transaction_id = details.merchant_reference_number
-  const status = details.status
-  const utr = details.bank_reference_number
+  const details = request?.body?.payload?.payout?.entity
+  const transaction_id = details?.id
+  const status = details?.status?.toLowerCase() === "processed" ? "success" : "failed"
+  const utr = details?.utr?details?.utr:""
   // const {
   //   transaction_id,
   //   amount,
