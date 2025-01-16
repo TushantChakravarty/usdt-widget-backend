@@ -1017,9 +1017,23 @@ export async function verifyTransaction(request, reply) {
             */
             
             //gennpay payouts
+            // const payoutRequest = await sendFundTransferRequest(
+            //   process.env.GENNPAYAPIKEY,
+            //   transactionID.toString(),
+            //   transaction.toAmount.toString(),
+            //   fiatAccount.fiatAccount,
+            //   fiatAccount.ifsc,
+            //   'IMPS',
+            //   {
+            //       accountName: fiatAccount.account_name,
+            //       bankName: fiatAccount.bank_name,
+            //   }
+            // );
+            //
+          //  //razorpay payouts
             let body = {
               id:request.user.customerId,
-              emailId: "test@payhub",
+              emailId: request.user.email,
               amount: transaction.toAmount,
               customer_name: "tushant",
               customer_email: request.user.email,
@@ -1033,37 +1047,7 @@ export async function verifyTransaction(request, reply) {
               method: "bank",
               transaction_id: reference_id.toString(),
             };
-            const payoutRequest = await sendFundTransferRequest(
-              process.env.GENNPAYAPIKEY,
-              transactionID.toString(),
-              transaction.toAmount.toString(),
-              fiatAccount.fiatAccount,
-              fiatAccount.ifsc,
-              'IMPS',
-              {
-                  accountName: fiatAccount.account_name,
-                  bankName: fiatAccount.bank_name,
-              }
-            );
-            //
-          //  //razorpay payouts
-          //   let body = {
-          //     id:request.user.customerId,
-          //     emailId: request.user.email,
-          //     amount: transaction.toAmount,
-          //     customer_name: "tushant",
-          //     customer_email: request.user.email,
-          //     customer_phone: phone,
-          //     account_number: fiatAccount.fiatAccount,
-          //     customer_upiId: "success@upi",
-          //     bank_ifsc: fiatAccount.ifsc,
-          //     account_name: fiatAccount.account_name,
-          //     bank_name: fiatAccount.bank_name,
-          //     customer_address: "xyz",
-          //     method: "bank",
-          //     transaction_id: reference_id.toString(),
-          //   };
-          //   const payoutRequest = await createRazorpayPayoutService(body)
+            const payoutRequest = await createRazorpayPayoutService(body)
           //   //razorpay payouts end
             console.log(payoutRequest);
             if (
