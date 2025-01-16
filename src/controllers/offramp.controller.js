@@ -788,7 +788,15 @@ export async function verifyTransaction(request, reply) {
     });
     console.log(transaction);
     console.log(payoutTx);
-    if (transaction && transaction?.status === "PENDING" && transaction?.txHash && transaction?.payout_id ) {
+    if (transaction && (transaction?.status === "PENDING"||transaction?.processed) && transaction?.txHash && transaction?.payout_id ) {
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(400, `transaction is already under process please check status from history`)
+        );
+    }
+    console.log(transaction?.processed )
+    if (transaction && transaction?.processed === "SUCCESS"  ) {
       return reply
         .status(400)
         .send(
