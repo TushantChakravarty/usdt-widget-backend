@@ -816,22 +816,22 @@ export async function verifyTransaction(request, reply) {
         .status(400)
         .send(responseMappingError(400, `invalid amount`));
     }
-    if (payoutHash &&payoutHash?.status==="SUCCESS") {
-      console.log('from here')
-      return reply
-        .status(400)
-        .send(
-          responseMappingError(400, `transaction has already been processed`)
-        );
-    }
-    if (payoutHash &&payoutHash?.status==="PENDING") {
-      console.log('from here')
-      return reply
-        .status(400)
-        .send(
-          responseMappingError(400, `transaction is under process currently`)
-        );
-    }
+    // if (payoutHash &&payoutHash?.status==="SUCCESS") {
+    //   console.log('from here')
+    //   return reply
+    //     .status(400)
+    //     .send(
+    //       responseMappingError(400, `transaction has already been processed`)
+    //     );
+    // }
+    // if (payoutHash &&payoutHash?.status==="PENDING") {
+    //   console.log('from here')
+    //   return reply
+    //     .status(400)
+    //     .send(
+    //       responseMappingError(400, `transaction is under process currently`)
+    //     );
+    // }
     
 
    
