@@ -425,6 +425,7 @@ export async function offrampCallbackRazorpay(request, reply) {
   console.log(request.body);
   // return reply.status(200).send({ message: "success" });
   const details = request?.body?.payload?.payout?.entity
+  console.log(details)
   const transaction_id = details?.id
   const status = details?.status?.toLowerCase() === "processed" ? "success" : "failed"
   const utr = details?.utr?details?.utr:""

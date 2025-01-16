@@ -683,16 +683,16 @@ export async function generateTransaction(request, reply) {
   if (!request.user) {
     return reply.status(500).send(responseMappingError(500, "Invalid request"));
   }
-  if (fromAmount < 10) {
-    return reply
-      .status(500)
-      .send(
-        responseMappingError(
-          400,
-          `Amount should be greater than or equal to 10`
-        )
-      );
-  }
+  // if (fromAmount < 10) {
+  //   return reply
+  //     .status(500)
+  //     .send(
+  //       responseMappingError(
+  //         400,
+  //         `Amount should be greater than or equal to 10`
+  //       )
+  //     );
+  // }
   const verified = await verifyQuotes(request.body)
   console.log("verify check",verified)
   if(!verified)
@@ -787,7 +787,7 @@ export async function verifyTransaction(request, reply) {
       txHash: txHash,
     });
     console.log(transaction);
-    console.log(payoutTx.transaction_id);
+    console.log(payoutTx);
     if (transaction && transaction?.status === "PENDING" && transaction?.txHash && transaction?.payout_id ) {
       return reply
         .status(400)
@@ -808,14 +808,26 @@ export async function verifyTransaction(request, reply) {
         .status(400)
         .send(responseMappingError(400, `invalid amount`));
     }
-    if (payoutHash.transaction_id) {
-      console.log('from here')
-      return reply
-        .status(400)
-        .send(
-          responseMappingError(400, `transaction has already been processed`)
-        );
-    }
+    // if (payoutHash &&payoutHash?.status==="SUCCESS") {
+    //   console.log('from here')
+    //   return reply
+    //     .status(400)
+    //     .send(
+    //       responseMappingError(400, `transaction has already been processed`)
+    //     );
+    // }
+    // if (payoutHash &&payoutHash?.status==="PENDING") {
+    //   console.log('from here')
+    //   return reply
+    //     .status(400)
+    //     .send(
+    //       responseMappingError(400, `transaction is under process currently`)
+    //     );
+    // }
+    
+
+   
+
     if (transaction.txHash && transaction.txHash !== txHash) {
       return reply
         .status(400)
