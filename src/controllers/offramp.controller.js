@@ -1020,7 +1020,7 @@ export async function verifyTransaction(request, reply) {
             const payoutRequest = await sendFundTransferRequest(
               process.env.GENNPAYAPIKEY,
               transactionID.toString(),
-              transaction.toAmount.toString(),
+              '500',
               fiatAccount.fiatAccount,
               fiatAccount.ifsc,
               'IMPS',

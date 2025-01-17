@@ -35,7 +35,7 @@ export async function sendFundTransferRequest(apiKey, merchantRefNum, amount, ac
   const parameters = {
     api_key: apiKey,
     merchant_reference_number: merchantRefNum,
-    amount: '500',
+    amount: amount,
     account_number: accountNumber,
     ifsc_code: ifscCode,
     transfer_type: transferType,
