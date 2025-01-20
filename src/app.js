@@ -29,13 +29,17 @@ import path from 'path'
 import logger from './utils/logger.util.js'
 import migrateDb from './utils/db.util.js'
 import amqp from 'amqplib'
+// import { executePayment } from './gateways/yellowCard.js'
 //import cron from './utils/cron/index.js'
 import { responseMappingError } from './utils/responseMapper.js'
-import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
-import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
-import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
+// import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
+// import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
+// import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
+// import { sumTodaySuccessTransactions } from './services/metrics.service.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
 
+
+// await executePayment()
 
 // sendFundTransferRequest(
 //     '7b7d2684-ff99-46ae-9a1e-3b10fe101b6e',
@@ -239,8 +243,11 @@ await server.get('/', async (request, reply) => {
 
 await migrateDb()
 
+// await executePayment()
 
 
+
+// console.log("jere ksskslks",await sumTodaySuccessTransactions())
 
 /** 
  * Handle uncaught exceptions and unhandled promise rejections 
