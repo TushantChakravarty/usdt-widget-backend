@@ -127,6 +127,7 @@ const routes = async (route, options) => {
     // schema: Validator.Admin.updateFeeSchema,
      preValidation: [validateAdminToken, validateRole(["master_admin"])],
      handler: admin.metricsDataOffRamp,
+   // handler:admin.getUsersTransactions
    });
 };
 

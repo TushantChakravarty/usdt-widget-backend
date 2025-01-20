@@ -3,7 +3,9 @@ import { findAllRecord, findCombinedRecords, findOneAndUpdate, getFee } from "..
 import db from "../models/index.js";
 import { encrypt } from "../utils/password.util.js";
 import { responseMappingError, responseMapping, responseMappingWithData } from "../utils/responseMapper.js";
-const { User, OnRampTransaction, OffRampTransaction, Payout, Admin, Fees, Usdt } = db;
+import { Sequelize } from "sequelize";
+const { User, OnRampTransaction, OffRampTransaction, Payout, Admin, Fees, Usdt,sequelize } = db;
+
 
 /**
  * Registers a new admin.
@@ -121,16 +123,19 @@ export async function getUsers(request, reply) {
  */
 export async function getUsersOnrampTransactions(request, reply) {
     try {
-      const { limit = 10, skip = 0, sortField = "createdAt", sortOrder = "desc" } = request.query;
-      let query = {
-        limit: limit, // Number of records to fetch
-        offset: skip, // Number of records to skip 
-    };
-      const transactions = await findAllRecord(OnRampTransaction,query)
-      if (!transactions)
-        return reply.status(404).send(responseMappingWithData(200, "Success", [] )); // generic error to prevent bruteforce
-    
-      return reply.status(200).send(responseMappingWithData(200, "Success", transactions ));
+    const { limit = 10, skip = 0 } = request.query;
+     
+    const transactions_data = await OnRampTransaction.findAll({
+      limit:limit,
+      offset:skip,
+      order:[
+        [
+          ['date', 'DESC'] // Orders by 'created_at' in descending order
+      ]
+      ]
+    })
+
+      return reply.status(200).send(responseMappingWithData(200, "Success", transactions_data ));
     } catch (error) {
       reply.status(500).send(responseMappingError(500, error.message));
     }
@@ -146,12 +151,20 @@ export async function getUsersOnrampTransactions(request, reply) {
  */
 export async function getUsersOfframpTransactions(request, reply) {
     try {
-      const transactions = await findAllRecord(OffRampTransaction)
-      console.log(transactions);
-      if (!transactions)
-        return reply.status(404).send(responseMappingWithData(200, "Success", [] )); // generic error to prevent bruteforce
+      const {limit =10,skip=0} = request.query
+      const transaction = await OffRampTransaction.findAll({
+        limit:limit,
+        offset:skip,
+        order: [
+          ['date', 'DESC'] // Orders by 'created_at' in descending order
+      ]
+      })
+      // const transactions = await findAllRecord(OffRampTransaction)
+      // console.log(transactions);
+      // if (!transactions)
+      //   return reply.status(404).send(responseMappingWithData(200, "Success", [] )); // generic error to prevent bruteforce
     
-      return reply.status(200).send(responseMappingWithData(200, "Success", transactions ));
+      return reply.status(200).send(responseMappingWithData(200, "Success", transaction ));
     } catch (error) {
       reply.status(500).send(responseMappingError(500, error.message));
     }
@@ -165,30 +178,53 @@ export async function getUsersOfframpTransactions(request, reply) {
  * @param {Object} reply - The reply object.
  * @throws {Error} If an error occurs while logging in.
  */
-export async function getUsersTransactions(request, reply) {
-  try {
-    // Extract pagination and sorting options from the request query or use defaults
-    const { limit = 10, skip = 0, sortField = "createdAt", sortOrder = "desc" } = request.query;
+// export async function getUsersTransactions(request, reply) {
+//   try {
+//     // Extract pagination and sorting options from the request query or use defaults
+//     const { limit = 10, skip = 0, sortField = "createdAt", sortOrder = "desc" } = request.query;
 
-    const options = {
-      limit: parseInt(limit, 10),
-      skip: parseInt(skip, 10),
-      sortField,
-      sortOrder,
-    };
+//     const options = {
+//       limit: parseInt(limit, 10),
+//       skip: parseInt(skip, 10),
+//       sortField,
+//       sortOrder,
+//     };
 
-    // Query for fetching the transactions (excluding limit and skip)
-    // const query = { where: { userId: request.params.userId } };
+//     // Query for fetching the transactions (excluding limit and skip)
+//     // const query = { where: { userId: request.params.userId } };
    
-    const transactions = await findCombinedRecords(OffRampTransaction, OnRampTransaction, options);
+//     const transactions = await findCombinedRecords(OffRampTransaction, OnRampTransaction, options);
 
-    if (!transactions || transactions.length === 0) {
-      return reply.status(404).send(responseMappingWithData(200, "Success", [])); // Generic response
-    }
+//     if (!transactions || transactions.length === 0) {
+//       return reply.status(404).send(responseMappingWithData(200, "Success", [])); // Generic response
+//     }
 
-    return reply.status(200).send(responseMappingWithData(200, "Success", transactions));
+//     return reply.status(200).send(responseMappingWithData(200, "Success", transactions));
+//   } catch (error) {
+//     reply.status(500).send(responseMappingError(500, error.message));
+//   }
+// }
+
+export async function getUsersTransactions(request,reply) {
+  const {limit =10,skip:offset=0} = request.query
+  const query = `
+      SELECT *
+      FROM combined_transactions
+      ORDER BY transaction_date DESC
+      LIMIT :limit OFFSET :offset;
+  `;
+
+  try {
+      const result = await sequelize.query(query, {
+          replacements: { limit, offset },
+          type: sequelize.QueryTypes.SELECT
+      });
+      console.log(result)
+      return reply.status(200).send(responseMappingWithData(200, "Success", result ));
+     
   } catch (error) {
-    reply.status(500).send(responseMappingError(500, error.message));
+      console.error('Error fetching combined transactions:', error);
+      throw error;
   }
 }
 
