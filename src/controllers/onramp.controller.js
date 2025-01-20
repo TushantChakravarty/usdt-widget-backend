@@ -112,13 +112,13 @@ export async function onRampRequest(request, reply) {
      
       const minWithdrawl = updatedData.find((item) => item.chainSymbol == chain);
       if (!minWithdrawl) {
-        return reply.status(500).send(responseMappingError(400, `invalid chain`));
+        return reply.status(500).send(responseMappingError(400, `Invalid chain`));
       }
       const addressRegex = new RegExp(minWithdrawl?.addressRegex); // Convert string to RegExp
       console.log(addressRegex);
       
       if (!addressRegex.test(depositAddress)) {
-        return reply.status(500).send(responseMappingError(400, `invalid deposit address`));
+        return reply.status(500).send(responseMappingError(400, `Invalid deposit address`));
       }
       
       if(minWithdrawl.minBuyInRupee>fromAmount)
@@ -177,7 +177,7 @@ export async function onRampRequest(request, reply) {
 
             return reply
             .status(200)
-            .send(responseMappingWithData(200, "success", response.data));
+            .send(responseMappingWithData(200, "Success", response.data));
         }else{
             return reply.status(500).send(responseMappingError(500, "Unable to process your request at the moment"))
             
@@ -185,7 +185,7 @@ export async function onRampRequest(request, reply) {
     }
     } catch (error) {
       console.log("this is error", error.message)
-      return reply.status(500).send(responseMappingError(500, `internal server error`))
+      return reply.status(500).send(responseMappingError(500, `Internal server error`))
     }
   }
   
@@ -321,7 +321,7 @@ export async function onRampRequest(request, reply) {
       console.log(data)
       if(data?.status=="PENDING")
       {
-        return reply.status(500).send(responseMappingError(500, "please complete the payment first"))
+        return reply.status(500).send(responseMappingError(500, "Please complete the payment first"))
 
       }
       if(data?.status=="SUCCESS"&&data?.txHash)
@@ -332,7 +332,7 @@ export async function onRampRequest(request, reply) {
 
       if(data?.status=="FAILED")
       {
-        return reply.status(500).send(responseMappingError(500, "Your payment hast failed"))
+        return reply.status(500).send(responseMappingError(500, "Your payment has failed"))
 
       }
 
@@ -373,7 +373,7 @@ export async function onRampRequest(request, reply) {
     }catch(error)
     {
       console.log("on ramp verify", error.message)
-      return reply.status(500).send(responseMappingError(500, `internal server error`))
+      return reply.status(500).send(responseMappingError(500, `Internal server error`))
     }
   }
 
@@ -386,7 +386,7 @@ export async function onRampRequest(request, reply) {
       console.log(data)
       if(data?.status=="PENDING")
       {
-        return reply.status(500).send(responseMappingError(500, "please complete the payment first"))
+        return reply.status(500).send(responseMappingError(500, "Please complete the payment first"))
 
       }
       if(data?.status=="SUCCESS"&&data?.txHash)
@@ -397,7 +397,7 @@ export async function onRampRequest(request, reply) {
 
       if(data?.status=="FAILED")
       {
-        return reply.status(500).send(responseMappingError(500, "Your payment hast failed"))
+        return reply.status(500).send(responseMappingError(500, "Your payment has failed"))
 
       }
 

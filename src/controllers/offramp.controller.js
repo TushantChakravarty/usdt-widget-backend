@@ -43,6 +43,7 @@ import {
 } from "../ApiCalls/payhub.js";
 import { createInstantPayoutBankRequest } from "../gateways/kwikpaisa.js";
 import { sendFundTransferRequest } from "../gateways/gennpayPayout.js";
+import { createRazorpayPayoutService } from "../gateways/razorpay.js";
 
 const {
   User,
@@ -71,9 +72,9 @@ export async function AddFiatAccountId(request, reply) {
       fiat_account_exist.delete === false
     ) {
       return reply
-        .status(500)
+        .status(400)
         .send(
-          responseMappingError(500, "You already have a fiat account with this")
+          responseMappingError(400, "You already have a fiat account with this")
         );
     }
     if (
@@ -89,8 +90,8 @@ export async function AddFiatAccountId(request, reply) {
     }
     if (fiat_account_exist && fiat_account_exist.delete === false) {
       return reply
-        .status(500)
-        .send(responseMappingError(500, "This account already in use"));
+        .status(400)
+        .send(responseMappingError(400, "This account already in use"));
     }
     if (fiat_account_exist && fiat_account_exist.delete === true) {
       fiat_account_exist.delete = false;
@@ -682,6 +683,16 @@ export async function generateTransaction(request, reply) {
   if (!request.user) {
     return reply.status(500).send(responseMappingError(500, "Invalid request"));
   }
+  if (fromAmount < 10) {
+    return reply
+      .status(500)
+      .send(
+        responseMappingError(
+          400,
+          `Amount should be greater than or equal to 10`
+        )
+      );
+  }
   const verified = await verifyQuotes(request.body)
   console.log("verify check",verified)
   if(!verified)
@@ -776,7 +787,23 @@ export async function verifyTransaction(request, reply) {
       txHash: txHash,
     });
     console.log(transaction);
-    console.log(payoutTx.transaction_id);
+    console.log(payoutTx);
+    if (transaction && (transaction?.status === "PENDING"||transaction?.processed=="PENDING") && transaction?.txHash && transaction?.payout_id ) {
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(400, `transaction is already under process please check status from history`)
+        );
+    }
+    console.log(transaction?.processed )
+    if (transaction && transaction?.processed === "SUCCESS"  ) {
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(400, `transaction is already under process please check status from history`)
+        );
+    }
+
     if (transaction.length == 0) {
       return reply
         .status(400)
@@ -789,7 +816,7 @@ export async function verifyTransaction(request, reply) {
         .status(400)
         .send(responseMappingError(400, `invalid amount`));
     }
-    if (payoutHash.transaction_id) {
+    if (payoutHash &&payoutHash?.status==="SUCCESS") {
       console.log('from here')
       return reply
         .status(400)
@@ -797,6 +824,18 @@ export async function verifyTransaction(request, reply) {
           responseMappingError(400, `transaction has already been processed`)
         );
     }
+    if (payoutHash &&payoutHash?.status==="PENDING") {
+      console.log('from here')
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(400, `transaction is under process currently`)
+        );
+    }
+    
+
+   
+
     if (transaction.txHash && transaction.txHash !== txHash) {
       return reply
         .status(400)
@@ -943,47 +982,73 @@ export async function verifyTransaction(request, reply) {
             //   method: "IMPS",
             //   customer_id: request.user.customerId,
             // };
-            // let body = {
-            //   id:request.user.customerId,
-            //   emailId: "test@payhub",
-            //   amount: transaction.toAmount,
-            //   customer_name: "tushant",
-            //   customer_email: request.user.email,
-            //   customer_phone: phone,
-            //   account_number: fiatAccount.fiatAccount,
-            //   customer_upiId: "success@upi",
-            //   bank_ifsc: fiatAccount.ifsc,
-            //   account_name: fiatAccount.account_name,
-            //   bank_name: fiatAccount.bank_name,
-            //   customer_address: "xyz",
-            //   method: "bank",
-            //   transaction_id: reference_id.toString(),
-            // };
-            //console.log(body);
-            // const payoutRequest = await createPayoutBankRequest(
-            //   response.token,
-            //   body
-            // );
-
-            // const payoutRequest = await createPayoutBankRequestPayhub(
-            //   response.responseData,
-            //   body
-            // );
-            //const payoutRequest = await createInstantPayoutBankRequest(body)
+   
             const transactionID = generateTransactionId()
-            const payoutRequest = await sendFundTransferRequest(
-              process.env.GENNPAYAPIKEY,
-              transactionID.toString(),
-              transaction.toAmount.toString(),
-              fiatAccount.fiatAccount,
-              fiatAccount.ifsc,
-              'IMPS',
-              {
-                  accountName: fiatAccount.account_name,
-                  bankName: fiatAccount.bank_name,
-              }
+
+            /*
+            kwikpaisa payouts
+            let body = {
+              id:request.user.customerId,
+              emailId: "test@payhub",
+              amount: transaction.toAmount,
+              customer_name: "tushant",
+              customer_email: request.user.email,
+              customer_phone: phone,
+              account_number: fiatAccount.fiatAccount,
+              customer_upiId: "success@upi",
+              bank_ifsc: fiatAccount.ifsc,
+              account_name: fiatAccount.account_name,
+              bank_name: fiatAccount.bank_name,
+              customer_address: "xyz",
+              method: "bank",
+              transaction_id: reference_id.toString(),
+            };
+            console.log(body);
+            const payoutRequest = await createPayoutBankRequest(
+              response.token,
+              body
             );
+
+            const payoutRequest = await createPayoutBankRequestPayhub(
+              response.responseData,
+              body
+            );
+            const payoutRequest = await createInstantPayoutBankRequest(body)
+            */
             
+            //gennpay payouts
+            // const payoutRequest = await sendFundTransferRequest(
+            //   process.env.GENNPAYAPIKEY,
+            //   transactionID.toString(),
+            //   transaction.toAmount.toString(),
+            //   fiatAccount.fiatAccount,
+            //   fiatAccount.ifsc,
+            //   'IMPS',
+            //   {
+            //       accountName: fiatAccount.account_name,
+            //       bankName: fiatAccount.bank_name,
+            //   }
+            // );
+            //
+          //  //razorpay payouts
+            let body = {
+              id:request.user.customerId,
+              emailId: request.user.email,
+              amount: transaction.toAmount,
+              customer_name: "tushant",
+              customer_email: request.user.email,
+              customer_phone: phone,
+              account_number: fiatAccount.fiatAccount,
+              customer_upiId: "success@upi",
+              bank_ifsc: fiatAccount.ifsc,
+              account_name: fiatAccount.account_name,
+              bank_name: fiatAccount.bank_name,
+              customer_address: "xyz",
+              method: "bank",
+              transaction_id: reference_id.toString(),
+            };
+            const payoutRequest = await createRazorpayPayoutService(body)
+          //   //razorpay payouts end
             console.log(payoutRequest);
             if (
               payoutRequest.code == 200 &&
@@ -1076,8 +1141,7 @@ export async function getQuotesNew(request, reply) {
       id: 1,
     };
     const usdt = await findRecord(Usdt, query);
-    const apiKey = process.env.apiKey;
-    const secret = process.env.secret;
+
     if (fromAmount < 10) {
       return reply
         .status(500)
@@ -1088,69 +1152,6 @@ export async function getQuotesNew(request, reply) {
           )
         );
     }
-    const body = {
-      fromCurrency: fromCurrency,
-      toCurrency: toCurrency,
-      fromAmount: fromAmount,
-      chain: chain,
-      // paymentMethodType: paymentMethodType
-    };
-    //   const dataNet = networks
-    //   let updatedData = []
-    //   const coinData = await Coin.findOne({
-    //     where: {
-    //       coinid: 54
-    //     }
-    //   })
-    //   const networkData = await getAllNetworkData()
-    //   const filteredNetworks = networkData.filter(item => item.coinid == 54)
-    //   //console.log("network data",filteredNetworks)
-    //   //console.log(coinData)
-    //   let query ={
-    //     id:1
-    //   }
-    //   const usdt = await findRecord(Usdt,query)
-    //     if (coinData) {
-    //       dataNet.map((item) => {
-    //       const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
-    //       //console.log("here", networkData)
-    //       if (networkData[0]?.withdrawalFee) {
-
-    //         updatedData.push({
-    //           ...item,
-    //           icon: coinData.coinIcon,
-    //           fee: networkData[0]?.withdrawalFee,
-    //           minBuy: networkData[0]?.minimumWithdrawal,
-    //           minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
-    //         })
-    //       }
-    //     })
-    //   }
-    //   const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-    //   console.log(minWithdrawl)
-    //   if(minWithdrawl.minBuyInRupee>fromAmount)
-    //   return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
-    // const timestamp = Date.now().toString();
-    // const obj = {
-    //   body,
-    //   timestamp,
-    // };
-
-    // // Create the payload and signature
-    // const payload = cryptoJs.enc.Base64.stringify(
-    //   cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
-    // );
-    // const signature = cryptoJs.enc.Hex.stringify(
-    //   cryptoJs.HmacSHA512(payload, secret)
-    // );
-
-    // // Create the headers
-    // const headers = {
-    //   "Content-Type": "application/json",
-    //   apiKey: apiKey,
-    //   payload: payload,
-    //   signature: signature,
-    // };
 
     const cachedData = await request.server.redis.get(
       `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`
@@ -1266,16 +1267,7 @@ export async function verifyQuotes(request) {
     const usdt = await findRecord(Usdt, query);
     const apiKey = process.env.apiKey;
     const secret = process.env.secret;
-    if (fromAmount < 10) {
-      return reply
-        .status(500)
-        .send(
-          responseMappingError(
-            400,
-            `Amount should be greater than or equal to 10`
-          )
-        );
-    }
+
     const body = {
       fromCurrency: fromCurrency,
       toCurrency: toCurrency,
