@@ -1593,7 +1593,7 @@ export async function sendForgetPasswordOtp(request, reply) {
       secure: false,
       auth: {
         user: "tshubhanshu007@gmail.com",
-        pass: "zrni hfym gthq upiu",
+        pass: "wltf sfzq mlni tnhv"
       },
     });
     const otp = await generateOTP(email);
