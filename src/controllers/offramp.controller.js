@@ -816,22 +816,22 @@ export async function verifyTransaction(request, reply) {
         .status(400)
         .send(responseMappingError(400, `invalid amount`));
     }
-    // if (payoutHash &&payoutHash?.status==="SUCCESS") {
-    //   console.log('from here')
-    //   return reply
-    //     .status(400)
-    //     .send(
-    //       responseMappingError(400, `transaction has already been processed`)
-    //     );
-    // }
-    // if (payoutHash &&payoutHash?.status==="PENDING") {
-    //   console.log('from here')
-    //   return reply
-    //     .status(400)
-    //     .send(
-    //       responseMappingError(400, `transaction is under process currently`)
-    //     );
-    // }
+    if (payoutHash &&payoutHash?.status==="SUCCESS") {
+      console.log('from here')
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(400, `transaction has already been processed`)
+        );
+    }
+    if (payoutHash &&payoutHash?.status==="PENDING") {
+      console.log('from here')
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(400, `transaction is under process currently`)
+        );
+    }
     
 
    
@@ -1017,37 +1017,37 @@ export async function verifyTransaction(request, reply) {
             */
             
             //gennpay payouts
-            const payoutRequest = await sendFundTransferRequest(
-              process.env.GENNPAYAPIKEY,
-              transactionID.toString(),
-              '1000',
-              fiatAccount.fiatAccount,
-              fiatAccount.ifsc,
-              'IMPS',
-              {
-                  accountName: fiatAccount.account_name,
-                  bankName: fiatAccount.bank_name,
-              }
-            );
-            
+            // const payoutRequest = await sendFundTransferRequest(
+            //   process.env.GENNPAYAPIKEY,
+            //   transactionID.toString(),
+            //   transaction.toAmount.toString(),
+            //   fiatAccount.fiatAccount,
+            //   fiatAccount.ifsc,
+            //   'IMPS',
+            //   {
+            //       accountName: fiatAccount.account_name,
+            //       bankName: fiatAccount.bank_name,
+            //   }
+            // );
+            //
           //  //razorpay payouts
-            // let body = {
-            //   id:request.user.customerId,
-            //   emailId: request.user.email,
-            //   amount: transaction.toAmount,
-            //   customer_name: "tushant",
-            //   customer_email: request.user.email,
-            //   customer_phone: phone,
-            //   account_number: fiatAccount.fiatAccount,
-            //   customer_upiId: "success@upi",
-            //   bank_ifsc: fiatAccount.ifsc,
-            //   account_name: fiatAccount.account_name,
-            //   bank_name: fiatAccount.bank_name,
-            //   customer_address: "xyz",
-            //   method: "bank",
-            //   transaction_id: reference_id.toString(),
-            // };
-            // const payoutRequest = await createRazorpayPayoutService(body)
+            let body = {
+              id:request.user.customerId,
+              emailId: request.user.email,
+              amount: transaction.toAmount,
+              customer_name: "tushant",
+              customer_email: request.user.email,
+              customer_phone: phone,
+              account_number: fiatAccount.fiatAccount,
+              customer_upiId: "success@upi",
+              bank_ifsc: fiatAccount.ifsc,
+              account_name: fiatAccount.account_name,
+              bank_name: fiatAccount.bank_name,
+              customer_address: "xyz",
+              method: "bank",
+              transaction_id: reference_id.toString(),
+            };
+            const payoutRequest = await createRazorpayPayoutService(body)
           //   //razorpay payouts end
             console.log(payoutRequest);
             if (
