@@ -724,13 +724,13 @@ export async function getAllCoinsNew(request, reply) {
               .filter((coin) => coin.coinid === 54)
               .map((coin) => ({
                 ...coin.dataValues,
-                minSellValue: 1, // Replace with actual logic
+                minSellValue: 1.1, // Replace with actual logic
               }))
           : coins
               .filter((coin) => coin.coinid === 54)
               .map((coin) => ({
                 ...coin.dataValues,
-                minSellValue: 1, // Replace with actual logic
+                minSellValue: 1.1, // Replace with actual logic
               }));
 
       return reply
