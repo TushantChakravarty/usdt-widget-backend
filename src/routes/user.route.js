@@ -70,7 +70,7 @@ const routes = async (route, options) => { // route = fastify instance
     handler: user.sendLoginOtp,
   });
 
-  route.get('/loginOtpV2', {
+  route.post('/loginOtpV2', {
     schema: validator.loginOtpV2,
     handler: user.sendLoginOtpV2,
   });
