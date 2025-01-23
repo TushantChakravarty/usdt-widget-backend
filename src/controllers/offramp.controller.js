@@ -683,7 +683,7 @@ export async function generateTransaction(request, reply) {
   if (!request.user) {
     return reply.status(500).send(responseMappingError(500, "Invalid request"));
   }
-  if (fromAmount < 10) {
+  if (fromAmount < 1) {
     return reply
       .status(500)
       .send(
@@ -1142,7 +1142,7 @@ export async function getQuotesNew(request, reply) {
     };
     const usdt = await findRecord(Usdt, query);
 
-    if (fromAmount < 10) {
+    if (fromAmount < 1) {
       return reply
         .status(500)
         .send(
@@ -1265,91 +1265,7 @@ export async function verifyQuotes(request) {
       id: 1,
     };
     const usdt = await findRecord(Usdt, query);
-    const apiKey = process.env.apiKey;
-    const secret = process.env.secret;
-
-    const body = {
-      fromCurrency: fromCurrency,
-      toCurrency: toCurrency,
-      fromAmount: fromAmount,
-      chain: chain,
-      // paymentMethodType: paymentMethodType
-    };
-    //   const dataNet = networks
-    //   let updatedData = []
-    //   const coinData = await Coin.findOne({
-    //     where: {
-    //       coinid: 54
-    //     }
-    //   })
-    //   const networkData = await getAllNetworkData()
-    //   const filteredNetworks = networkData.filter(item => item.coinid == 54)
-    //   //console.log("network data",filteredNetworks)
-    //   //console.log(coinData)
-    //   let query ={
-    //     id:1
-    //   }
-    //   const usdt = await findRecord(Usdt,query)
-    //     if (coinData) {
-    //       dataNet.map((item) => {
-    //       const networkData = filteredNetworks.filter(Item => Item.networkId == item.chainId)
-    //       //console.log("here", networkData)
-    //       if (networkData[0]?.withdrawalFee) {
-
-    //         updatedData.push({
-    //           ...item,
-    //           icon: coinData.coinIcon,
-    //           fee: networkData[0]?.withdrawalFee,
-    //           minBuy: networkData[0]?.minimumWithdrawal,
-    //           minBuyInRupee: usdt?.inrRate ? Math.ceil(Number(networkData[0]?.minimumWithdrawal) * usdt?.inrRate) : Math.ceil(networkData[0]?.minimumWithdrawal)
-    //         })
-    //       }
-    //     })
-    //   }
-    //   const minWithdrawl = updatedData.find((item)=> item.chainSymbol == chain)
-    //   console.log(minWithdrawl)
-    //   if(minWithdrawl.minBuyInRupee>fromAmount)
-    //   return reply.status(500).send(responseMappingError(400, `Amount should be greater than ${minWithdrawl.minBuyInRupee}`))
-    // const timestamp = Date.now().toString();
-    // const obj = {
-    //   body,
-    //   timestamp,
-    // };
-
-    // // Create the payload and signature
-    // const payload = cryptoJs.enc.Base64.stringify(
-    //   cryptoJs.enc.Utf8.parse(JSON.stringify(obj))
-    // );
-    // const signature = cryptoJs.enc.Hex.stringify(
-    //   cryptoJs.HmacSHA512(payload, secret)
-    // );
-
-    // // Create the headers
-    // const headers = {
-    //   "Content-Type": "application/json",
-    //   apiKey: apiKey,
-    //   payload: payload,
-    //   signature: signature,
-    // };
-
-    // const cachedData = await request.server.redis.get(
-    //   `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`
-    // );
-
-    // if (cachedData) {
-    //   let data_cache = await JSON.parse(cachedData);
-    //   //console.log(data_cache);
-    //   if (data_cache.data) {
-    //     let updatedData = data_cache.data;
-    //     updatedData.feeInUsdt = (
-    //       Number(data_cache?.data?.fees[0]?.tdsFee) /
-    //       Number(data_cache?.data?.rate)
-    //     ).toFixed(2);
-    //     return reply
-    //       .status(200)
-    //       .send(responseMappingWithData(200, "success", updatedData));
-    //   }
-    // }
+    
 
     const usdtRate = usdt.inrRateOfframp; // constant exchange rate
     let onrampFeePercentage, gatewayFeePercentage, tdsFeePercentage;
