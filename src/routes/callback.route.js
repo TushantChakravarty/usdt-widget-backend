@@ -26,7 +26,7 @@ const routes = async (route, options) => { // route = fastify instance
      */
 
     route.post('/offrampTransaction', {
-        handler: callback.offrampCallbackRazorpay,
+        handler: callback.offrampCallbackGennpay,
     });
 
       /**
