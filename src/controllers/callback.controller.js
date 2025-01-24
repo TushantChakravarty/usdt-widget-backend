@@ -402,7 +402,7 @@ export async function offrampCallbackGennpay(request, reply) {
        console.log("updated tx", updatedOfframp);
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
-        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.fromCurrency, transaction?.chain, transaction?.txHash, payoutTx?.email)
+        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount,  transaction?.chain, transaction?.txHash, payoutTx?.email)
         reply.status(200).send({ message: "success" });
       }
     } else {
@@ -414,7 +414,7 @@ export async function offrampCallbackGennpay(request, reply) {
        console.log("updated tx", updatedOfframp);
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
-        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.fromCurrency, transaction?.chain, transaction?.txHash, payoutTx?.email)
+        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount,  transaction?.chain, transaction?.txHash, payoutTx?.email)
         reply.status(200).send({ message: "success" });
       }
     }
@@ -469,7 +469,7 @@ export async function offrampCallbackRazorpay(request, reply) {
        console.log("updated tx", updatedOfframp);
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
-        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.fromCurrency, transaction?.chain, transaction?.txHash, payoutTx?.email)
+        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.chain, transaction?.txHash, payoutTx?.email)
         reply.status(200).send({ message: "success" });
       }
     } else {
@@ -481,7 +481,7 @@ export async function offrampCallbackRazorpay(request, reply) {
        console.log("updated tx", updatedOfframp);
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
-        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.fromCurrency, transaction?.chain, transaction?.txHash, payoutTx?.email)
+        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.chain, transaction?.txHash, payoutTx?.email)
         reply.status(200).send({ message: "success" });
       }
     }
