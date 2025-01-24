@@ -14,8 +14,6 @@ const transporter = nodemailer.createTransport({
         pass: "wltf sfzq mlni tnhv",
       },
     });
-    const otp = await generateOTP(email);
-    console.log(otp);
     const mailOptions = {
       from: {
         name: "GSX solutions",
