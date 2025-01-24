@@ -35,7 +35,7 @@ const transporter = nodemailer.createTransport({
             <p style="font-size: 16px; color: #dc3545; font-weight: bold; margin: 0;">Transaction Details:</p>
             <p style="font-size: 16px; line-height: 1.5; margin-top: 10px;">Transaction ID: <strong>${transactionId}</strong></p>
             <p style="font-size: 16px; line-height: 1.5;">Amount: <strong>${amount} ${localCurrency}</strong></p>
-            <p style="font-size: 16px; line-height: 1.5;">Crypto Amount: <strong>${cryptoAmount} ${cryptoType}</strong></p>
+            <p style="font-size: 16px; line-height: 1.5;">Crypto Amount: <strong>${cryptoAmount} USDT, Chain: ${cryptoType}</strong></p>
             <p style="font-size: 16px; line-height: 1.5;">Transaction Hash: <strong>${hash}</strong></p>
             <p style="font-size: 16px; line-height: 1.5;">Payment Status: <strong style="color: #dc3545;">Fail</strong></p>
         </div>
