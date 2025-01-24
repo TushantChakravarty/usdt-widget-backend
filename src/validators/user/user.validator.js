@@ -76,6 +76,17 @@ export const loginOtp = {
     }
 }
 
+export const loginOtpV2 = {
+body: {
+        type: 'object',
+        properties: {
+            email: { type: 'string', format:"email",minLength:5, maxLength: 40 },
+            password:{ type:'string',minLength:3,maxLength:50}
+        },
+        required: ['email','password'],
+        additionalProperties: false,
+    }
+}
 export const changePassword = {
     body: {
         type: 'object',
