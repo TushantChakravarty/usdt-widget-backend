@@ -410,7 +410,7 @@ export async function sendAddPhoneOtp(request,reply){
     });
 
     if(existingUserPhone){
-      return reply.status(500).send(responseMappingError(500, `Phone already registered`))
+      return reply.status(400).send(responseMappingError(400, `Phone already registered`))
     }
     const otp = await generateOTP(`${phone}`)
 
