@@ -65,3 +65,60 @@ const transporter = nodemailer.createTransport({
     console.log("send failed transaction mail error",error.message)
   }
 }
+
+
+
+export async function sendMailForSuccessPayment(transactionId,amount,localCurrency,cryptoAmount,cryptoType,hash,email){
+  try{
+const transporter = nodemailer.createTransport({
+      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+        user: "tshubhanshu007@gmail.com",
+        pass: "wltf sfzq mlni tnhv",
+      },
+    });
+    const mailOptions = {
+      from: {
+        name: "GSX solutions",
+        address: "tshubhanshu007@gmail.com",
+      },
+      to: email,
+      subject: "Confirmation: Successful Offramp Transaction",
+text: `Successful Offramp Transaction`,
+html: `
+<div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
+<div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+
+    <h2 style="text-align: center; color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 10px;">USDT Marketplace</h2>
+    
+    <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
+    <p style="font-size: 16px; line-height: 1.5;">We are pleased to inform you that your recent offramp transaction has been completed successfully.</p>
+
+    <div style="background-color: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <p style="font-size: 16px; color: #155724; font-weight: bold; margin: 0;">Transaction Details:</p>
+        <p style="font-size: 16px; line-height: 1.5; margin-top: 10px;">Transaction ID: <strong>${transactionId}</strong></p>
+        <p style="font-size: 16px; line-height: 1.5;">Amount: <strong>${amount} ${localCurrency}</strong></p>
+        <p style="font-size: 16px; line-height: 1.5;">Crypto Amount: <strong>${cryptoAmount} USDT, Chain: ${cryptoType}</strong></p>
+        <p style="font-size: 16px; line-height: 1.5;">Transaction Hash: <strong>${hash}</strong></p>
+        <p style="font-size: 16px; line-height: 1.5;">Payment Status: <strong style="color: #28a745;">Success</strong></p>
+    </div>
+
+    <p style="font-size: 16px; line-height: 1.5;">Thank you for choosing USDT Marketplace. We look forward to serving you again!</p>
+
+    <p style="font-size: 16px; line-height: 1.5;">Best regards,</p>
+    <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
+
+    <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+    <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #28a745; text-decoration: none;">support@usdtmarketplace.com</a></small>
+</div>
+</div>
+`,
+};
+await transporter.sendMail(mailOptions);
+  }catch(error){
+    console.log("send failed transaction mail error",error.message)
+  }
+}
