@@ -141,6 +141,16 @@ const routes = async (route, options) => { // route = fastify instance
     handler: offramp.getQuotesNew,
   });
 
+  route.post('/offrampRetry', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    // schema: validator.getQuotesOfframp,
+   // preValidation: validateToken,
+    handler: offramp.offrampRetry,
+  });
+
   /**
 * Route for getting all offramp transactions
 * Handles getting all offramp transactions

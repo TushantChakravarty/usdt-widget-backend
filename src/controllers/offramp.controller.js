@@ -1347,3 +1347,57 @@ export async function verifyQuotes(request) {
     return false
   }
 }
+
+
+
+export async function offrampRetry(request,reply){
+  try{
+    const {transactionId,sentFiatAccount=true,fiatAccountId,newBank=false,fiatAccount,bankName,ifsc} = request.body
+    const offramp = OffRampTransaction.findOne({
+      where:{
+        transaction_id:transactionId,
+        status:"SUCCESS"
+      }
+    })
+
+    if(offramp){
+      reply.status(403).send({error:"Transaction is already success"})
+    }
+
+    if(sentFiatAccount){
+      const fiatAccountexist = await FiatAccount.findOne({
+        where:{
+          fiatAccountId:fiatAccountId
+        }
+      })
+
+      if(!fiatAccountexist){
+        reply.status(403).send({error:"Account doesn't exist"})
+      }
+
+      if(fiatAccountexist.user_id !== request.user.id){
+        reply.status(403).send({error:"Account doesn't exist"})
+      }
+
+    }
+
+
+    if(newBank){
+      const fiatAccountexist = await FiatAccount.findOne({
+        where:{
+          fiatAccount:fiatAccount
+        }
+      })
+
+      if(fiatAccountexist){
+        reply.status(403).send({error:"Account already exist"})
+      }
+    }
+    
+
+
+
+  }catch(error){
+
+  }
+}
