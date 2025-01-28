@@ -20,44 +20,66 @@ const transporter = nodemailer.createTransport({
         address: "tshubhanshu007@gmail.com",
       },
       to: email,
-      subject: "Action required: Failed Offramp Transaction",
-      text: `Failed Offramp Transaction`,
-      html: `
-        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
-    <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-        
-        <h2 style="text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">USDT Marketplace</h2>
-        
-        <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
-        <p style="font-size: 16px; line-height: 1.5;">We regret to inform you that your recent offramp transaction could not be completed due to an issue with the bank.</p>
-
-        <div style="background-color: #f1f1f1; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p style="font-size: 16px; color: #dc3545; font-weight: bold; margin: 0;">Transaction Details:</p>
-            <p style="font-size: 16px; line-height: 1.5; margin-top: 10px;">Transaction ID: <strong>${transactionId}</strong></p>
-            <p style="font-size: 16px; line-height: 1.5;">Amount: <strong>${amount} ${localCurrency}</strong></p>
-            <p style="font-size: 16px; line-height: 1.5;">Crypto Amount: <strong>${cryptoAmount} USDT, Chain: ${cryptoType}</strong></p>
-            <p style="font-size: 16px; line-height: 1.5;">Transaction Hash: <strong>${hash}</strong></p>
-            <p style="font-size: 16px; line-height: 1.5;">Payment Status: <strong style="color: #dc3545;">Fail</strong></p>
+      subject: "Failed Transaction Alert",
+      text: `Your transaction could not be completed.`,
+      html: `<div style='background-color:  #f1f1f1;'>
+    <div style="background: #528ff0; height: 12vh; position: relative;">
+        <div
+            style="margin: auto; box-sizing: border-box; padding-top: 20px; text-align: center; width: fit-content; margin: 0 auto; font-size: 16px; line-height: 1.5;">
+            <div
+                style="display: inline-block; vertical-align: middle; margin-left: 10px; color: #ffffff; font-family: Trebuchet MS;">
+                USDT Marketplace
+            </div>
         </div>
-
-        <p style="font-size: 16px; line-height: 1.5;">To proceed, please follow these steps:</p>
-        <ol style="font-size: 16px; line-height: 1.5; padding-left: 20px; margin-top: 0;">
-            <li>Log in to your account.</li>
-            <li>Go to the <strong>Transaction History</strong> page.</li>
-            <li>Locate this transaction and click <strong>Retry</strong>.</li>
-        </ol>
-
-        <p style="font-size: 16px; line-height: 1.5;">If the issue persists, try a different bank or feel free to <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">contact our support team</a> for assistance.</p>
-
-        <p style="font-size: 16px; line-height: 1.5;">Thank you for your patience and understanding.</p>
-        <p style="font-size: 16px; line-height: 1.5;">Best regards,</p>
-        <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
-
+    </div>
+    <div
+        style="max-width: 400px; margin: -50px auto 0; background-color: #fff;  box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative; border-radius: 5px;">
+        <h3 style="margin: 0; font-size: 16px; line-height: 1.5; text-align: center; color: #7b8199; padding: 20px;">
+            Transaction Failed</h3>
+        <hr style="border: 0; height: 1px; background: #ddd; margin: 0;">
+        <p style="color: #7b8199; text-align: center; padding: 0 20px;">We could not complete your recent transaction.
+            Please see the details below:</p>
+        <hr style="border: 0; height: 10px; background:  #f1f1f1; margin: 10px 0;">
+        <p style="font-size: 16px; font-weight: bold; margin: 0; text-align: center; color: #7b8199;">Transaction
+            Details</p>
+        <div
+            style="background-color: #fff; padding: 20px; border-radius: 8px; margin: 10px 0; display: grid;;gap:20px; max-width: 400px;">
+            <div
+                style="color: #515978; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 22px;">
+                <strong>Transaction ID:</strong> <span style="color: #515978;">${transactionId}</span></div>
+            <div style="color: #515978;display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 70px;">
+                <strong>Amount:</strong> <span style="color: #515978;">${amount}
+                    ${localCurrency}</span></div>
+            <div
+                style="color: #515978; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 18px;">
+                <strong>Crypto Amount:</strong> <span style="color: #515978;">${cryptoAmount}
+                    USDT</span></div>
+            <div
+                style="color: #515978; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 84px;">
+                <strong>Chain:</strong><span>${cryptoType}</span></div>
+            <div style="color: #515978; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 5px;">
+                <strong>Transaction Hash:</strong> <span style="color: #515978;">${hash}</span></div>
+            <div
+                style="color: #515978;  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 84px;">
+                <strong>Status:</strong> <span style="color: #515978;">Failed</span></div>
+        </div>
+        <hr style="border: 0; height: 10px; background:  #f1f1f1; margin: 10px 0;">
+        <div style='padding: 0 20px;'>
+            <p style="color: #7b8199;">Please log in to your account to retry the transaction. If the issue persists,
+                contact support at <a href="mailto:support@usdtmarketplace.com"
+                    style="color: #515978;">support@usdtmarketplace.com</a>.</p>
+            <p style="color: #7b8199;">Thank you for your understanding.</p>
+             <p style="color: #7b8199;">Best regards</p>
+            <p style="color: #7b8199;">USDT Marketplace Team</p>
+        </div>
         <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
-        <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
+        <div style='padding-bottom: 20px; padding-left: 20px;'>
+            <small style="color: #666; font-size: 12px; ">If you have any questions, feel free to reach out to us at
+                <a href="mailto:support@usdtmarketplace.com"
+                    style="color: #515978; text-decoration: none;">support@usdtmarketplace.com</a></small>
+        </div>
     </div>
 </div>
-
       `,
     };
     await transporter.sendMail(mailOptions);
@@ -89,31 +111,70 @@ const transporter = nodemailer.createTransport({
       subject: "Confirmation: Successful Offramp Transaction",
 text: `Successful Offramp Transaction`,
 html: `
-<div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
-<div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-
-    <h2 style="text-align: center; color: #28a745; border-bottom: 2px solid #28a745; padding-bottom: 10px;">USDT Marketplace</h2>
-    
-    <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
-    <p style="font-size: 16px; line-height: 1.5;">We are pleased to inform you that your recent offramp transaction has been completed successfully.</p>
-
-    <div style="background-color: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0;">
-        <p style="font-size: 16px; color: #155724; font-weight: bold; margin: 0;">Transaction Details:</p>
-        <p style="font-size: 16px; line-height: 1.5; margin-top: 10px;">Transaction ID: <strong>${transactionId}</strong></p>
-        <p style="font-size: 16px; line-height: 1.5;">Amount: <strong>${amount} ${localCurrency}</strong></p>
-        <p style="font-size: 16px; line-height: 1.5;">Crypto Amount: <strong>${cryptoAmount} USDT, Chain: ${cryptoType}</strong></p>
-        <p style="font-size: 16px; line-height: 1.5;">Transaction Hash: <strong>${hash}</strong></p>
-        <p style="font-size: 16px; line-height: 1.5;">Payment Status: <strong style="color: #28a745;">Success</strong></p>
+<div style='background-color:  #f1f1f1;'>
+    <div style="background: #528ff0; height: 12vh; position: relative;">
+        <div
+            style="margin: auto; box-sizing: border-box; padding-top: 20px; text-align: center; width: fit-content; margin: 0 auto; font-size: 16px; line-height: 1.5;">
+            <div
+                style="display: inline-block; vertical-align: middle; margin-left: 10px; color: #ffffff; font-family: Trebuchet MS;">
+                USDT Marketplace
+            </div>
+        </div>
     </div>
+    <div
+        style="max-width: 400px; margin: -50px auto 0; background-color: #fff;  box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative; border-radius: 5px;">
+        <h3 style="margin: 0; font-size: 16px; line-height: 1.5; text-align: center; color: #7b8199; padding: 20px;">
+            Transaction Successfully</h3>
+        <hr style="border: 0; height: 1px; background: #ddd; margin: 0;">
+        <p style="color: #7b8199; text-align: center; padding: 0 20px;">Your recent transaction has been successfully
+            processed.</p>
+        <hr style="border: 0; height: 10px; background:  #f1f1f1; margin: 10px 0;">
+        <p style="font-size: 16px; font-weight: bold; margin: 0; text-align: center; color: #7b8199;">Transaction
+            Details</p>
+        <div
+            style="background-color: #fff; padding: 20px; border-radius: 8px; margin: 10px 0; display: grid;;gap:20px; max-width: 400px;">
+            <div
+                style="color: #515978; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 22px;">
+                <strong>Transaction ID:</strong> <span style="color: #515978;">${transactionId}</span>
+            </div>
+            <div style="color: #515978;display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 70px;">
+                <strong>Amount:</strong> <span style="color: #515978;">${amount}
+                    ${localCurrency}</span>
+            </div>
+            <div
+                style="color: #515978; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 18px;">
+                <strong>Crypto Amount:</strong> <span style="color: #515978;">${cryptoAmount}
+                    USDT</span>
+            </div>
+            <div
+                style="color: #515978; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 84px;">
+                <strong>Chain:</strong><span>${cryptoType}</span>
+            </div>
+            <div style="color: #515978; display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 5px;">
+                <strong>Transaction Hash:</strong> <span style="color: #515978;">${hash}</span>
+            </div>
+            <div
+                style="color: #515978;  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 84px;">
+                <strong>Status:</strong> <span style="color: #515978;">Successful</span>
+            </div>
+        </div>
+        <hr style="border: 0; height: 10px; background:  #f1f1f1; margin: 10px 0;">
+        <div style='padding: 0 20px;'>
 
-    <p style="font-size: 16px; line-height: 1.5;">Thank you for choosing USDT Marketplace. We look forward to serving you again!</p>
+            <p style="color: #7b8199;">Thank you for choosing USDT Marketplace. If you have any questions, feel free to
+                reach out to us. <a href="mailto:support@usdtmarketplace.com"
+                    style="color: #515978;">support@usdtmarketplace.com</a>.</p>
+            <p style="color: #7b8199;">Best regards</p>
+            <p style="color: #7b8199;">USDT Marketplace Team</p>
+        </div>
+        <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+        <div style='padding-bottom: 20px; padding-left: 20px;'>
 
-    <p style="font-size: 16px; line-height: 1.5;">Best regards,</p>
-    <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
-
-    <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
-    <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #28a745; text-decoration: none;">support@usdtmarketplace.com</a></small>
-</div>
+            <small style="color: #666; font-size: 12px; ">If you have any questions, feel free to reach out to us at
+                <a href="mailto:support@usdtmarketplace.com"
+                    style="color: #515978; text-decoration: none;">support@usdtmarketplace.com</a></small>
+        </div>
+    </div>
 </div>
 `,
 };
