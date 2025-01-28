@@ -1,5 +1,3 @@
-
-
 import nodemailer from "nodemailer";
 
 export async function sendMailForFailedPayment(transactionId,amount,localCurrency,cryptoAmount,cryptoType,hash,email){
