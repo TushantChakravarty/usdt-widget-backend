@@ -1420,11 +1420,7 @@ export async function offrampRetry(request, reply) {
        } // Ensure it's a string if stored as UUI
     });
 
-    const offrampPending = await OffRampTransaction.findOne({
-      where: {
-        transaction_id: transactionId, // Ensure it's a string if stored as UUID
-      },
-    });
+   
 
     console.log('offramp',offramp);
     console.log("user",request?.user)
@@ -1432,20 +1428,27 @@ export async function offrampRetry(request, reply) {
     {
       return reply.status(400).send(responseMappingError(500,"Transaction does not exist"));
     }
+    const payoutTx = await findRecord(Payout, {
+      reference_id: offramp?.reference_id.toString(),
+    });
 
+    if(!payoutTx)
+      {
+        return reply.status(400).send(responseMappingError(500,"Transaction does not exist"));
+      }
 
     if (
-      (offrampPending || offramp) &&
-      [offrampPending?.user_id, offramp?.user_id].includes(request?.user?.id) === false
+      offramp &&
+      offramp?.user_id!==request?.user?.id
     ) {
       return reply.status(400).send(responseMappingError(500,"Transaction belongs to a different user"));
     }
 
-    if (offrampPending?.status=="PENDING"||offrampPending?.txStatus=="PENDING"||offrampPending?.processed=="PENDING") {
+    if (offramp?.status=="PENDING"||offramp?.txStatus=="PENDING"||offramp?.processed=="PENDING") {
       return reply.status(400).send(responseMappingError(500,"Transaction is under process"));
     }
 
-    if (offrampPending?.status=="SUCCESS"||offrampPending?.txStatus=="SUCCESS"||offrampPending?.processed=="SUCCESS") {
+    if (offramp?.status=="SUCCESS"||offramp?.txStatus=="SUCCESS"||offramp?.processed=="SUCCESS") {
       return reply.status(400).send(responseMappingError(500,"Transaction is already processed"));
 
     }
@@ -1482,9 +1485,9 @@ export async function offrampRetry(request, reply) {
         }
       );
 
-      offramp.transaction_id = payoutRequest.data.transaction_id.toString();
-      offramp.payout_id = payoutRequest.data.transaction_id.toString();
-      await offramp.save();
+      payoutTx.transaction_id = payoutRequest.data.transaction_id.toString();
+      payoutTx.payout_id = payoutRequest.data.transaction_id.toString();
+      await payoutTx.save();
       return reply
               .status(200)
               .send(
