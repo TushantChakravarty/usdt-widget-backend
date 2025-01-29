@@ -1416,27 +1416,17 @@ export async function offrampRetry(request, reply) {
 
     const offramp = await OffRampTransaction.findOne({
       where: {
-        transaction_id: transactionId, // Ensure it's a string if stored as UUID
-        [Op.or]: [
-          { status: "SUCCESS" },
-          { txStatus: "SUCCESS" },
-          { processed: "SUCCESS" },
-        ],
-      },
+        transaction_id: transactionId
+       } // Ensure it's a string if stored as UUI
     });
 
     const offrampPending = await OffRampTransaction.findOne({
       where: {
         transaction_id: transactionId, // Ensure it's a string if stored as UUID
-        [Op.or]: [
-          { status: "PENDING" },
-          { txStatus: "PENDING" },
-          { processed: "PENDING" },
-        ],
       },
     });
 
-    console.log(offramp);
+    console.log('offramp',offramp);
     console.log("user",request?.user)
 
 
@@ -1447,11 +1437,11 @@ export async function offrampRetry(request, reply) {
       return reply.status(400).send(responseMappingError(500,"Transaction belongs to a different user"));
     }
 
-    if (offrampPending) {
+    if (offrampPending?.status=="PENDING"||offrampPending?.txStatus=="PENDING"||offrampPending?.processed=="PENDING") {
       return reply.status(400).send(responseMappingError(500,"Transaction is under process"));
     }
 
-    if (offramp) {
+    if (offrampPending?.status=="SUCCESS"||offrampPending?.txStatus=="SUCCESS"||offrampPending?.processed=="SUCCESS") {
       return reply.status(400).send(responseMappingError(500,"Transaction is already processed"));
 
     }
@@ -1505,6 +1495,6 @@ export async function offrampRetry(request, reply) {
       }
     }
   } catch (error) {
-    reply.status(500).send(responseMappingError(500, `internal server error`));
+    reply.status(500).send(responseMappingError(500, `Internal server error`));
   }
 }
