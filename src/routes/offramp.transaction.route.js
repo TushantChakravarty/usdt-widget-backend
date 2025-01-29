@@ -146,7 +146,7 @@ const routes = async (route, options) => { // route = fastify instance
     // onRequest: [
     //   route.authenticate
     // ],
-    // schema: validator.getQuotesOfframp,
+     schema: validator.offrampRetry,
     preValidation: validateToken,
     handler: offramp.offrampRetry,
   });

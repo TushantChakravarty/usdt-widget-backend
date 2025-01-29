@@ -118,3 +118,50 @@ export const getQuotesOfframp = {
     //     ...commonSchemas.errorResponse,
     // },
 }
+
+export const offrampRetry = {
+    body: {
+        type: 'object',
+        properties: {
+            transactionId: {
+                type: "string",
+               
+            },
+            sentFiatAccount: {
+                type: "boolean",
+               
+            },
+            newBank: {  type: "boolean" },
+            fiatAccountId: {
+                type: "number",
+            },
+            fiatAccount: {
+                type: "number",
+            },
+            bankName: {
+                type: "string",
+               
+            },
+            ifsc: {
+                type: "string",
+               
+            },
+            accountName: {
+                type: "string",
+               
+            },
+            // paymentMethodType: { type: 'string', minLength: 1, maxLength: 10 },
+        },
+        required: ["transactionId", "sentFiatAccount", "newBank"],
+        additionalProperties: false,
+    },
+    // response: {
+    //     200: {
+    //         type: 'object',
+    //         properties: {
+    //             message: { type: 'string' },
+    //         },
+    //     },
+    //     ...commonSchemas.errorResponse,
+    // },
+}
