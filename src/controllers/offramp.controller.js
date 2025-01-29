@@ -1401,18 +1401,26 @@ export async function offrampRetry(request, reply) {
   try {
     const {
       transactionId,
-      sentFiatAccount = true,
+      sentFiatAccount = false,
       fiatAccountId,
       newBank = false,
       fiatAccount,
       bankName,
       ifsc,
+      accountName
     } = request.body;
 
     console.log(request.body);
     if (!request?.user || !request?.user?.id) {
       return reply.status(401).send(responseMappingError(401, "User not authenticated"));
     }
+    console.log("newbank",newBank,"sentFiatAccount", sentFiatAccount)
+    console.log(newBank==true&&sentFiatAccount==true)
+    if(newBank==true&&sentFiatAccount==true)
+    {
+      return reply.status(400).send(responseMappingError(400,"Invalid request type"));
+    }
+   
 
     const offramp = await OffRampTransaction.findOne({
       where: {
@@ -1424,9 +1432,10 @@ export async function offrampRetry(request, reply) {
 
     console.log('offramp',offramp);
     console.log("user",request?.user)
+ 
     if(!offramp)
     {
-      return reply.status(400).send(responseMappingError(500,"Transaction does not exist"));
+      return reply.status(400).send(responseMappingError(400,"Transaction does not exist"));
     }
     const payoutTx = await findRecord(Payout, {
       reference_id: offramp?.reference_id.toString(),
@@ -1434,22 +1443,22 @@ export async function offrampRetry(request, reply) {
 
     if(!payoutTx)
       {
-        return reply.status(400).send(responseMappingError(500,"Transaction does not exist"));
+        return reply.status(400).send(responseMappingError(400,"Transaction does not exist"));
       }
 
     if (
       offramp &&
       offramp?.user_id!==request?.user?.id
     ) {
-      return reply.status(400).send(responseMappingError(500,"Transaction belongs to a different user"));
+      return reply.status(400).send(responseMappingError(400,"Transaction belongs to a different user"));
     }
 
     if (offramp?.status=="PENDING"||offramp?.txStatus=="PENDING"||offramp?.processed=="PENDING") {
-      return reply.status(400).send(responseMappingError(500,"Transaction is under process"));
+      return reply.status(400).send(responseMappingError(400,"Transaction is under process"));
     }
 
-    if (offramp?.status=="SUCCESS"||offramp?.txStatus=="SUCCESS"||offramp?.processed=="SUCCESS") {
-      return reply.status(400).send(responseMappingError(500,"Transaction is already processed"));
+    if (offramp?.status=="SUCCESS"||offramp?.processed=="SUCCESS") {
+      return reply.status(400).send(responseMappingError(400,"Transaction is already processed"));
 
     }
 
@@ -1462,12 +1471,12 @@ export async function offrampRetry(request, reply) {
       console.log(sentFiatAccount)
 
       if (!fiatAccountexist) {
-        return reply.status(500).send(responseMappingError(400,"Account doesn't exist"));
+        return reply.status(400).send(responseMappingError(400,"Account doesn't exist"));
 
       }
 
       if (fiatAccountexist.user_id !== request?.user?.id) {
-        return reply.status(500).send(responseMappingError(400, "Account doesn't belong to user"));
+        return reply.status(400).send(responseMappingError(400, "Account doesn't belong to user"));
       }
 
       const transactionID = generateTransactionId();
@@ -1501,10 +1510,35 @@ export async function offrampRetry(request, reply) {
           fiatAccount: fiatAccount.toString(),
         },
       });
+      console.log('fiat account',fiatAccountexist)
 
       if (fiatAccountexist) {
-        return reply.status(500).send(responseMappingError(400, "Account already exists"));
+        return reply.status(400).send(responseMappingError(400, "Account already exists"));
       }
+      const transactionID = generateTransactionId();
+
+      const payoutRequest = await sendFundTransferRequest(
+        process.env.GENNPAYAPIKEY,
+        transactionID.toString(),
+        offramp.toAmount.toString(),
+        fiatAccount?.toString(),
+        ifsc,
+        "IMPS",
+        {
+          accountName: accountName,
+          bankName: bankName,
+        }
+      );
+
+      payoutTx.transaction_id = payoutRequest.data.transaction_id.toString();
+      payoutTx.payout_id = payoutRequest.data.transaction_id.toString();
+      await payoutTx.save();
+      return reply
+              .status(200)
+              .send(
+                responseMappingWithData(200, "success", payoutRequest.data)
+              );
+
     }
   } catch (error) {
     console.log(error.message)
