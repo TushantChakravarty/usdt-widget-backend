@@ -514,9 +514,9 @@ export async function login(request, reply) {
     });
     if (!activeOtp)
       return reply
-        .status(500)
+        .status(400)
         .send(
-          responseMappingError(500, `Invalid or expired OTP.`)
+          responseMappingError(400, `Invalid or expired OTP.`)
         );
     const match = await compare(password, user.password);
     if (!match)
