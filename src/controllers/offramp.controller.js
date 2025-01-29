@@ -36,7 +36,12 @@ import { generateRandomFiatId, generateTransactionId } from "../utils/utils.js";
 //   createPayoutBankRequest,
 //   generateToken,
 // } from "../ApiCalls/globalpay.js";
-import { getRecipientAddress, getRecipientAddressUsingTronscan, tronWeb, walletAddress } from "../utils/tronUtils.js";
+import {
+  getRecipientAddress,
+  getRecipientAddressUsingTronscan,
+  tronWeb,
+  walletAddress,
+} from "../utils/tronUtils.js";
 import {
   createPayoutBankRequestPayhub,
   generateToken,
@@ -44,7 +49,7 @@ import {
 import { createInstantPayoutBankRequest } from "../gateways/kwikpaisa.js";
 import { sendFundTransferRequest } from "../gateways/gennpayPayout.js";
 import { createRazorpayPayoutService } from "../gateways/razorpay.js";
-
+import { Op } from "sequelize";
 const {
   User,
   Coin,
@@ -285,12 +290,12 @@ export async function getCountries(request, reply) {
   try {
     const countries = [
       {
-        name: 'India',
-        dialCode: '+91',
-        code: 'IN',
-        flag: 'https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg',
-    }    
-    ]
+        name: "India",
+        dialCode: "+91",
+        code: "IN",
+        flag: "https://upload.wikimedia.org/wikipedia/en/4/41/Flag_of_India.svg",
+      },
+    ];
     return reply
       .status(200)
       .send(responseMappingWithData(200, "success", countries));
@@ -693,11 +698,12 @@ export async function generateTransaction(request, reply) {
         )
       );
   }
-  const verified = await verifyQuotes(request.body)
-  console.log("verify check",verified)
-  if(!verified)
-  {
-    return reply.status(400).send(responseMappingError(400, "Quote has changed. please try again"))
+  const verified = await verifyQuotes(request.body);
+  console.log("verify check", verified);
+  if (!verified) {
+    return reply
+      .status(400)
+      .send(responseMappingError(400, "Quote has changed. please try again"));
   }
   const tronQrCode = await generateQRCode(walletAddress);
 
@@ -788,19 +794,31 @@ export async function verifyTransaction(request, reply) {
     });
     console.log(transaction);
     console.log(payoutTx);
-    if (transaction && (transaction?.status === "PENDING"||transaction?.processed=="PENDING") && transaction?.txHash && transaction?.payout_id ) {
+    if (
+      transaction &&
+      (transaction?.status === "PENDING" ||
+        transaction?.processed == "PENDING") &&
+      transaction?.txHash &&
+      transaction?.payout_id
+    ) {
       return reply
         .status(400)
         .send(
-          responseMappingError(400, `transaction is already under process please check status from history`)
+          responseMappingError(
+            400,
+            `transaction is already under process please check status from history`
+          )
         );
     }
-    console.log(transaction?.processed )
-    if (transaction && transaction?.processed === "SUCCESS"  ) {
+    console.log(transaction?.processed);
+    if (transaction && transaction?.processed === "SUCCESS") {
       return reply
         .status(400)
         .send(
-          responseMappingError(400, `transaction is already under process please check status from history`)
+          responseMappingError(
+            400,
+            `transaction is already under process please check status from history`
+          )
         );
     }
 
@@ -816,25 +834,22 @@ export async function verifyTransaction(request, reply) {
         .status(400)
         .send(responseMappingError(400, `invalid amount`));
     }
-    if (payoutHash &&payoutHash?.status==="SUCCESS") {
-      console.log('from here')
+    if (payoutHash && payoutHash?.status === "SUCCESS") {
+      console.log("from here");
       return reply
         .status(400)
         .send(
           responseMappingError(400, `transaction has already been processed`)
         );
     }
-    if (payoutHash &&payoutHash?.status==="PENDING") {
-      console.log('from here')
+    if (payoutHash && payoutHash?.status === "PENDING") {
+      console.log("from here");
       return reply
         .status(400)
         .send(
           responseMappingError(400, `transaction is under process currently`)
         );
     }
-    
-
-   
 
     if (transaction.txHash && transaction.txHash !== txHash) {
       return reply
@@ -866,12 +881,13 @@ export async function verifyTransaction(request, reply) {
         .send(responseMappingError(400, `Transaction belongs to another user`));
     }
 
-    const transactionInfo = await tronWeb.trx.getTransaction(txHash)
-    .catch((error)=>{
-      return reply
-      .status(400)
-      .send(responseMappingError(404, `Transaction not found.`));
-    })
+    const transactionInfo = await tronWeb.trx
+      .getTransaction(txHash)
+      .catch((error) => {
+        return reply
+          .status(400)
+          .send(responseMappingError(404, `Transaction not found.`));
+      });
     console.log(transactionInfo);
     if (!transactionInfo || !transactionInfo.txID) {
       console.log("Transaction not found.");
@@ -885,7 +901,7 @@ export async function verifyTransaction(request, reply) {
 
       if (transactionInfo.raw_data.contract[0].type === "TransferContract") {
         // Native TRX transfer
-        console.log('contract native')
+        console.log("contract native");
         actualAmount =
           transactionInfo.raw_data.contract[0].parameter.value.amount;
       } else if (
@@ -893,21 +909,28 @@ export async function verifyTransaction(request, reply) {
       ) {
         // Token transfer (e.g., USDT)
         const data = transactionInfo.raw_data.contract[0].parameter.value.data;
-        console.log('contract smart')
-    if (data && data.length >= 64) {
-        // If the data is present directly, get the amount from the last 32 characters
-        const amountHex = data.substring(data.length - 32);
-        actualAmount = BigInt(`0x${amountHex}`);
-    } else {
-        // Fallback: If data is not directly accessible, use raw_data_hex to extract the amount
-        const rawDataHex = transactionInfo.raw_data_hex;
-        const amountHex = rawDataHex.substring(rawDataHex.length - 64, rawDataHex.length - 32);
-        actualAmount = BigInt(`0x${amountHex}`);
-    }
+        console.log("contract smart");
+        if (data && data.length >= 64) {
+          // If the data is present directly, get the amount from the last 32 characters
+          const amountHex = data.substring(data.length - 32);
+          actualAmount = BigInt(`0x${amountHex}`);
+        } else {
+          // Fallback: If data is not directly accessible, use raw_data_hex to extract the amount
+          const rawDataHex = transactionInfo.raw_data_hex;
+          const amountHex = rawDataHex.substring(
+            rawDataHex.length - 64,
+            rawDataHex.length - 32
+          );
+          actualAmount = BigInt(`0x${amountHex}`);
+        }
       }
 
       const expectedAmountInSun = fromAmount * 1000000;
-      console.log("check check", expectedAmountInSun.toString(), actualAmount.toString());
+      console.log(
+        "check check",
+        expectedAmountInSun.toString(),
+        actualAmount.toString()
+      );
       if (expectedAmountInSun.toString() !== actualAmount.toString()) {
         return reply
           .status(400)
@@ -916,7 +939,7 @@ export async function verifyTransaction(request, reply) {
       // Check if the transaction was successful
       const transactionStatus = transactionInfo.ret[0].contractRet;
       const rawData = transactionInfo.raw_data;
-      let recipientAddress = await getRecipientAddressUsingTronscan(txHash)
+      let recipientAddress = await getRecipientAddressUsingTronscan(txHash);
       // Check if there are any contract calls
       // if (rawData && rawData.contract && rawData.contract.length > 0) {
       //   // Assuming the transaction is a transfer, find the contract type 'TransferContract'
@@ -937,7 +960,7 @@ export async function verifyTransaction(request, reply) {
       // } else {
       //   console.log("Invalid transaction data.");
       // }
-      console.log("reciepent check",recipientAddress);
+      console.log("reciepent check", recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
       if (
         expectedAmountInSun.toString() == actualAmount.toString() &&
@@ -962,30 +985,28 @@ export async function verifyTransaction(request, reply) {
           updateDetails
         );
         if (transaction) {
-         
-        
-            const fiatAccount = await findRecord(FiatAccount, {
-              fiatAccountId: transaction.fiatAccountId,
-            });
-            console.log(fiatAccount);
-          
-            console.log(request.user);
-            const phone = request.user.phone.replace("+91-", "");
-            // let body = {
-            //   name: fiatAccount.account_name,
-            //   email: request.user.email,
-            //   phone: phone,
-            //   amount: transaction.fromAmount,
-            //   account_number: fiatAccount.fiatAccount,
-            //   ifsc: fiatAccount.ifsc,
-            //   bank_name: fiatAccount.ifsc,
-            //   method: "IMPS",
-            //   customer_id: request.user.customerId,
-            // };
-   
-            const transactionID = generateTransactionId()
+          const fiatAccount = await findRecord(FiatAccount, {
+            fiatAccountId: transaction.fiatAccountId,
+          });
+          console.log(fiatAccount);
 
-            /*
+          console.log(request.user);
+          const phone = request.user.phone.replace("+91-", "");
+          // let body = {
+          //   name: fiatAccount.account_name,
+          //   email: request.user.email,
+          //   phone: phone,
+          //   amount: transaction.fromAmount,
+          //   account_number: fiatAccount.fiatAccount,
+          //   ifsc: fiatAccount.ifsc,
+          //   bank_name: fiatAccount.ifsc,
+          //   method: "IMPS",
+          //   customer_id: request.user.customerId,
+          // };
+
+          const transactionID = generateTransactionId();
+
+          /*
             kwikpaisa payouts
             let body = {
               id:request.user.customerId,
@@ -1015,81 +1036,74 @@ export async function verifyTransaction(request, reply) {
             );
             const payoutRequest = await createInstantPayoutBankRequest(body)
             */
-            
-            //gennpay payouts
-            const payoutRequest = await sendFundTransferRequest(
-              process.env.GENNPAYAPIKEY,
-              transactionID.toString(),
-              transaction.toAmount.toString(),
-              fiatAccount.fiatAccount,
-              fiatAccount.ifsc,
-              'IMPS',
-              {
-                  accountName: fiatAccount.account_name,
-                  bankName: fiatAccount.bank_name,
-              }
-            );
-            
-          //  //razorpay payouts
-            // let body = {
-            //   id:request.user.customerId,
-            //   emailId: request.user.email,
-            //   amount: transaction.toAmount,
-            //   customer_name: "tushant",
-            //   customer_email: request.user.email,
-            //   customer_phone: phone,
-            //   account_number: fiatAccount.fiatAccount,
-            //   customer_upiId: "success@upi",
-            //   bank_ifsc: fiatAccount.ifsc,
-            //   account_name: fiatAccount.account_name,
-            //   bank_name: fiatAccount.bank_name,
-            //   customer_address: "xyz",
-            //   method: "bank",
-            //   transaction_id: reference_id.toString(),
-            // };
-            // const payoutRequest = await createRazorpayPayoutService(body)
-          //   //razorpay payouts end
-            console.log(payoutRequest);
-            if (
-              payoutRequest.code == 200 &&
-              payoutRequest.data.transaction_id
-            ) {
-              let updatedData = {
-                name: fiatAccount.account_name,
-                email: request.user.email,
-                phone: phone,
-                amount: transaction.fromAmount,
-                account_number: fiatAccount.fiatAccount,
-                ifsc: fiatAccount.ifsc,
-                bank_name: fiatAccount.bank_name,
-                method: "IMPS",
-                customer_id: request.user.customerId,
-              };
-              updatedData.transaction_id =
-                payoutRequest.data.transaction_id.toString();
-              updatedData.reference_id = reference_id.toString();
-              updatedData.user_id = request.user.id;
-              updatedData.txHash = txHash;
-              const payoutsData = await createNewRecord(Payout, updatedData);
-              transaction.payout_id =
-                payoutRequest.data.transaction_id.toString();
-              transaction.save();
-              console.log(payoutsData);
-              return reply
-                .status(200)
-                .send(
-                  responseMappingWithData(
-                    200,
-                    "success",
-                    payoutRequest.data
-                  )
-                );
-            } else {
-              return reply
-                .status(500)
-                .send(responseMappingError(500, `Internal server error`));
+
+          //gennpay payouts
+          const payoutRequest = await sendFundTransferRequest(
+            process.env.GENNPAYAPIKEY,
+            transactionID.toString(),
+            transaction.toAmount.toString(),
+            fiatAccount.fiatAccount,
+            fiatAccount.ifsc,
+            "IMPS",
+            {
+              accountName: fiatAccount.account_name,
+              bankName: fiatAccount.bank_name,
             }
-          
+          );
+
+          //  //razorpay payouts
+          // let body = {
+          //   id:request.user.customerId,
+          //   emailId: request.user.email,
+          //   amount: transaction.toAmount,
+          //   customer_name: "tushant",
+          //   customer_email: request.user.email,
+          //   customer_phone: phone,
+          //   account_number: fiatAccount.fiatAccount,
+          //   customer_upiId: "success@upi",
+          //   bank_ifsc: fiatAccount.ifsc,
+          //   account_name: fiatAccount.account_name,
+          //   bank_name: fiatAccount.bank_name,
+          //   customer_address: "xyz",
+          //   method: "bank",
+          //   transaction_id: reference_id.toString(),
+          // };
+          // const payoutRequest = await createRazorpayPayoutService(body)
+          //   //razorpay payouts end
+          console.log(payoutRequest);
+          if (payoutRequest.code == 200 && payoutRequest.data.transaction_id) {
+            let updatedData = {
+              name: fiatAccount.account_name,
+              email: request.user.email,
+              phone: phone,
+              amount: transaction.fromAmount,
+              account_number: fiatAccount.fiatAccount,
+              ifsc: fiatAccount.ifsc,
+              bank_name: fiatAccount.bank_name,
+              method: "IMPS",
+              customer_id: request.user.customerId,
+            };
+            updatedData.transaction_id =
+              payoutRequest.data.transaction_id.toString();
+            updatedData.reference_id = reference_id.toString();
+            updatedData.user_id = request.user.id;
+            updatedData.txHash = txHash;
+            const payoutsData = await createNewRecord(Payout, updatedData);
+            transaction.payout_id =
+              payoutRequest.data.transaction_id.toString();
+            transaction.save();
+            console.log(payoutsData);
+            return reply
+              .status(200)
+              .send(
+                responseMappingWithData(200, "success", payoutRequest.data)
+              );
+          } else {
+            return reply
+              .status(500)
+              .send(responseMappingError(500, `Internal server error`));
+          }
+
           // console.log(transaction)
         } else {
           console.log("transaction doesnt belong to our system");
@@ -1176,20 +1190,38 @@ export async function getQuotesNew(request, reply) {
     let onrampFeePercentage, gatewayFeePercentage, tdsFeePercentage;
 
     // Conditional percentages based on fromAmount
-    const feeData = await getFee()
+    const feeData = await getFee();
     if (fromAmount === 10) {
-      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage: 0.3;
-      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage: 0.96;
-      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:1.003;
+      onrampFeePercentage = feeData
+        ? feeData?.offrampFee?.offrampFeePercentage
+        : 0.3;
+      gatewayFeePercentage = feeData
+        ? feeData?.offrampFee?.gatewayFeePercentage
+        : 0.96;
+      tdsFeePercentage = feeData
+        ? feeData?.offrampFee?.tdsFeePercentage
+        : 1.003;
     } else if (fromAmount > 10) {
-      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage:0.272;
-      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage:0.943;
-      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:0.988;
+      onrampFeePercentage = feeData
+        ? feeData?.offrampFee?.offrampFeePercentage
+        : 0.272;
+      gatewayFeePercentage = feeData
+        ? feeData?.offrampFee?.gatewayFeePercentage
+        : 0.943;
+      tdsFeePercentage = feeData
+        ? feeData?.offrampFee?.tdsFeePercentage
+        : 0.988;
     } else {
       // Set default values if needed
-      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage:0.3;
-      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage:0.96;
-      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:1.003;
+      onrampFeePercentage = feeData
+        ? feeData?.offrampFee?.offrampFeePercentage
+        : 0.3;
+      gatewayFeePercentage = feeData
+        ? feeData?.offrampFee?.gatewayFeePercentage
+        : 0.96;
+      tdsFeePercentage = feeData
+        ? feeData?.offrampFee?.tdsFeePercentage
+        : 1.003;
     }
 
     // Calculate fees
@@ -1265,26 +1297,43 @@ export async function verifyQuotes(request) {
       id: 1,
     };
     const usdt = await findRecord(Usdt, query);
-    
 
     const usdtRate = usdt.inrRateOfframp; // constant exchange rate
     let onrampFeePercentage, gatewayFeePercentage, tdsFeePercentage;
 
     // Conditional percentages based on fromAmount
-    const feeData = await getFee()
+    const feeData = await getFee();
     if (fromAmount === 10) {
-      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage: 0.3;
-      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage: 0.96;
-      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:1.003;
+      onrampFeePercentage = feeData
+        ? feeData?.offrampFee?.offrampFeePercentage
+        : 0.3;
+      gatewayFeePercentage = feeData
+        ? feeData?.offrampFee?.gatewayFeePercentage
+        : 0.96;
+      tdsFeePercentage = feeData
+        ? feeData?.offrampFee?.tdsFeePercentage
+        : 1.003;
     } else if (fromAmount > 10) {
-      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage:0.272;
-      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage:0.943;
-      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:0.988;
+      onrampFeePercentage = feeData
+        ? feeData?.offrampFee?.offrampFeePercentage
+        : 0.272;
+      gatewayFeePercentage = feeData
+        ? feeData?.offrampFee?.gatewayFeePercentage
+        : 0.943;
+      tdsFeePercentage = feeData
+        ? feeData?.offrampFee?.tdsFeePercentage
+        : 0.988;
     } else {
       // Set default values if needed
-      onrampFeePercentage = feeData?feeData?.offrampFee?.offrampFeePercentage:0.3;
-      gatewayFeePercentage = feeData?feeData?.offrampFee?.gatewayFeePercentage:0.96;
-      tdsFeePercentage = feeData?feeData?.offrampFee?.tdsFeePercentage:1.003;
+      onrampFeePercentage = feeData
+        ? feeData?.offrampFee?.offrampFeePercentage
+        : 0.3;
+      gatewayFeePercentage = feeData
+        ? feeData?.offrampFee?.gatewayFeePercentage
+        : 0.96;
+      tdsFeePercentage = feeData
+        ? feeData?.offrampFee?.tdsFeePercentage
+        : 1.003;
     }
 
     // Calculate fees
@@ -1332,72 +1381,130 @@ export async function verifyQuotes(request) {
     // console.log(data);
     // console.log(data?.data?.fees, data?.data?.rate);
     if (offrampAmount?.data) {
-      if(offrampAmount?.data?.toAmount==toAmount)
-      {
-        return true
-      }else{
-        return false
+      if (offrampAmount?.data?.toAmount == toAmount) {
+        return true;
+      } else {
+        return false;
       }
     } else {
-      return false
+      return false;
     }
   } catch (error) {
     logger.error("user.controller.getQuotes", error.message);
     console.log("user.controller.getQUotes", error.message);
-    return false
+    return false;
   }
 }
 
 
+export async function offrampRetry(request, reply) {
+  try {
+    const {
+      transactionId,
+      sentFiatAccount = true,
+      fiatAccountId,
+      newBank = false,
+      fiatAccount,
+      bankName,
+      ifsc,
+    } = request.body;
 
-export async function offrampRetry(request,reply){
-  try{
-    const {transactionId,sentFiatAccount=true,fiatAccountId,newBank=false,fiatAccount,bankName,ifsc} = request.body
-    const offramp = OffRampTransaction.findOne({
-      where:{
-        transaction_id:transactionId,
-        status:"SUCCESS"
-      }
-    })
-
-    if(offramp){
-      reply.status(403).send({error:"Transaction is already success"})
+    console.log(request.body);
+    if (!request?.user || !request?.user?.id) {
+      return reply.status(401).send(responseMappingError(401, "User not authenticated"));
     }
 
-    if(sentFiatAccount){
+    const offramp = await OffRampTransaction.findOne({
+      where: {
+        transaction_id: transactionId, // Ensure it's a string if stored as UUID
+        [Op.or]: [
+          { status: "SUCCESS" },
+          { txStatus: "SUCCESS" },
+          { processed: "SUCCESS" },
+        ],
+      },
+    });
+
+    const offrampPending = await OffRampTransaction.findOne({
+      where: {
+        transaction_id: transactionId, // Ensure it's a string if stored as UUID
+        [Op.or]: [
+          { status: "PENDING" },
+          { txStatus: "PENDING" },
+          { processed: "PENDING" },
+        ],
+      },
+    });
+
+    console.log(offramp);
+    console.log("user",request?.user)
+
+
+    if (
+      (offrampPending || offramp) &&
+      [offrampPending?.user_id, offramp?.user_id].includes(request?.user?.id) === false
+    ) {
+      return reply.status(400).send(responseMappingError(500,"Transaction belongs to a different user"));
+    }
+
+    if (offrampPending) {
+      return reply.status(400).send(responseMappingError(500,"Transaction is under process"));
+    }
+
+    if (offramp) {
+      return reply.status(400).send(responseMappingError(500,"Transaction is already processed"));
+
+    }
+
+    if (sentFiatAccount) {
       const fiatAccountexist = await FiatAccount.findOne({
-        where:{
-          fiatAccountId:fiatAccountId
+        where: {
+          fiatAccountId: fiatAccountId.toString(), // Ensure proper type conversion
+        },
+      });
+      console.log(sentFiatAccount)
+
+      if (!fiatAccountexist) {
+        return reply.status(500).send(responseMappingError(400,"Account doesn't exist"));
+
+      }
+
+      if (fiatAccountexist.user_id !== request?.user?.id) {
+        return reply.status(500).send(responseMappingError(400, "Account doesn't belong to user"));
+      }
+
+      const transactionID = generateTransactionId();
+
+      const payoutRequest = await sendFundTransferRequest(
+        process.env.GENNPAYAPIKEY,
+        transactionID.toString(),
+        offramp.toAmount.toString(),
+        fiatAccountexist.fiatAccount,
+        fiatAccountexist.ifsc,
+        "IMPS",
+        {
+          accountName: fiatAccountexist.account_name,
+          bankName: fiatAccountexist.bank_name,
         }
-      })
+      );
 
-      if(!fiatAccountexist){
-        reply.status(403).send({error:"Account doesn't exist"})
-      }
-
-      if(fiatAccountexist.user_id !== request.user.id){
-        reply.status(403).send({error:"Account doesn't exist"})
-      }
-
+      offramp.transaction_id = payoutRequest.data.transaction_id.toString();
+      offramp.payout_id = payoutRequest.data.transaction_id.toString();
+      await offramp.save();
     }
 
-
-    if(newBank){
+    if (newBank) {
       const fiatAccountexist = await FiatAccount.findOne({
-        where:{
-          fiatAccount:fiatAccount
-        }
-      })
+        where: {
+          fiatAccount: fiatAccount.toString(),
+        },
+      });
 
-      if(fiatAccountexist){
-        reply.status(403).send({error:"Account already exist"})
+      if (fiatAccountexist) {
+        return reply.status(500).send(responseMappingError(400, "Account already exists"));
       }
     }
-    
-
-
-
-  }catch(error){
-
+  } catch (error) {
+    reply.status(500).send(responseMappingError(500, `internal server error`));
   }
 }
