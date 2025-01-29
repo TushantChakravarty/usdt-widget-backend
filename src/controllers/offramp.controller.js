@@ -1428,6 +1428,10 @@ export async function offrampRetry(request, reply) {
 
     console.log('offramp',offramp);
     console.log("user",request?.user)
+    if(!offramp)
+    {
+      return reply.status(400).send(responseMappingError(500,"Transaction does not exist"));
+    }
 
 
     if (
@@ -1495,6 +1499,8 @@ export async function offrampRetry(request, reply) {
       }
     }
   } catch (error) {
+    console.log(error.message)
+
     reply.status(500).send(responseMappingError(500, `Internal server error`));
   }
 }
