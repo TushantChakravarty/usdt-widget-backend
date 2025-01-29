@@ -1485,6 +1485,11 @@ export async function offrampRetry(request, reply) {
       offramp.transaction_id = payoutRequest.data.transaction_id.toString();
       offramp.payout_id = payoutRequest.data.transaction_id.toString();
       await offramp.save();
+      return reply
+              .status(200)
+              .send(
+                responseMappingWithData(200, "success", payoutRequest.data)
+              );
     }
 
     if (newBank) {
