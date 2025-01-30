@@ -1543,6 +1543,6 @@ export async function offrampRetry(request, reply) {
   } catch (error) {
     console.log(error.message)
 
-    reply.status(500).send(responseMappingError(500, `Internal server error`));
+    reply.status(500).send(responseMappingError(500, `Sorry your sell request didn’t work. Please try again`));
   }
 }
