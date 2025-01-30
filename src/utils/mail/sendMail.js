@@ -8,14 +8,14 @@ const transporter = nodemailer.createTransport({
       port: 587,
       secure: false,
       auth: {
-        user: "support@usdtmarketplace.com",
-        pass: "Usdtmp123$",
-      }
+        user: "tshubhanshu007@gmail.com",
+        pass: "wltf sfzq mlni tnhv",
+      },
     });
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
+        address: "tshubhanshu007@gmail.com",
       },
       to: email,
       subject: "Failed Transaction Alert",
@@ -96,14 +96,14 @@ const transporter = nodemailer.createTransport({
       port: 587,
       secure: false,
       auth: {
-        user: "support@usdtmarketplace.com",
-        pass: "Usdtmp123$",
-      }
+        user: "tshubhanshu007@gmail.com",
+        pass: "wltf sfzq mlni tnhv",
+      },
     });
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
+        address: "tshubhanshu007@gmail.com",
       },
       to: email,
       subject: "Confirmation: Successful Offramp Transaction",

@@ -104,9 +104,9 @@ export async function sendSignUpOtp(request, reply) {
       port: 587,
       secure: false,
       auth: {
-        user: "support@usdtmarketplace.com",
-        pass: "Usdtmp123$",
-      }
+        user: "tshubhanshu007@gmail.com",
+        pass: "wltf sfzq mlni tnhv",
+      },
     });
     const otp = await generateOTP(email);
     console.log(otp);
@@ -135,7 +135,7 @@ export async function sendSignUpOtp(request, reply) {
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
+        address: "tshubhanshu007@gmail.com",
       },
       to: email,
       subject: "Sign-up OTP",
@@ -208,16 +208,16 @@ export async function sendLoginOtp(request, reply) {
       port: 587,
       secure: false,
       auth: {
-        user: "support@usdtmarketplace.com",
-        pass: "Usdtmp123$",
-      }
+        user: "tshubhanshu007@gmail.com",
+        pass: "wltf sfzq mlni tnhv",
+      },
     });
     const otp = await generateOTP(email);
     console.log(otp);
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
+        address: "tshubhanshu007@gmail.com",
       },
       to: email,
       subject: "Login OTP",
@@ -296,16 +296,16 @@ export async function sendLoginOtpV2(request, reply) {
       port: 587,
       secure: false,
       auth: {
-        user: "support@usdtmarketplace.com",
-        pass: "Usdtmp123$",
-      }
+        user: "tshubhanshu007@gmail.com",
+        pass: "wltf sfzq mlni tnhv",
+      },
     });
     const otp = await generateOTP(email);
     console.log(otp);
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
+        address: "tshubhanshu007@gmail.com",
       },
       to: email,
       subject: "Login OTP",
@@ -1720,7 +1720,7 @@ export async function sendForgetPasswordOtp(request, reply) {
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
+        address: "tshubhanshu007@gmail.com",
       },
       to: email,
       subject: "Forget Password OTP",
@@ -1867,5 +1867,3 @@ export async function checkMobileAndBankAddedOrNot(request,reply){
       return reply.status(500).send(responseMappingError(500, `Internal server error`))
   }
 }
-
-
