@@ -25,6 +25,8 @@ import payinModel from './payin.model.js';
 
 import adminModel from './admin.model.js';
 import feesModel from './fees.model.js';
+import kycModel from './kyc.model.js';
+
 // Initialize the Sequelize instance
 const sequelize = new Sequelize(config);
 
@@ -40,7 +42,9 @@ let db = {
     Payout:payoutModel(sequelize,Sequelize.DataTypes),
     Payin:payinModel(sequelize,Sequelize.DataTypes),
     Admin:adminModel(sequelize,Sequelize.DataTypes),
-    Fees:feesModel(sequelize,Sequelize.DataTypes)
+    Fees:feesModel(sequelize,Sequelize.DataTypes),
+    Kyc:kycModel(sequelize,Sequelize.DataTypes),
+
 };
 
 // Initialize model associations

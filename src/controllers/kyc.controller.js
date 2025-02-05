@@ -1,0 +1,119 @@
+import fetch from "node-fetch";
+import { generateTransactionIdGateway } from "../utils/utils";
+import db from "../models/index.js";
+import { createNewRecord, findOneAndUpdate } from "../Dao/dao.js";
+import {
+  responseMappingError,
+  responseMappingWithData,
+} from "../utils/responseMapper.js";
+const { Kyc } = db;
+
+const DECENTRO_BASE_URL = "https://in.decentro.tech/v2";
+const CLIENT_ID = "gsx_prod";
+const API_KEY = "4K4ZbnvboUMQGoJAfuyd58e9r2bvlrnM";
+const module_secret = "Z2GeyMvXUv4cSIiZCkl2vgU7pHgvza5l";
+/**
+ * Generate OTP for Aadhaar Verification
+ * @param {string} referenceId - Unique transaction ID
+ * @param {string} aadhaarNumber - User's Aadhaar number
+ * @returns {Promise<Object>} - API Response
+ */
+export const generateAadhaarOTP = async (referenceId, aadhaarNumber) => {
+  const url = `${DECENTRO_BASE_URL}/kyc/aadhaar/otp`;
+  const headers = {
+    "Content-Type": "application/json",
+    client_id: CLIENT_ID,
+    client_secret: API_KEY,
+    module_secret: module_secret,
+  };
+  const body = JSON.stringify({
+    reference_id: referenceId,
+    consent: true,
+    purpose: "For Aadhaar Verification",
+    aadhaar_number: aadhaarNumber,
+  });
+
+  try {
+    const response = await fetch(url, { method: "POST", headers, body });
+    const respJson = await response.json();
+    console.log("otp check", respJson);
+    return respJson;
+  } catch (error) {
+    return { status: "ERROR", message: error.message };
+  }
+};
+
+/**
+ * Validate OTP for Aadhaar Verification
+ * @param {string} referenceId - Unique transaction ID
+ * @param {string} initiationTransactionId - Transaction ID from OTP generation response
+ * @param {string} otp - OTP received on Aadhaar-linked mobile
+ * @param {string} shareCode - 4-digit share code set by the user
+ * @returns {Promise<Object>} - API Response
+ */
+export const validateAadhaarOTP = async (
+  referenceId,
+  initiationTransactionId,
+  otp,
+  shareCode
+) => {
+  const url = `${DECENTRO_BASE_URL}/kyc/aadhaar/otp/validate`;
+  const headers = {
+    "Content-Type": "application/json",
+    client_id: CLIENT_ID,
+    client_secret: API_KEY,
+    module_secret: module_secret,
+  };
+  const body = JSON.stringify({
+    reference_id: referenceId,
+    consent: true,
+    purpose: "For Aadhaar Verification",
+    initiation_transaction_id: initiationTransactionId,
+    otp,
+    shareCode: shareCode || "1234", // Default share code if not provided
+  });
+
+  try {
+    const response = await fetch(url, { method: "POST", headers, body });
+    return await response.json();
+  } catch (error) {
+    return { status: "ERROR", message: error.message };
+  }
+};
+
+export async function generateUserAadharOtp(request, reply) {
+  const { aadhaarNumber } = request.body;
+  const referenceId = generateTransactionIdGateway(10);
+  const response = await generateAadhaarOTP(
+    referenceId?.toString(),
+    aadhaarNumber?.toString()
+  );
+  if (response?.status == "SUCCESS") {
+    let updateDetails = {
+      userId:request?.user?.id,
+      referenceID:referenceId,
+      decentroTxnId: response?.decentroTxnId,
+      responseCode: response?.responseCode,
+      message: response?.message,
+      status: response?.status,
+      aadhaarReferenceNumber: aadhaarNumber,
+    };
+    const updated = await createNewRecord(Kyc, updateDetails);
+
+    if (updated) {
+      const responseMessage = `${response?.message}Last 3 digits of registered mobile number ${response?.data?.last3DigitsOfLinkedMobileNumber}`;
+      return reply
+        .status(200)
+        .send(responseMappingWithData(200, "success", {id:referenceId,message:responseMessage}));
+    }
+  } else {
+    return reply
+      .status(200)
+      .send(
+        responseMappingError(
+          500,
+          "Sorry unable to process aadhar kyc request at the moment please try later"
+        )
+      );
+  }
+}

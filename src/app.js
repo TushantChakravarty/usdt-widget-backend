@@ -242,7 +242,7 @@ await server.get('/', async (request, reply) => {
 
 
 await migrateDb()
-
+// generateAadhaarOTP('12887788998877',"355107134580")
 // await executePayment()
 
 
