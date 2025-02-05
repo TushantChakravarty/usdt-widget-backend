@@ -11,6 +11,7 @@ export const findOneAndUpdate = async (Model, query, updateObj) => {
       await record.update(updateObj);
       return record; // Return the updated record
     } else {
+      return false
       throw new Error("Record not found");
     }
   } catch (error) {

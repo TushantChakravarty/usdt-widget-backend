@@ -1,9 +1,9 @@
 /**
  * Validators for user routes
- * @file user Validator
- * @module user Validator
+ * @file Kyc Validator
+ * @module kyc Validator
  * @category validators
- * @subcategory user
+ * @subcategory kyc
  */
 
 import commonSchemas from '../common.validator.js';
@@ -12,9 +12,9 @@ export const sendAadharOtp = {
     body: {
         type: 'object',
         properties: {
-            aadhaarNumber:{ type: 'string', minLength: 12, maxLength: 12 }
+            aadharNumber:{ type: 'string', minLength: 12, maxLength: 12 }
         },
-        required: ["aadhaarNumber"],
+        required: ["aadharNumber"],
         additionalProperties: false,
     },
 

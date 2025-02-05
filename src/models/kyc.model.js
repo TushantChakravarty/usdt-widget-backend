@@ -125,6 +125,7 @@ export default (sequelize, DataTypes) => {
         {
             sequelize,
             modelName: "KYC",
+            tableName: "KYC",
             timestamps: true,
             createdAt: "date",
             updatedAt: "time",
