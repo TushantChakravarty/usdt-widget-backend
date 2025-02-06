@@ -41,86 +41,28 @@ export default (sequelize, DataTypes) => {
                 allowNull: false,
                 unique: true,
             },
-            name: {
+            aadharVerificationId:{
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-            dob: {
-                type: DataTypes.STRING,
+            proofOfIdentity: {
+                type: DataTypes.JSON,
                 allowNull: true,
             },
-            gender: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            mobileNumber: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            careOf: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            country: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            district: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            house: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            landmark: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            locality: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            pincode: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            postOffice: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            state: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            street: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            subDistrict: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            vtc: {
-                type: DataTypes.STRING,
+            proofOfAddress: {
+                type: DataTypes.JSON,
                 allowNull: true,
             },
             image: {
-                type: DataTypes.TEXT, // Base64 image data
+                type: DataTypes.TEXT, // Store Base64 image data as TEXT
                 allowNull: true,
             },
-            aadhaarZip: {
-                type: DataTypes.TEXT, // Base64 encoded zip file
-                allowNull: true,
+            completed:{
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue:false
             },
-            shareCode: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
-            pdf: {
-                type: DataTypes.TEXT, // Base64 encoded PDF
-                allowNull: true,
-            }
+
         },
         {
             sequelize,

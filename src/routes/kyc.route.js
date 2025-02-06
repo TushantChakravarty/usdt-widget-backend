@@ -21,13 +21,22 @@ const routes = async (route, options) => {
    * Route for getting all supported networks
    * Handles getting all supported networks data
    */
-  route.post("/Otp", {
+  route.post("/otp", {
     schema: validator.sendAadharOtp,
     // onRequest: [
     //   route.authenticate
     // ],
     preValidation: validateToken,
     handler:kyc.generateUserAadharOtp ,
+  });
+
+  route.post("/verifyOtp", {
+    schema: validator.verifyAadharOtp,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    preValidation: validateToken,
+    handler:kyc.validateUserAadharOtp ,
   });
 
   

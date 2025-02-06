@@ -47,6 +47,22 @@ export const findRecord = async (Model, query) => {
   }
 };
 
+export const findRecordNew = async (Model, query) => {
+  try {
+    // Find a single record based on the provided query
+    const record = await Model.findOne({ where: query });
+
+    if (record) {
+      return record; // Return the found record
+    } else {
+      console.log("Record not found");
+      return null; // Handle the case where no record is found
+    }
+  } catch (error) {
+    throw error; // Handle errors as needed
+  }
+};
+
 export const findAllRecord = async (Model, query) => {
   try {
     // Find a single record based on the provided query

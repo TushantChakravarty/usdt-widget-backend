@@ -19,3 +19,16 @@ export const sendAadharOtp = {
     },
 
 }
+
+export const verifyAadharOtp = {
+    body: {
+        type: 'object',
+        properties: {
+            referenceId:{ type: 'string', minLength: 10, maxLength: 12 },
+            otp:{ type: 'string', minLength: 1, maxLength: 6 }
+        },
+        required: ["referenceId","otp"],
+        additionalProperties: false,
+    },
+
+}

@@ -1,12 +1,12 @@
 import fetch from "node-fetch";
 import { generateTransactionIdGateway } from "../utils/utils";
 import db from "../models/index.js";
-import { createNewRecord, findOneAndUpdate, findRecord } from "../Dao/dao.js";
+import { createNewRecord, findOneAndUpdate, findRecord, findRecordNew } from "../Dao/dao.js";
 import {
   responseMappingError,
   responseMappingWithData,
 } from "../utils/responseMapper.js";
-const { Kyc } = db;
+const { Kyc, User } = db;
 
 const DECENTRO_BASE_URL = "https://in.decentro.tech/v2";
 const CLIENT_ID = "gsx_prod";
@@ -37,34 +37,34 @@ export const generateAadhaarOTP = async (referenceId, aadhaarNumber) => {
     const response = await fetch(url, { method: "POST", headers, body });
     const respJson = await response.json();
     console.log("otp check", respJson);
-    if(respJson?.status=="SUCCESS")
-    {
+    // if(respJson?.status=="SUCCESS")
+    // {
 
-        return respJson;
-    }else{
-        return {
-            "decentroTxnId": "98293839933",
-            "status": "SUCCESS",
-            "responseCode": "S00000",
-            "message": "OTP generated and sent successfully on the registered mobile number. Kindly trigger the Validate OTP API within the next 10 minutes.",
-            "data": {
-                "last3DigitsOfLinkedMobileNumber": "*******982"
-            },
-            "responseKey": "success_otp_generated"
-        }
-    }
+    return respJson;
+    // }else{
+    //     return {
+    //         "decentroTxnId": "98293839933",
+    //         "status": "SUCCESS",
+    //         "responseCode": "S00000",
+    //         "message": "OTP generated and sent successfully on the registered mobile number. Kindly trigger the Validate OTP API within the next 10 minutes.",
+    //         "data": {
+    //             "last3DigitsOfLinkedMobileNumber": "*******982"
+    //         },
+    //         "responseKey": "success_otp_generated"
+    //     }
+    // }
   } catch (error) {
-    return {
-        "decentroTxnId": "98293839933",
-        "status": "SUCCESS",
-        "responseCode": "S00000",
-        "message": "OTP generated and sent successfully on the registered mobile number. Kindly trigger the Validate OTP API within the next 10 minutes.",
-        "data": {
-            "last3DigitsOfLinkedMobileNumber": "*******982"
-        },
-        "responseKey": "success_otp_generated"
-    }
-    //return { status: "ERROR", message: error.message };
+    // return {
+    //     "decentroTxnId": "98293839933",
+    //     "status": "SUCCESS",
+    //     "responseCode": "S00000",
+    //     "message": "OTP generated and sent successfully on the registered mobile number. Kindly trigger the Validate OTP API within the next 10 minutes.",
+    //     "data": {
+    //         "last3DigitsOfLinkedMobileNumber": "*******982"
+    //     },
+    //     "responseKey": "success_otp_generated"
+    // }
+    return { status: "ERROR", message: error.message };
   }
 };
 
@@ -120,7 +120,7 @@ export async function generateUserAadharOtp(request, reply) {
       aadharNumber?.toString()
     );
     if (response?.status == "SUCCESS") {
-      const exists = await findRecord(Kyc, {
+      const exists = await findRecordNew(Kyc, {
         aadhaarReferenceNumber: aadharNumber?.toString(),
       });
       console.log("existing check", exists);
@@ -139,18 +139,21 @@ export async function generateUserAadharOtp(request, reply) {
             referenceID: referenceId,
             decentroTxnId: response?.decentroTxnId,
           };
-          const updated = await findOneAndUpdate(Kyc,{ aadhaarReferenceNumber: aadharNumber?.toString(),}, updateDetails)
-          .catch((error)=>{
-            console.log(error)
+          const updated = await findOneAndUpdate(
+            Kyc,
+            { aadhaarReferenceNumber: aadharNumber?.toString() },
+            updateDetails
+          ).catch((error) => {
+            console.log(error);
             return reply
-            .status(400)
-            .send(
-              responseMappingError(
-                500,
-                "Sorry unable to process aadhar kyc request at the moment please try later"
-              )
-            );
-          })
+              .status(400)
+              .send(
+                responseMappingError(
+                  500,
+                  "Sorry unable to process aadhar kyc request at the moment please try later"
+                )
+              );
+          });
           if (updated) {
             const responseMessage = `${response?.message}Last 3 digits of registered mobile number ${response?.data?.last3DigitsOfLinkedMobileNumber}`;
             return reply.status(200).send(
@@ -210,6 +213,93 @@ export async function generateUserAadharOtp(request, reply) {
             "Sorry unable to process aadhar kyc request at the moment please try later"
           )
         );
+    }
+  } catch (error) {
+    console.log(error);
+    return reply
+      .status(500)
+      .send(
+        responseMappingError(
+          500,
+          "Sorry unable to process aadhar kyc request at the moment please try later"
+        )
+      );
+  }
+}
+
+export async function validateUserAadharOtp(request, reply) {
+  console.log("body check", request.body);
+  const { referenceId, otp } = request.body;
+  if (request?.user?.isKycCompleted) {
+    return reply
+      .status(400)
+      .send(responseMappingError(400, "User is already Kyc verified"));
+  }
+  try {
+    const kycData = await findRecordNew(Kyc, {
+      referenceID: referenceId,
+    });
+    if (kycData) {
+      if (kycData?.userId !== request?.user?.id) {
+        return reply
+          .status(400)
+          .send(responseMappingError(400, "Invalid kyc verification request"));
+      }
+
+      if (kycData?.completed) {
+        return reply
+          .status(400)
+          .send(responseMappingError(400, "Kyc request already completed"));
+      }
+
+      const validateOtp = await validateAadhaarOTP(
+        referenceId,
+        kycData?.decentroTxnId,
+        otp
+      );
+      console.log("validate check", validateOtp);
+      if (validateOtp?.status == "SUCCESS") {
+        let updateDetails = {
+          aadharVerificationId: validateOtp?.data?.aadhaarReferenceNumber,
+          proofOfIdentity:  validateOtp?.data?.proofOfIdentity,
+          proofOfAddress:validateOtp?.data?.proofOfAddress,
+          image:validateOtp?.data?.image,
+          completed:true,
+          decentroTxnId:validateOtp?.decentroTxnId
+        };
+        const updated = await findOneAndUpdate(Kyc,{ referenceID:referenceId}, updateDetails)
+        const userUpdate = await findOneAndUpdate(User,{id:request?.user?.id}, {isKycCompleted:true})
+        if(updated&&userUpdate)
+        {
+          return reply
+          .status(200)
+          .send(responseMappingError(200, "KYC completed successfully"));
+        }else{
+          return reply
+          .status(500)
+          .send(
+            responseMappingError(
+              500,
+              "Sorry unable to process aadhar kyc request at the moment please try later"
+            )
+          );
+        }
+
+       
+      } else {
+        return reply
+          .status(500)
+          .send(
+            responseMappingError(
+              500,
+              "Sorry unable to validate otp at the moment please try later"
+            )
+          );
+      }
+    } else {
+      return reply
+        .status(400)
+        .send(responseMappingError(400, "Invalid kyc verification request"));
     }
   } catch (error) {
     console.log(error);
