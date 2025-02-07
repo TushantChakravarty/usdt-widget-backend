@@ -8,10 +8,10 @@ import {
 } from "../utils/responseMapper.js";
 const { Kyc, User } = db;
 
-const DECENTRO_BASE_URL = "https://in.decentro.tech/v2";
-const CLIENT_ID = "gsx_prod";
-const API_KEY = "4K4ZbnvboUMQGoJAfuyd58e9r2bvlrnM";
-const module_secret = "Z2GeyMvXUv4cSIiZCkl2vgU7pHgvza5l";
+const DECENTRO_BASE_URL = process.env.DECENTRO_BASE_URL;
+const CLIENT_ID = process.env.DECENTRO_CLIENT_ID;
+const API_KEY = process.env.DECENTRO_CLIENT_SECRET;
+const module_secret = process.env.DECENTRO_MODULE_SECRET;
 /**
  * Generate OTP for Aadhaar Verification
  * @param {string} referenceId - Unique transaction ID
