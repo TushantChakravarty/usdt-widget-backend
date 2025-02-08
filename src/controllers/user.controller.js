@@ -104,8 +104,12 @@ export async function sendSignUpOtp(request, reply) {
       port: 587,
       secure: false,
       auth: {
-        user: "tshubhanshu007@gmail.com",
-        pass: "wltf sfzq mlni tnhv",
+       
+          user: "support@usdtmarketplace.com",
+          pass: "Usdtmp123$",
+        
+        // user: "tshubhanshu007@gmail.com",
+        // pass: "wltf sfzq mlni tnhv",
       },
     });
     const otp = await generateOTP(email);
@@ -208,8 +212,10 @@ export async function sendLoginOtp(request, reply) {
       port: 587,
       secure: false,
       auth: {
-        user: "tshubhanshu007@gmail.com",
-        pass: "wltf sfzq mlni tnhv",
+        user: "support@usdtmarketplace.com",
+        pass: "Usdtmp123$",
+        // user: "tshubhanshu007@gmail.com",
+        // pass: "wltf sfzq mlni tnhv",
       },
     });
     const otp = await generateOTP(email);
@@ -290,22 +296,25 @@ export async function sendLoginOtpV2(request, reply) {
       return reply
         .status(401)
         .send(responseMappingError(401, "Invalid username or password"));
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: "tshubhanshu007@gmail.com",
-        pass: "wltf sfzq mlni tnhv",
-      },
-    });
+        const transporter = nodemailer.createTransport({
+          host: "mail.privateemail.com",
+          port: 587, // Use 465 for secure connection
+          secure: false, // Set to true if using port 465
+          auth: {
+            user: "support@usdtmarketplace.com",
+            pass: "Usdtmp123$",
+          },
+          tls: {
+            rejectUnauthorized: false, // Helps with self-signed certificates
+          },
+        });
+        
     const otp = await generateOTP(email);
     console.log(otp);
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "tshubhanshu007@gmail.com",
+        address: "support@usdtmarketplace.com",
       },
       to: email,
       subject: "Login OTP",

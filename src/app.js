@@ -32,6 +32,7 @@ import amqp from 'amqplib'
 // import { executePayment } from './gateways/yellowCard.js'
 //import cron from './utils/cron/index.js'
 import { responseMappingError } from './utils/responseMapper.js'
+import { sendOtp } from '../otpTest.js'
 // import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 // import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
 // import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
@@ -242,6 +243,10 @@ await server.get('/', async (request, reply) => {
 
 
 await migrateDb()
+// sendOtp(1124,'shubhanshu.tripathi@polarisgrids.com')
+// .catch((error)=>{
+//     console.log('errrrrrrrrrrror',error)
+// })
 // generateAadhaarOTP('12887788998877',"355107134580")
 // await executePayment()
 
