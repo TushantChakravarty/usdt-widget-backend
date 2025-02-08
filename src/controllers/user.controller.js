@@ -99,17 +99,15 @@ export async function sendSignUpOtp(request, reply) {
         .send(responseMappingError(500, `Account already exist`));
     }
     const transporter = nodemailer.createTransport({
-      service: "gmail",
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      host: "mail.privateemail.com",
+      port: 587, // Use 465 for secure connection
+      secure: false, // Set to true if using port 465
       auth: {
-       
-          user: "support@usdtmarketplace.com",
-          pass: "Usdtmp123$",
-        
-        // user: "tshubhanshu007@gmail.com",
-        // pass: "wltf sfzq mlni tnhv",
+        user: "support@usdtmarketplace.com",
+        pass: "Usdtmp123$",
+      },
+      tls: {
+        rejectUnauthorized: false, // Helps with self-signed certificates
       },
     });
     const otp = await generateOTP(email);
@@ -139,7 +137,7 @@ export async function sendSignUpOtp(request, reply) {
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "tshubhanshu007@gmail.com",
+        address: "support@usdtmarketplace.com",
       },
       to: email,
       subject: "Sign-up OTP",
@@ -207,15 +205,15 @@ export async function sendLoginOtp(request, reply) {
         .send(responseMappingError(500, `Account not found.`));
     }
     const transporter = nodemailer.createTransport({
-      service: "gmail",
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      host: "mail.privateemail.com",
+      port: 587, // Use 465 for secure connection
+      secure: false, // Set to true if using port 465
       auth: {
         user: "support@usdtmarketplace.com",
         pass: "Usdtmp123$",
-        // user: "tshubhanshu007@gmail.com",
-        // pass: "wltf sfzq mlni tnhv",
+      },
+      tls: {
+        rejectUnauthorized: false, // Helps with self-signed certificates
       },
     });
     const otp = await generateOTP(email);
@@ -223,7 +221,7 @@ export async function sendLoginOtp(request, reply) {
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "tshubhanshu007@gmail.com",
+        address: "support@usdtmarketplace.com",
       },
       to: email,
       subject: "Login OTP",
@@ -1694,13 +1692,15 @@ export async function sendForgetPasswordOtp(request, reply) {
         .send(responseMappingError(500, `Email not exist`));
     }
     const transporter = nodemailer.createTransport({
-      service: "gmail",
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
+      host: "mail.privateemail.com",
+      port: 587, // Use 465 for secure connection
+      secure: false, // Set to true if using port 465
       auth: {
-        user: "tshubhanshu007@gmail.com",
-        pass: "wltf sfzq mlni tnhv"
+        user: "support@usdtmarketplace.com",
+        pass: "Usdtmp123$",
+      },
+      tls: {
+        rejectUnauthorized: false, // Helps with self-signed certificates
       },
     });
     const otp = await generateOTP(email);
@@ -1729,7 +1729,7 @@ export async function sendForgetPasswordOtp(request, reply) {
     const mailOptions = {
       from: {
         name: "GSX solutions",
-        address: "tshubhanshu007@gmail.com",
+        address: "support@usdtmarketplace.com",
       },
       to: email,
       subject: "Forget Password OTP",
