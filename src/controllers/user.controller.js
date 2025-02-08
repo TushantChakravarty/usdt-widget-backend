@@ -16,14 +16,14 @@ import {
 } from "../utils/responseMapper.js";
 import { Currencies } from "../utils/currencies.js";
 import { networks } from "../utils/networks.js";
-import { findRecord, getFee } from "../Dao/dao.js";
+import { findRecord, findRecordNew, getFee } from "../Dao/dao.js";
 import { Sequelize } from "sequelize";
 import { countryCodes } from "../utils/countryCodes.js";
 import { generateRandomCustomerId } from "../utils/utils.js";
 import { CoinsData } from "../../blockchainData/coins_data.js";
 import { AllNetworksData } from "../../blockchainData/network_data.js";
 
-const { User, Coin, OnRampTransaction, Usdt,Otp, Fees,FiatAccount } = db;
+const { User, Coin, OnRampTransaction, Usdt,Otp, Fees,FiatAccount, Kyc } = db;
 /**
  * Registers a new user.
  * @controller user
@@ -1852,6 +1852,14 @@ export async function checkMobileAndBankAddedOrNot(request,reply){
   try{
     const isPhoneAdded = request?.user?.isPhoneAdded || false
     const bank_data = await FiatAccount.findOne({where:{user_id:request.user.id}})
+    const kycData = await findRecordNew(Kyc,{userId:request?.user?.id})
+
+    const userKycData = {
+      isKycCompleted: request?.user?.isKycCompleted && kycData?.completed ? true : false,
+      aadharNumber: request?.user?.isKycCompleted && kycData?.completed 
+        ? `***** ${kycData?.aadhaarReferenceNumber?.slice(-4)}` 
+        : ""
+    };
     let isBankAdded = false
     if(bank_data && bank_data.delete === false){
       isBankAdded = true
@@ -1860,7 +1868,7 @@ export async function checkMobileAndBankAddedOrNot(request,reply){
 
     return reply
     .status(200)
-    .send(responseMappingWithData(200, "success", {isPhoneAdded,isBankAdded}));
+    .send(responseMappingWithData(200, "success", {isPhoneAdded,isBankAdded,userKycData}));
 
   }catch(error){
       console.log('user.controller.changePassword', error.message)
