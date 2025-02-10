@@ -503,3 +503,109 @@ const examplePayloadRequest ={
 
 
 
+export async function submitCollectionRequest(payload){
+  try{
+    const url = 'https://sandbox.api.yellowcard.io/business/collections';
+
+    const method = 'POST'
+      // Current timestamp
+      const date = new Date().toISOString();
+
+      // Create the HMAC object
+      const hmac = crypto.algo.HMAC.create(crypto.algo.SHA256, secretKey);
+
+      // Update HMAC with necessary data
+      hmac.update(date);
+      hmac.update('/business/collections'); // Path of the URL
+      hmac.update(method);
+
+      // Hash and include the body if it is not empty
+      if (payload) {
+          const bodyString = JSON.stringify(payload);
+          const bodyHash = crypto.SHA256(bodyString).toString(crypto.enc.Base64);
+          hmac.update(bodyHash);
+      }
+
+      // Finalize the HMAC and encode in Base64
+      const signature = hmac.finalize().toString(crypto.enc.Base64);
+
+      // Set up headers
+      const headers = {
+          'Content-Type': 'application/json',
+          'X-YC-Timestamp': date,
+          'Authorization': `YcHmacV1 ${apiKey}:${signature}`
+      };
+
+      // Set up the fetch request
+      const options = {
+          method: method,
+          headers: headers,
+          body: JSON.stringify(payload)
+      };
+
+      // Make the fetch request
+      const response = await fetch(url, options);
+      const data = await response.json(); // Parse JSON response
+
+      console.log('Response:', data);
+      return data; // Return the data for further processing
+
+  }catch(error){
+    console.log("yellowCard.submitCollectionRequest.",error.message)
+  }
+}
+
+
+export async function acceptPaymentRequest(id,payload=null){
+  try{
+    const url = `https://sandbox.api.yellowcard.io/business/collections/${id}/accept`;
+
+    const method = 'POST'
+      // Current timestamp
+      const date = new Date().toISOString();
+
+      // Create the HMAC object
+      const hmac = crypto.algo.HMAC.create(crypto.algo.SHA256, secretKey);
+      console.log("here is the id that is coming ",id)
+      // Update HMAC with necessary data
+      hmac.update(date);
+      hmac.update(`/collection/${String(id)}/accept`); // Path of the URL
+      hmac.update(method);
+
+      // Hash and include the body if it is not empty
+      if (payload) {
+        console.log("coming oin the paytload block")
+          const bodyString = JSON.stringify(payload);
+          const bodyHash = crypto.SHA256(bodyString).toString(crypto.enc.Base64);
+          hmac.update(bodyHash);
+      }
+
+      // Finalize the HMAC and encode in Base64
+      const signature = hmac.finalize().toString(crypto.enc.Base64);
+      // const signature = "ycapidocsignature"
+      // Set up headers
+      const headers = {
+          'Content-Type': 'application/json',
+          'X-YC-Timestamp': date,
+          'Authorization': `YcHmacV1 ${apiKey}:${signature}`
+      };
+
+      // Set up the fetch request
+      const options = {
+          method: method,
+          headers: headers
+      };
+
+      // Make the fetch request
+      const response = await fetch(url, options);
+      const data = await response.json(); // Parse JSON response
+
+      console.log('acceptCollectionRequest:Response', data);
+      return data; // Return the data for further processing
+
+  }catch(error){
+    console.log("yellowCard.acceptCollectionRequest.",error.message)
+  }
+}
+
+
