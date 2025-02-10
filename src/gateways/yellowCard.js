@@ -65,6 +65,9 @@ import dotenv from 'dotenv';
 import CryptoJS from 'crypto-js';
 import fetch from 'node-fetch';
 import { destination } from 'pino';
+// import fs from 'fs/promises';
+import channels from "../../blockchainData/africa/channels.json"
+
 
 dotenv.config();
 
@@ -121,6 +124,45 @@ export async function testRequest() {
   //console.log(data);
 
   return data;
+}
+
+export async function getChannelsAfrica() {
+  const requestPath = "/business/channels"
+
+  const headers = httpAuth(requestPath, requestMethod);
+
+  const response = await fetch(`${baseURL}${requestPath}`, {
+    method: requestMethod,
+    headers: {
+      ...headers
+    }
+  });
+  const data = await response.json();
+  const inactiveChannelIds = data.channels
+  .filter(channel => channel.status === "inactive")
+  .map(channel => channel.id);
+
+const channelData = [...channels];
+
+// First filter: Remove inactive channels
+let filteredChannels = channelData.filter(channel => !inactiveChannelIds.includes(channel.id));
+
+filteredChannels = filteredChannels.filter(channel => { 
+  //console.log("Checking Channel:", channel); // Debugging log
+
+  // Convert to lowercase and handle undefined values safely
+  const rampType = channel.rampType?.toLowerCase() || "";
+  const channelType = channel.channelType?.toLowerCase() || "";
+
+ // console.log(`rampType: ${rampType}, channelType: ${channelType}`); // Debugging log
+
+  // Only keep channels that do NOT match "withdraw" or "bank"
+  return rampType == "withdraw" && channelType == "bank";
+});
+const newChannelData = [...filteredChannels];
+// 🔹 Final Debugging Output
+//console.log("Final Filtered Channels:", newChannelData);
+  return newChannelData;
 }
 
 export async function getNetworks() {
