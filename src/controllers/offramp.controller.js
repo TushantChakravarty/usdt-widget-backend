@@ -686,8 +686,13 @@ export async function generateTransaction(request, reply) {
   } = request.body;
 
   if (!request.user) {
-    return reply.status(500).send(responseMappingError(500, "Invalid request"));
+    return reply.status(401).send(responseMappingError(401, "Invalid request"));
   }
+
+  if (!request?.user?.isKycCompleted) {
+    return reply.status(400).send(responseMappingError(400, "please complete KYC first"));
+  }
+
   if (fromAmount < 1) {
     return reply
       .status(500)
@@ -778,6 +783,13 @@ export async function verifyTransaction(request, reply) {
       reference_id,
       txHash,
     } = request.body;
+    if (!request.user) {
+      return reply.status(401).send(responseMappingError(401, "Invalid request"));
+    }
+  
+    if (!request?.user?.isKycCompleted) {
+      return reply.status(400).send(responseMappingError(400, "please complete KYC first"));
+    }
     // const expectedTrxAmount = 10
     //console.log(txHash)
     // Fetch the transaction info from Tron blockchain using the txHash
@@ -1413,6 +1425,10 @@ export async function offrampRetry(request, reply) {
     console.log(request.body);
     if (!request?.user || !request?.user?.id) {
       return reply.status(401).send(responseMappingError(401, "User not authenticated"));
+    }
+  
+    if (!request?.user?.isKycCompleted) {
+      return reply.status(400).send(responseMappingError(400, "please complete KYC first"));
     }
     console.log("newbank",newBank,"sentFiatAccount", sentFiatAccount)
     console.log(newBank==true&&sentFiatAccount==true)

@@ -18,8 +18,8 @@ const routes = async (route, options) => {
   // route = fastify instance
 
   /**
-   * Route for getting all supported networks
-   * Handles getting all supported networks data
+   * Route for getting kyc otp
+   * Handles getting kyc otp
    */
   route.post("/otp", {
     schema: validator.sendAadharOtp,
@@ -29,7 +29,10 @@ const routes = async (route, options) => {
     preValidation: validateToken,
     handler:kyc.generateUserAadharOtp ,
   });
-
+ /**
+   * Route for verifying kyc otp
+   * Handles verifying kyc otp
+   */
   route.post("/verifyOtp", {
     schema: validator.verifyAadharOtp,
     // onRequest: [
