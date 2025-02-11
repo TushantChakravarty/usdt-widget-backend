@@ -984,7 +984,7 @@ export async function getAllNetworksNew(request, reply) {
         const networkData = filteredNetworks.filter(
           (Item) => Item.networkId == item.chainId
         );
-        //console.log("here", networkData)
+    
         if (networkData[0]?.withdrawalFee) {
           updatedData.push({
             ...item,
@@ -997,19 +997,25 @@ export async function getAllNetworksNew(request, reply) {
                 )
               : Math.ceil(networkData[0]?.minimumWithdrawal),
             inSync: true,
-            disabled:item?.chainId!==2
+            disabled: item?.chainId !== 2,
           });
         }
       });
+    
+      // 🔹 Sort updatedData: Move `disabled: false` to the top
+      updatedData.sort((a, b) => (a.disabled === b.disabled ? 0 : a.disabled ? 1 : -1));
     }
-    if (updatedData) {
+    
+    if (updatedData.length > 0) {
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", updatedData));
-    } else
-      reply
+    } else {
+      return reply
         .status(500)
         .send(responseMappingError(500, "Unable to get networks"));
+    }
+    
   } catch (error) {
     console.log("error check", error);
     reply.status(500).send(responseMappingError(500, error.message));
