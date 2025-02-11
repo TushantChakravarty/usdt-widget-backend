@@ -997,6 +997,7 @@ export async function getAllNetworksNew(request, reply) {
                 )
               : Math.ceil(networkData[0]?.minimumWithdrawal),
             inSync: true,
+            disabled:item?.chainId!==2
           });
         }
       });
