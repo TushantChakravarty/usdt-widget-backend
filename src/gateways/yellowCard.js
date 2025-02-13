@@ -126,7 +126,7 @@ export async function testRequest() {
   return data;
 }
 
-export async function getChannelsAfrica() {
+export async function getChannelsAfrica(type) {
   const requestPath = "/business/channels"
 
   const headers = httpAuth(requestPath, requestMethod);
@@ -157,12 +157,132 @@ filteredChannels = filteredChannels.filter(channel => {
  // console.log(`rampType: ${rampType}, channelType: ${channelType}`); // Debugging log
 
   // Only keep channels that do NOT match "withdraw" or "bank"
-  return rampType == "withdraw" && channelType == "bank";
+  return type === "offramp" 
+  ? rampType === "withdraw" && channelType === "bank"
+  : rampType === "deposit" && channelType === "bank";
+
 });
 const newChannelData = [...filteredChannels];
+let currencyFilter =[
+  {
+    buy: 3715.04,
+    sell: 3641.48,
+    locale: 'UG',
+    rateId: 'ugandan-shilling',
+    code: 'UGX',
+    updatedAt: '2025-02-11T05:46:41.016Z'
+  },
+  {
+    buy: 636.62,
+    sell: 636.62,
+    locale: 'CI',
+    rateId: 'west-african-franc',
+    code: 'XOF',
+    updatedAt: '2025-02-11T05:46:57.179Z'
+  },
+  {
+    buy: 27.98,
+    sell: 27.98,
+    locale: 'ZM',
+    rateId: 'kwacha',
+    code: 'ZMW',
+    updatedAt: '2025-02-11T05:47:11.840Z'
+  },
+  {
+    buy: 2864.63,
+    sell: 2864.63,
+    locale: 'CD',
+    rateId: 'congolese-franc',
+    code: 'CDF',
+    updatedAt: '2025-02-11T05:47:27.197Z'
+  },
+  {
+    buy: 1420,
+    sell: 1364,
+    locale: 'RW',
+    rateId: 'rwandan-franc',
+    code: 'RWF',
+    updatedAt: '2025-02-11T05:47:29.276Z'
+  },
+  {
+    buy: 1615,
+    sell: 1580,
+    locale: 'NG',
+    rateId: 'naira',
+    code: 'NGN',
+    updatedAt: '2025-02-11T05:47:33.596Z'
+  },
+  {
+    buy: 14.13,
+    sell: 13.73,
+    locale: 'Bw',
+    rateId: 'pula',
+    code: 'BWP',
+    updatedAt: '2025-02-11T05:47:54.081Z'
+  },
+  {
+    buy: 131.48,
+    sell: 127.89,
+    locale: 'KE',
+    rateId: 'kenyan-shilling',
+    code: 'KES',
+    updatedAt: '2025-02-11T05:48:10.576Z'
+  },
+  {
+    buy: 1737.13,
+    sell: 1737.13,
+    locale: 'MW',
+    rateId: 'malawian-kwacha',
+    code: 'MWK',
+    updatedAt: '2025-02-11T05:48:34.939Z'
+  },
+  {
+    buy: 18.46,
+    sell: 18.46,
+    locale: 'LS',
+    rateId: 'lesotho-loti',
+    code: 'LSL',
+    updatedAt: '2025-02-11T05:48:36.415Z'
+  },
+  {
+    buy: 18.99,
+    sell: 18.73,
+    locale: 'ZA',
+    rateId: 'south-african-rand',
+    code: 'ZAR',
+    updatedAt: '2025-02-11T05:48:39.479Z'
+  },
+  {
+    buy: 636.62,
+    sell: 636.62,
+    locale: 'CM',
+    rateId: 'franc',
+    code: 'XAF',
+    updatedAt: '2025-02-11T05:49:02.117Z'
+  },
+  {
+    buy: 2559.64,
+    sell: 2559.64,
+    locale: 'TZ',
+    rateId: 'tanzanian-shilling',
+    code: 'TZS',
+    updatedAt: '2025-02-11T05:49:17.996Z'
+  },
+  {
+    buy: 16.2,
+    sell: 15.7,
+    locale: 'GH',
+    rateId: 'cedi',
+    code: 'GHS',
+    updatedAt: '2025-02-11T05:49:36.679Z'
+  }
+]
+let finalData = newChannelData.filter(channel => 
+  currencyFilter.some(currency => currency.code === channel.currency)
+);
 // 🔹 Final Debugging Output
 //console.log("Final Filtered Channels:", newChannelData);
-  return newChannelData;
+  return finalData;
 }
 
 export async function getNetworks() {
@@ -181,9 +301,10 @@ export async function getNetworks() {
     return data;
   }
 
-export async function getRates(){
+export async function getRatesAfrica(type,currency){
     try{
-        const requestPath = "/business/rates"
+      //console.log(currency)
+        const requestPath = `/business/rates`
 
         const headers = httpAuth(requestPath, requestMethod);
       
@@ -194,11 +315,19 @@ export async function getRates(){
           }
         });
         const data = await response.json();
-        //console.log(data);
-        return data;
+        
+        let filteredData
+        if(type=='fiat')
+        filteredData = data?.rates?.filter(item => item?.locale!=='crypto')
+        else
+        filteredData = data?.rates?.filter(item => item?.locale=='crypto')
+
+        let currencyFilter = filteredData?.filter(item => item?.code?.toString() === currency?.toString());      
+        return currencyFilter;
 
     }catch(error){
-
+      console.log("rates ",error)
+      throw error
     }
 }  
 

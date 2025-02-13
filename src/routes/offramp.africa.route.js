@@ -28,6 +28,14 @@ const routes = async (route, options) => {
     handler:offramp.getChannels ,
   });
 
+  route.post("/getRates", {
+    // onRequest: [
+    //   route.authenticate
+    // ],
+   // preValidation: validateToken,
+    handler:offramp.getRates ,
+  });
+
 
 
   
