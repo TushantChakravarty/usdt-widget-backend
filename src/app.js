@@ -34,6 +34,7 @@ import amqp from 'amqplib'
 import { responseMappingError } from './utils/responseMapper.js'
 import { sendOtp } from '../otpTest.js'
 import { getRates, getRatesAfrica } from './gateways/yellowCard.js'
+import mercuryo from "./gateways/mercuryo.js"
 // import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 // import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
 // import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
@@ -243,7 +244,7 @@ await server.get('/', async (request, reply) => {
 
 
 
-await migrateDb()
+//await migrateDb()
 // sendOtp(1124,'shubhanshu.tripathi@polarisgrids.com')
 // .catch((error)=>{
 //     console.log('errrrrrrrrrrror',error)

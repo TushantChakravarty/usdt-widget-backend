@@ -1,25 +1,22 @@
 import axios from 'axios';
 
-const MERCURYO_API_BASE = 'https://oor-api.example.com/b2b'; // Replace with actual API URL
-const B2B_AUTH_TOKEN = 'YOUR_AUTH_TOKEN'; // Replace with your actual token
+const MERCURYO_API_BASE = 'https://sandbox-cryptosaas.mrcr.io/v1.6/b2b'; // Adjust if necessary
+const B2B_AUTH_TOKEN = '108:0d69aff67073a1040_PfFkay8tFsoqJPstOkR2oF_i10jspeJQdIdDBXkqyFABdW'; // Replace with your actual token
 
-export const signUpUser = async ({ email, password, first_name, last_name, phone_number, country }) => {
+export const signUpUser = async ({ email }) => {
     try {
         const response = await axios.post(
             `${MERCURYO_API_BASE}/user/sign-up`,
             {
+                accept:true,
                 email,
-                password,
-                first_name,
-                last_name,
-                phone_number,
-                country,
-                terms_of_service_accepted: true
+               
             },
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'b2b-auth-token': B2B_AUTH_TOKEN
+                    'Accept': 'application/json',
+                    'Sdk-Partner-Token': B2B_AUTH_TOKEN
                 }
             }
         );
@@ -28,18 +25,15 @@ export const signUpUser = async ({ email, password, first_name, last_name, phone
     } catch (error) {
         return {
             success: false,
+            status: error.response?.status,
             error: error.response?.data || 'Internal Server Error'
         };
     }
 };
 
+// Test the function
 const testUser = {
-    email: 'user@example.com',
-    password: 'SecureP@ss123',
-    first_name: 'John',
-    last_name: 'Doe',
-    phone_number: '+1234567890',
-    country: 'US'
+    email: 'user@example.com'
 };
 
 (async () => {
