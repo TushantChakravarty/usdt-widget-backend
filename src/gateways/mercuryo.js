@@ -31,12 +31,44 @@ export const signUpUser = async ({ email }) => {
     }
 };
 
+export const signInUser = async ({ email,phone,id }) => {
+    try {
+        const response = await axios.post(
+            `${MERCURYO_API_BASE}/user/sign-in`,
+            {
+                email,
+                phone,
+                user_uuid4:id
+               
+            },
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Sdk-Partner-Token': B2B_AUTH_TOKEN
+                }
+            }
+        );
+
+        return { success: true, data: response.data };
+    } catch (error) {
+        return {
+            success: false,
+            status: error.response?.status,
+            error: error.response?.data || 'Internal Server Error'
+        };
+    }
+};
+
 // Test the function
 const testUser = {
-    email: 'user@example.com'
+    email: 'user@example.com',
+    phone:'123456789',
+    id:1
 };
 
 (async () => {
     const response = await signUpUser(testUser);
+    //const response = await signInUser(testUser)
     console.log(response);
 })();
