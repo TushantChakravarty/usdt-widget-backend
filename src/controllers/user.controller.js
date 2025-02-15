@@ -1891,3 +1891,40 @@ export async function checkMobileAndBankAddedOrNot(request,reply){
       return reply.status(500).send(responseMappingError(500, `Internal server error`))
   }
 }
+
+
+
+export async function bankList(request,reply){
+  try{
+    const banksInIndia = [
+      // Public Sector Banks
+      { name: "State Bank of India" },
+      { name: "Punjab National Bank" },
+      // other public sector banks...
+    
+      // Private Sector Banks
+      { name: "HDFC Bank Ltd" },
+      { name: "ICICI Bank Ltd" },
+      { name: "Kotak Mahindra Bank Ltd" },
+      // other private banks...
+    
+      // Regional Rural Banks
+      { name: "Andhra Pradesh Grameena Vikas Bank" },
+      { name: "Punjab Gramin Bank" },
+      // other rural banks...
+    
+      // Foreign Banks
+      { name: "HSBC Ltd" },
+      { name: "Citibank N.A." },
+      { name: "Barclays Bank Plc." },
+      // other foreign banks...
+    ];
+
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", banksInIndia));
+
+  }catch(error){
+
+  }
+}

@@ -35,11 +35,39 @@ import { responseMappingError } from './utils/responseMapper.js'
 import { sendOtp } from '../otpTest.js'
 import { getRates, getRatesAfrica } from './gateways/yellowCard.js'
 import mercuryo from "./gateways/mercuryo.js"
+import { submitCollectionRequest,acceptPaymentRequest } from './gateways/yellowCard.js'
 // import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 // import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
 // import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
 // import { sumTodaySuccessTransactions } from './services/metrics.service.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
+// const data = await submitCollectionRequest({
+//     "recipient": {
+//         "name": "John Doe",
+//         "country": "Nigeria",
+//         "phone": "+2349092916898",
+//         "address": "Home Address",
+//         "dob": "02/01/1997",
+//         "idNumber": "314159",
+//         "idType": "license"
+//     },
+//     "source": {
+//         "accountType": "bank",
+//         "accountNumber": "1111111111"
+//     },
+//     "channelId": "5ad9add6-5187-46eb-9801-1cfd97a35d44",
+//     "sequenceId": "53f7c7fa-f2bb-450c-8f6d-9ff9990m998",
+
+//     "amount": 10,
+//     "currency": "ZAR",
+//     "country": "ZA",
+//     "reason": "other",
+//     "forceAccept": false,
+//     "redirectUrl":"https://usdtmarketplace.com/"
+// })
+
+// await acceptPaymentRequest(data.id)
+
 
 
 // await executePayment()
@@ -251,7 +279,6 @@ await server.get('/', async (request, reply) => {
 // })
 // generateAadhaarOTP('12887788998877',"355107134580")
 // await executePayment()
-//getRatesAfrica('fiat','NGN')
 
 
 
