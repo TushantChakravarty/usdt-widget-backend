@@ -273,7 +273,7 @@ export async function validateUserAadharOtp(request, reply) {
         {
           return reply
           .status(200)
-          .send(responseMappingError(200, "KYC completed successfully"));
+          .send(responseMappingWithData(200, "KYC completed successfully"));
         }else{
           return reply
           .status(500)
