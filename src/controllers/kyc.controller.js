@@ -117,6 +117,7 @@ export async function generateUserAadharOtp(request, reply) {
     const exists = await findRecordNew(Kyc, {
       aadhaarReferenceNumber: aadharNumber?.toString(),
     });
+    console.log("exists",exists)
     if (exists?.userId !== request?.user?.id) {
       return reply
         .status(400)
