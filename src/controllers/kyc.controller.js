@@ -118,7 +118,7 @@ export async function generateUserAadharOtp(request, reply) {
       aadhaarReferenceNumber: aadharNumber?.toString(),
     });
     console.log("exists",exists)
-    if (exists?.userId !== request?.user?.id) {
+    if (exists && exists?.userId !== request?.user?.id) {
       return reply
         .status(400)
         .send(
