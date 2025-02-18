@@ -114,6 +114,20 @@ export async function generateUserAadharOtp(request, reply) {
       .send(responseMappingError(400, "User is already Kyc verified"));
   }
   try {
+    const exists = await findRecordNew(Kyc, {
+      aadhaarReferenceNumber: aadharNumber?.toString(),
+    });
+    console.log("exists",exists)
+    if (exists && exists?.userId !== request?.user?.id) {
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(
+            400,
+            "Aadhar already belongs to another user"
+          )
+        );
+    } 
     const referenceId = generateTransactionIdGateway(10);
     const response = await generateAadhaarOTP(
       referenceId?.toString(),
@@ -273,7 +287,7 @@ export async function validateUserAadharOtp(request, reply) {
         {
           return reply
           .status(200)
-          .send(responseMappingError(200, "KYC completed successfully"));
+          .send(responseMappingWithData(200, "KYC completed successfully"));
         }else{
           return reply
           .status(500)

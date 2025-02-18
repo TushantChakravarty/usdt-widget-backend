@@ -1897,28 +1897,56 @@ export async function checkMobileAndBankAddedOrNot(request,reply){
 export async function bankList(request,reply){
   try{
     const banksInIndia = [
-      // Public Sector Banks
-      { name: "State Bank of India" },
-      { name: "Punjab National Bank" },
-      // other public sector banks...
-    
-      // Private Sector Banks
-      { name: "HDFC Bank Ltd" },
-      { name: "ICICI Bank Ltd" },
-      { name: "Kotak Mahindra Bank Ltd" },
-      // other private banks...
-    
-      // Regional Rural Banks
-      { name: "Andhra Pradesh Grameena Vikas Bank" },
-      { name: "Punjab Gramin Bank" },
-      // other rural banks...
-    
-      // Foreign Banks
-      { name: "HSBC Ltd" },
-      { name: "Citibank N.A." },
-      { name: "Barclays Bank Plc." },
-      // other foreign banks...
-    ];
+  { name: "Allahabad Bank" },
+  { name: "Punjab National Bank" },
+  { name: "HDFC Bank Ltd" },
+  { name: "ICICI Bank Ltd" },
+  { name: "Kotak Mahindra Bank Ltd" },
+  { name: "Andhra Pradesh Grameena Vikas Bank" },
+  { name: "Punjab Gramin Bank" },
+  { name: "HSBC Ltd" },
+  { name: "Citibank N.A." },
+  { name: "Barclays Bank Plc." },
+  { name: "Andhra Bank" },
+  { name: "Axis Bank" },
+  { name: "Bank of Bahrain and Kuwait" },
+  { name: "Bank of Baroda - Corporate Banking" },
+  { name: "Bank of Baroda - Retail Banking" },
+  { name: "Bank of India" },
+  { name: "Bank of Maharashtra" },
+  { name: "Canara Bank" },
+  { name: "Central Bank of India" },
+  { name: "City Union Bank" },
+  { name: "Corporation Bank" },
+  { name: "Deutsche Bank" },
+  { name: "Development Credit Bank" },
+  { name: "Dhanlaxmi Bank" },
+  { name: "Federal Bank" },
+  { name: "ICICI Bank" },
+  { name: "IDBI Bank" },
+  { name: "Indian Bank" },
+  { name: "Indian Overseas Bank" },
+  { name: "IndusInd Bank" },
+  { name: "ING Vysya Bank" },
+  { name: "Jammu and Kashmir Bank" },
+  { name: "Karnataka Bank Ltd" },
+  { name: "Karur Vysya Bank" },
+  { name: "Kotak Bank" },
+  { name: "Laxmi Vilas Bank" },
+  { name: "Oriental Bank of Commerce" },
+  { name: "Punjab National Bank - Corporate Banking" },
+  { name: "Punjab National Bank - Retail Banking" },
+  { name: "Punjab & Sind Bank" },
+  { name: "Shamrao Vithal Co-operative Bank" },
+  { name: "South Indian Bank" },
+  { name: "State Bank of Bikaner & Jaipur" },
+  { name: "State Bank of Hyderabad" },
+  { name: "State Bank of India" },
+  { name: "State Bank of Mysore" },
+  { name: "State Bank of Patiala" },
+  // Additional banks from the user's request
+ 
+];
 
     return reply
     .status(200)

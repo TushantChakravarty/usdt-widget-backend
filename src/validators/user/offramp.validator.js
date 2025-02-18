@@ -59,6 +59,19 @@ export const verifyTransaction = {
     // },
 }
 
+export const validateFiatAccount = {
+    body: {
+        type: 'object',
+        properties: {
+            fiatAccount: { type: 'string', minLength: 1, maxLength: 20 },
+            ifsc: { type: 'string', minLength: 1, maxLength: 16 },
+           
+
+        },
+        required: ["fiatAccount", "ifsc"],
+        additionalProperties: false,
+    }
+}
 
 export const addFiatAccount = {
     body: {
