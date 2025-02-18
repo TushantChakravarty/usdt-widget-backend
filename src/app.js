@@ -34,9 +34,8 @@ import amqp from 'amqplib'
 import { responseMappingError } from './utils/responseMapper.js'
 import { sendOtp } from '../otpTest.js'
 import { getRates, getRatesAfrica } from './gateways/yellowCard.js'
-import mercuryo from "./gateways/mercuryo.js"
+//import mercuryo from "./gateways/mercuryo.js"
 import { submitCollectionRequest,acceptPaymentRequest } from './gateways/yellowCard.js'
-import utils from './utils/utils.js'
 // import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 // import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
 // import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
@@ -240,7 +239,7 @@ await server.register(swaggerUi, {
 await server.register(RBAMPlugin)
 
 
-//await migrateDb()
+await migrateDb()
 
 /**
  * Register server-cors plugin

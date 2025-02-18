@@ -28,19 +28,21 @@ export function generateTransactionIdGateway(length) {
   }
   
 
-export async function validateBankAccount()
+export async function validateBankAccount(account_number,ifsc)
 {
+  console.log(account_number,ifsc)
     try {
+       const id = generateTransactionId()
         const response = await axios.post(
           `https://in.decentro.tech/core_banking/money_transfer/validate_account`,
           {
             
-                "reference_id": "1299998",
+                "reference_id": `${id}`,
                 "purpose_message": "This is a penny less transaction",
                 "validation_type":"penniless",
                 "beneficiary_details": {
-                    "account_number": "20323508372",
-                    "ifsc": "sbin0007258"
+                    "account_number": `${account_number}`,
+                    "ifsc": `${ifsc}`
                 }
             
           },
@@ -58,9 +60,9 @@ export async function validateBankAccount()
             httpsAgent: proxyAgent, // <-- Add this
           }
         );
-        console.log('response',response)
+        console.log('response',response?.data)
     
-        return { success: true, data: response};
+        return { success: true, data: response?.data};
       } catch (error) {
         return {
           success: false,
@@ -70,17 +72,31 @@ export async function validateBankAccount()
       }
 }
 
-(async () => {
-  // Test sign-up
-  //const response = await signUpUser(testUser);
 
-  // Test sign-in
-  // const response = await signInUser(testUser);
-  // const response = await getCurrencies()
-  // const response = await getRates()
-  // const response = await sellMethods()
-//   const response = await sellRates();
-const response = await validateBankAccount()
+/*
+{
+  status: 'success',
+  decentroTxnId: 'C7AB7015ACDE471D93EC63E4CF735ADC',
+  accountStatus: 'valid',
+  responseCode: 'S00000',
+  message: 'The account has been successfully verified.',
+  beneficiaryName: 'Mr. TUSHANT  CHAKRABORTY',
+  bankReferenceNumber: '504910414996',
+  validationType: 'penniless',
+  transactionStatus: 'success'
+}
 
-  console.log(response);
-})();
+{
+      status: 'failure',
+      decentroTxnId: 'AF577DE1698345AA8A65C47FF98BBA81',
+      accountStatus: 'invalid',
+      responseCode: 'E00000',
+      message: 'This account number is invalid. Please check and try again.',
+      providerMessage: 'NPCIERROR:INVALID ACCOUNT',
+      bankReferenceNumber: '504910425731',
+      validationType: 'penniless',
+      transactionStatus: 'failure'
+    }
+  */
+
+

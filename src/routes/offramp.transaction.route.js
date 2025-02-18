@@ -59,9 +59,23 @@ const routes = async (route, options) => { // route = fastify instance
     handler: offramp.AddFiatAccountId,
   });
 
+   /**
+ * Route for validating fiat account
+ * Handles validating fiat account of user
+ */
+   route.post('/validateFiatAccount', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    schema: validator.validateFiatAccount,
+    preValidation: validateToken,
+    handler: offramp.validateFiatAccount,
+  });
+
   /**
- * Route for getting all supported networks
- * Handles getting all supported networks data
+ * Route for adding fiat account
+ * Handles adding fiat account for user
  */
   route.post('/addFiatAccountOfframp', {
     //schema: validator.updatePhone,
