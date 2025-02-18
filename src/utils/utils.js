@@ -30,7 +30,6 @@ export function generateTransactionIdGateway(length) {
 
 export async function validateBankAccount(account_number,ifsc)
 {
-  console.log(account_number,ifsc)
     try {
        const id = generateTransactionId()
         const response = await axios.post(
@@ -71,32 +70,5 @@ export async function validateBankAccount(account_number,ifsc)
         };
       }
 }
-
-
-/*
-{
-  status: 'success',
-  decentroTxnId: 'C7AB7015ACDE471D93EC63E4CF735ADC',
-  accountStatus: 'valid',
-  responseCode: 'S00000',
-  message: 'The account has been successfully verified.',
-  beneficiaryName: 'Mr. TUSHANT  CHAKRABORTY',
-  bankReferenceNumber: '504910414996',
-  validationType: 'penniless',
-  transactionStatus: 'success'
-}
-
-{
-      status: 'failure',
-      decentroTxnId: 'AF577DE1698345AA8A65C47FF98BBA81',
-      accountStatus: 'invalid',
-      responseCode: 'E00000',
-      message: 'This account number is invalid. Please check and try again.',
-      providerMessage: 'NPCIERROR:INVALID ACCOUNT',
-      bankReferenceNumber: '504910425731',
-      validationType: 'penniless',
-      transactionStatus: 'failure'
-    }
-  */
 
 
