@@ -2,8 +2,7 @@ import axios from "axios";
 import { SocksProxyAgent } from "socks-proxy-agent";
 
 const MERCURYO_API_BASE = "https://sandbox-cryptosaas.mrcr.io/v1.6/b2b"; // Adjust if necessary
-const B2B_AUTH_TOKEN =
-  "108:0d69aff67073a1040_PfFkay8tFsoqJPstOkR2oF_i10jspeJQdIdDBXkqyFABdW"; // Replace with your actual token
+const B2B_AUTH_TOKEN = process.env.B2B_AUTH_TOKEN_MERCURYO
 
 // SOCKS5 Proxy Agent to route requests through EC2
 const proxyAgent = new SocksProxyAgent("socks5h://127.0.0.1:8080");
@@ -66,6 +65,56 @@ export const signInUser = async ({ email, phone, id }) => {
     };
   }
 };
+
+export const userKycAccessToken = async () => {
+  try {
+    const response = await axios.get(`${MERCURYO_API_BASE}/kyc/access-token?feature=iban`
+    ,{
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "B2B-Bearer-Token":
+          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtcmNyLmlvIiwiaWF0IjoxNzM5Nzc3MDA5LCJqdGkiOiJxajZnVnNQTzRCYTQ0MXNld2hZWmVrM3BkSXBGV2ZuRlk5MkhjWVZFYXhBPSIsIm5iZiI6MTczOTc3Njk3OSwiZGF0YSI6eyJ1c2VyX2lkIjo1MzEwLCJhZGRpdGlvbmFsIjp7IndpZGdldF9pZCI6ImM3ZTBjMzdmLWVlNjAtNGFjNy1iYzU2LWZiMDMzOTRjNTNhOCIsImV4Y2hhbmdlX3BhcnRuZXJfaWQiOjE3NCwic2RrX3BhcnRuZXJfaWQiOjEwOCwicHJvZHVjdCI6InNhYXMiLCJzY29wZXMiOlsiYjJiX2FwaSJdLCJyZXZvY2FibGUiOmZhbHNlfX19.EUOpxD09hEy56ATkYS-a9fBFZHT0ozkbabnhpTh15Uc", //B2B_AUTH_TOKEN
+      },
+      httpAgent: proxyAgent, // <-- Add this
+      httpsAgent: proxyAgent, // <-- Add this
+    });
+    const url = `https://sandbox-payments.mrcr.io/kyc?access_token=${response?.data?.data?.kyc_access_token}&success_url=url&failure_url=url&scheme=Dark&lang=English`
+    console.log(url)
+    return { success: true, data: url };
+  } catch (error) {
+    return {
+      success: false,
+      status: error.response?.status,
+      error: error.response?.data || "Internal Server Error",
+    };
+  }
+};
+
+export const userKycStatus = async () => {
+  try {
+    const response = await axios.get(`${MERCURYO_API_BASE}/user/kyc-status`
+    ,{
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "B2B-Bearer-Token":
+          "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtcmNyLmlvIiwiaWF0IjoxNzM5Nzc3MDA5LCJqdGkiOiJxajZnVnNQTzRCYTQ0MXNld2hZWmVrM3BkSXBGV2ZuRlk5MkhjWVZFYXhBPSIsIm5iZiI6MTczOTc3Njk3OSwiZGF0YSI6eyJ1c2VyX2lkIjo1MzEwLCJhZGRpdGlvbmFsIjp7IndpZGdldF9pZCI6ImM3ZTBjMzdmLWVlNjAtNGFjNy1iYzU2LWZiMDMzOTRjNTNhOCIsImV4Y2hhbmdlX3BhcnRuZXJfaWQiOjE3NCwic2RrX3BhcnRuZXJfaWQiOjEwOCwicHJvZHVjdCI6InNhYXMiLCJzY29wZXMiOlsiYjJiX2FwaSJdLCJyZXZvY2FibGUiOmZhbHNlfX19.EUOpxD09hEy56ATkYS-a9fBFZHT0ozkbabnhpTh15Uc", //B2B_AUTH_TOKEN
+      },
+      httpAgent: proxyAgent, // <-- Add this
+      httpsAgent: proxyAgent, // <-- Add this
+    });
+   
+    return { success: true, data: response?.data };
+  } catch (error) {
+    return {
+      success: false,
+      status: error.response?.status,
+      error: error.response?.data || "Internal Server Error",
+    };
+  }
+};
+
 
 export const getCurrencies = async () => {
   try {
@@ -194,6 +243,34 @@ export const sellUsdtByCard = async () => {
     }
   };
 
+  export const sellUsdt = async () => {
+    try {
+      const response = await axios.post(`${MERCURYO_API_BASE}/oor/sell`,
+        {
+          "trx_token": "42377ff3417635b6af3a8a30f8d9354bb8da6e802a4f1183d978bf2829218896eyJ0IjoxNzM5ODcyODUzLCJjIjoiQlRDIiwiYSI6IjAuMTAwMDAwMDAiLCJmYyI6IkVVUiIsImZhIjoiODgwMC4wMyIsImYiOiIzNDcuNjEiLCJyIjoiOTE0NzYuMzAwMDAwMDAwMCIsImNpZCI6IjE1MWQ1MTZhMWM1NWJkYzY2ZWZhODZlMTYwYTlhMWY3Iiwib3AiOiJzZWxsIiwicHQiOm51bGwsInBhIjoiY2FyZCIsInR0Ijp0cnVlLCJ0ZiI6IjAiLCJ3IjoiYzdlMGMzN2YtZWU2MC00YWM3LWJjNTYtZmIwMzM5NGM1M2E4Iiwic2YiOiIzNDcuNjEiLCJwcyI6bnVsbCwiZmkiOm51bGwsIm4iOiJCSVRDT0lOIiwibWMiOm51bGwsImZsIjpudWxsfQ==",
+            "merchant_transaction_id": "87654321"
+          }
+      , {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "B2B-Bearer-Token":
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtcmNyLmlvIiwiaWF0IjoxNzM5Nzc3MDA5LCJqdGkiOiJxajZnVnNQTzRCYTQ0MXNld2hZWmVrM3BkSXBGV2ZuRlk5MkhjWVZFYXhBPSIsIm5iZiI6MTczOTc3Njk3OSwiZGF0YSI6eyJ1c2VyX2lkIjo1MzEwLCJhZGRpdGlvbmFsIjp7IndpZGdldF9pZCI6ImM3ZTBjMzdmLWVlNjAtNGFjNy1iYzU2LWZiMDMzOTRjNTNhOCIsImV4Y2hhbmdlX3BhcnRuZXJfaWQiOjE3NCwic2RrX3BhcnRuZXJfaWQiOjEwOCwicHJvZHVjdCI6InNhYXMiLCJzY29wZXMiOlsiYjJiX2FwaSJdLCJyZXZvY2FibGUiOmZhbHNlfX19.EUOpxD09hEy56ATkYS-a9fBFZHT0ozkbabnhpTh15Uc", //B2B_AUTH_TOKEN
+        },
+        httpAgent: proxyAgent, // <-- Add this
+        httpsAgent: proxyAgent, // <-- Add this
+      });
+  
+      return { success: true, data: response.data };
+    } catch (error) {
+      return {
+        success: false,
+        status: error.response?.status,
+        error: error.response?.data || "Internal Server Error",
+      };
+    }
+  };
+
 // Test the function
 const testUser = {
   email: "user2@example.com",
@@ -211,7 +288,9 @@ const testUser = {
   // const response = await getRates()
   // const response = await sellMethods()
 //   const response = await sellRates();
-const response = await sellUsdtByCard()
+const response = await sellUsdt()
+// const response = await userKycAccessToken()
+// const response = await userKycStatus()
 
   console.log(response);
 })();
