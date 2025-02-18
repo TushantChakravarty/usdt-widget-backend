@@ -177,3 +177,6 @@ export async function getNetwork(request,reply){
     .send(responseMapping(500, "Internal server error"));
   }
 }
+
+
+
