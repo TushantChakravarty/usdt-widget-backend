@@ -162,3 +162,18 @@ export async function getRates(request, reply) {
   }
 }
 
+
+
+export async function getNetwork(request,reply){
+  try{
+    const networks = await getNetworks()
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "Success", networks));
+
+  }catch(error){
+    return reply
+    .status(500)
+    .send(responseMapping(500, "Internal server error"));
+  }
+}
