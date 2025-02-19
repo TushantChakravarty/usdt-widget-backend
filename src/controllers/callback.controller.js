@@ -563,12 +563,7 @@ export async function onrampCallback(request, reply) {
   }
 }
 
-export async function onrampMercuryo(request, reply)
-{
-console.log(request.body)
-}
-
-export async function offrampMercuryo(request, reply)
+export async function callbackMercuryo(request, reply)
 {
 console.log(request.body)
 }
