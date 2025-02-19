@@ -59,7 +59,7 @@ export async function validateBankAccount(account_number,ifsc)
             httpsAgent: proxyAgent, // <-- Add this
           }
         );
-        console.log('response',response?.data)
+       // console.log('response',response?.data)
     
         return { success: true, data: response?.data};
       } catch (error) {

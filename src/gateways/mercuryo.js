@@ -271,6 +271,31 @@ export const sellUsdtByCard = async () => {
     }
   };
 
+  //ONRAMP ROUTES
+
+  export const buyMethodsOnramp = async () => {
+    try {
+      const response = await axios.get(`${MERCURYO_API_BASE}/oor/buy-methods`, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "B2B-Bearer-Token":
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtcmNyLmlvIiwiaWF0IjoxNzM5Nzc3MDA5LCJqdGkiOiJxajZnVnNQTzRCYTQ0MXNld2hZWmVrM3BkSXBGV2ZuRlk5MkhjWVZFYXhBPSIsIm5iZiI6MTczOTc3Njk3OSwiZGF0YSI6eyJ1c2VyX2lkIjo1MzEwLCJhZGRpdGlvbmFsIjp7IndpZGdldF9pZCI6ImM3ZTBjMzdmLWVlNjAtNGFjNy1iYzU2LWZiMDMzOTRjNTNhOCIsImV4Y2hhbmdlX3BhcnRuZXJfaWQiOjE3NCwic2RrX3BhcnRuZXJfaWQiOjEwOCwicHJvZHVjdCI6InNhYXMiLCJzY29wZXMiOlsiYjJiX2FwaSJdLCJyZXZvY2FibGUiOmZhbHNlfX19.EUOpxD09hEy56ATkYS-a9fBFZHT0ozkbabnhpTh15Uc", //B2B_AUTH_TOKEN
+        },
+        httpAgent: proxyAgent, // <-- Add this
+        httpsAgent: proxyAgent, // <-- Add this
+      });
+  
+      return { success: true, data: response.data };
+    } catch (error) {
+      return {
+        success: false,
+        status: error.response?.status,
+        error: error.response?.data || "Internal Server Error",
+      };
+    }
+  };
+
 // Test the function
 const testUser = {
   email: "user2@example.com",
@@ -288,9 +313,12 @@ const testUser = {
   // const response = await getRates()
   // const response = await sellMethods()
 //   const response = await sellRates();
-const response = await sellUsdt()
+// const response = await sellUsdt()
 // const response = await userKycAccessToken()
 // const response = await userKycStatus()
+
+//ONRAMP TEST
+const response = await buyMethodsOnramp()
 
   // console.log(response?.data?.data?.features);
   console.log(response);
