@@ -36,7 +36,22 @@ const routes = async (route, options) => {
     handler:offramp.getRates ,
   });
 
+  route.post("/getNetwork", {
+    // onRequest: [
+    //   route.authenticate
+    // ],
+   // preValidation: validateToken,
+    handler:offramp.getNetwork ,
+  });
 
+
+  route.post("/createOfframpPayment", {
+    // onRequest: [
+    //   route.authenticate
+    // ],
+   // preValidation: validateToken,
+    handler:offramp.createOfframpPayment ,
+  });
 
   
 };

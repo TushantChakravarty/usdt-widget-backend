@@ -558,7 +558,6 @@ export async function onRampRequest(request, reply) {
       logger.error("user.controller.getQuotes", error.message)
       console.log('user.controller.getQUotes', error.message)
       return error
-  
     }
   }
   
