@@ -561,7 +561,7 @@ console.log("--------------------------------------ksjdfklsjdflkslk)))))))))))))
       "networkId": "6df48502-1ebe-473f-be17-e2cae4dd67ee"
   },
   "channelId": "fe8f4989-3bf6-41ca-9621-ffe2bc127569",
-  "sequenceId": "00f000-0000002-000000-000002719",
+  "sequenceId": v4(),
   "amount": 50,
   "currency": "NGN",
   "country": "Nigeria",
@@ -584,7 +584,7 @@ console.log(response)
 
 
 // Function to make a secure payment request
-async function makeSecurePaymentRequest(payload) {
+export async function makeSecurePaymentRequest(payload) {
   try {
     const url = 'https://sandbox.api.yellowcard.io/business/payments';
 

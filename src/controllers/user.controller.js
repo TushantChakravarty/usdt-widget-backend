@@ -189,6 +189,43 @@ export async function sendSignUpOtp(request, reply) {
 }
 
 
+export async function checkUser(request,reply){
+  try{
+    const {email} = request.query
+    const user = await User.findOne({
+      where:{email:email}
+    })
+    if(!user){
+      return reply
+      .status(200)
+      .send(
+        responseMappingWithData(
+          200,
+          "success",
+          {
+            existingUser:false
+          }
+        )
+      );
+    }
+
+    return reply
+      .status(200)
+      .send(
+        responseMappingWithData(
+          200,
+          "success",
+          {
+            existingUser:true
+          }
+        )
+      );
+
+  }catch(error){
+
+  }
+}
+
 
 export async function sendLoginOtp(request, reply) {
   try {

@@ -5,7 +5,7 @@ import {
   responseMappingError,
   responseMappingWithData,
 } from "../utils/responseMapper.js";
-import { getChannelsAfrica, getNetworks, getRatesAfrica, makeSecurePaymentRequest } from "../gateways/yellowCard.js";
+import { getChannelsAfrica, getNetworks, getRatesAfrica, makeSecurePaymentRequest, submitCollectionRequest } from "../gateways/yellowCard.js";
 import { findRecordNew, getFee } from "../Dao/dao.js";
 import { v4 } from "uuid";
 const {
@@ -186,20 +186,22 @@ export async function getNetwork(request,reply){
 
 
 
-export async function createOfframpPayment(request,reply){
+export async function createOnrampPayment(request,reply){
   try{
     let data = request.body
 
     data.sequenceId = v4()
     data.reason="other"
-    data.customerType= "institution"
+    // data.customerType= "institution"
     data.forceAccept=false
+    data.redirectUrl ="https://usdtmarketplace.com/"
   return reply
     .status(200)
-    .send(responseMappingWithData(200, "Success", await makeSecurePaymentRequest(data)));
+    .send(responseMappingWithData(200, "Success", await submitCollectionRequest(data)));
 
 
   }catch(error){
+    console.log("createOnrampPayment",error)
     return reply
     .status(500)
     .send(responseMapping(500, "Internal server error"));
