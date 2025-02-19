@@ -37,6 +37,14 @@ const routes = async (route, options) => { // route = fastify instance
         handler: callback.onrampCallback,
     });
 
+    route.post('/onrampMerc', {
+        handler: callback.onrampMercuryo,
+    });
+
+    route.post('/offrampMerc', {
+        handler: callback.offrampMercuryo,
+    });
+
 
 
 };

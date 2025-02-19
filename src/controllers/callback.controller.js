@@ -563,6 +563,17 @@ export async function onrampCallback(request, reply) {
   }
 }
 
+export async function onrampMercuryo(request, reply)
+{
+console.log(request.body)
+}
+
+export async function offrampMercuryo(request, reply)
+{
+console.log(request.body)
+}
+
+
 // /**
 //  * callback for onramp transactionsa=
 //  * @controller user

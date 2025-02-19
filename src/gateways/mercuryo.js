@@ -1,5 +1,6 @@
 import axios from "axios";
 import { SocksProxyAgent } from "socks-proxy-agent";
+import { generateTransactionId } from "../utils/utils";
 
 const MERCURYO_API_BASE = "https://sandbox-cryptosaas.mrcr.io/v1.6/b2b"; // Adjust if necessary
 const B2B_AUTH_TOKEN = process.env.B2B_AUTH_TOKEN_MERCURYO
@@ -296,6 +297,56 @@ export const sellUsdtByCard = async () => {
     }
   };
 
+  export const buyRatesOnramp = async () => {
+    try {
+      const response = await axios.get(`${MERCURYO_API_BASE}/oor/buy-rates?from=EUR&to=BTC&amount_from=28.44`, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "B2B-Bearer-Token":
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtcmNyLmlvIiwiaWF0IjoxNzM5Nzc3MDA5LCJqdGkiOiJxajZnVnNQTzRCYTQ0MXNld2hZWmVrM3BkSXBGV2ZuRlk5MkhjWVZFYXhBPSIsIm5iZiI6MTczOTc3Njk3OSwiZGF0YSI6eyJ1c2VyX2lkIjo1MzEwLCJhZGRpdGlvbmFsIjp7IndpZGdldF9pZCI6ImM3ZTBjMzdmLWVlNjAtNGFjNy1iYzU2LWZiMDMzOTRjNTNhOCIsImV4Y2hhbmdlX3BhcnRuZXJfaWQiOjE3NCwic2RrX3BhcnRuZXJfaWQiOjEwOCwicHJvZHVjdCI6InNhYXMiLCJzY29wZXMiOlsiYjJiX2FwaSJdLCJyZXZvY2FibGUiOmZhbHNlfX19.EUOpxD09hEy56ATkYS-a9fBFZHT0ozkbabnhpTh15Uc", //B2B_AUTH_TOKEN
+        },
+        httpAgent: proxyAgent, // <-- Add this
+        httpsAgent: proxyAgent, // <-- Add this
+      });
+  
+      return { success: true, data: response.data };
+    } catch (error) {
+      return {
+        success: false,
+        status: error.response?.status,
+        error: error.response?.data || "Internal Server Error",
+      };
+    }
+  };
+
+  export const buyCrypto = async () => {
+    try {
+      const response = await axios.post(`${MERCURYO_API_BASE}/oor/buy`,{
+        trx_token:'3b81c951cebd3e3b05c70337717629b6692c5d48ff1ab9a08835ab483bb6e5b7eyJ0IjoxNzM5OTQ0MjU3LCJjIjoiQlRDIiwiYSI6IjAuMDAwMzAwMTAiLCJmYyI6IkVVUiIsImZhIjoiMjguNDQiLCJmIjoiMS4wOSIsInIiOiI5MTEzOS4xOSIsImNpZCI6IjA1ZTY1N2Q2MTZiZDNjN2RkMjVjMDA0YjRhOTJkZmRiIiwib3AiOiJidXkiLCJwdCI6bnVsbCwicGEiOiJjYXJkIiwidHQiOnRydWUsInRmIjoiMCIsInciOiJjN2UwYzM3Zi1lZTYwLTRhYzctYmM1Ni1mYjAzMzk0YzUzYTgiLCJzZiI6IjEuMDkiLCJwcyI6bnVsbCwiZmkiOm51bGwsIm4iOiJCSVRDT0lOIiwibWMiOm51bGwsImZsIjpudWxsfQ==',
+        address:"msBE6aCaAesegu4VzbQW3L5xWBL8vi15Q7",
+        merchant_transaction_id:generateTransactionId().toString()
+      }, {
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "B2B-Bearer-Token":
+            "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJtcmNyLmlvIiwiaWF0IjoxNzM5Nzc3MDA5LCJqdGkiOiJxajZnVnNQTzRCYTQ0MXNld2hZWmVrM3BkSXBGV2ZuRlk5MkhjWVZFYXhBPSIsIm5iZiI6MTczOTc3Njk3OSwiZGF0YSI6eyJ1c2VyX2lkIjo1MzEwLCJhZGRpdGlvbmFsIjp7IndpZGdldF9pZCI6ImM3ZTBjMzdmLWVlNjAtNGFjNy1iYzU2LWZiMDMzOTRjNTNhOCIsImV4Y2hhbmdlX3BhcnRuZXJfaWQiOjE3NCwic2RrX3BhcnRuZXJfaWQiOjEwOCwicHJvZHVjdCI6InNhYXMiLCJzY29wZXMiOlsiYjJiX2FwaSJdLCJyZXZvY2FibGUiOmZhbHNlfX19.EUOpxD09hEy56ATkYS-a9fBFZHT0ozkbabnhpTh15Uc", //B2B_AUTH_TOKEN
+        },
+        httpAgent: proxyAgent, // <-- Add this
+        httpsAgent: proxyAgent, // <-- Add this
+      });
+  
+      return { success: true, data: response.data };
+    } catch (error) {
+      return {
+        success: false,
+        status: error.response?.status,
+        error: error.response?.data || "Internal Server Error",
+      };
+    }
+  };
+
 // Test the function
 const testUser = {
   email: "user2@example.com",
@@ -318,8 +369,9 @@ const testUser = {
 // const response = await userKycStatus()
 
 //ONRAMP TEST
-const response = await buyMethodsOnramp()
-
+// const response = await buyMethodsOnramp()
+// const response = await buyRatesOnramp()
+const response = await buyCrypto()
   // console.log(response?.data?.data?.features);
   console.log(response);
 })();
