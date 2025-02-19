@@ -71,6 +71,11 @@ const routes = async (route, options) => { // route = fastify instance
   });
 
 
+  route.get('/checkUser', {
+    schema: validator.loginOtp,
+    handler: user.checkUser,
+  });
+
   route.get('/bankList', {
     // schema: validator.,
     preValidation: validateToken,
