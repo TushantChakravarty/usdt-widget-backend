@@ -299,7 +299,7 @@ export const sellUsdtByCard = async () => {
 
   export const buyRatesOnramp = async () => {
     try {
-      const response = await axios.get(`${MERCURYO_API_BASE}/oor/buy-rates?from=EUR&to=BTC&amount_from=28.44`, {
+      const response = await axios.get(`${MERCURYO_API_BASE}/oor/buy-rates?from=EUR&to=BTC&amount_from=40.44`, {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
@@ -323,7 +323,7 @@ export const sellUsdtByCard = async () => {
   export const buyCrypto = async () => {
     try {
       const response = await axios.post(`${MERCURYO_API_BASE}/oor/buy`,{
-        trx_token:'3b81c951cebd3e3b05c70337717629b6692c5d48ff1ab9a08835ab483bb6e5b7eyJ0IjoxNzM5OTQ0MjU3LCJjIjoiQlRDIiwiYSI6IjAuMDAwMzAwMTAiLCJmYyI6IkVVUiIsImZhIjoiMjguNDQiLCJmIjoiMS4wOSIsInIiOiI5MTEzOS4xOSIsImNpZCI6IjA1ZTY1N2Q2MTZiZDNjN2RkMjVjMDA0YjRhOTJkZmRiIiwib3AiOiJidXkiLCJwdCI6bnVsbCwicGEiOiJjYXJkIiwidHQiOnRydWUsInRmIjoiMCIsInciOiJjN2UwYzM3Zi1lZTYwLTRhYzctYmM1Ni1mYjAzMzk0YzUzYTgiLCJzZiI6IjEuMDkiLCJwcyI6bnVsbCwiZmkiOm51bGwsIm4iOiJCSVRDT0lOIiwibWMiOm51bGwsImZsIjpudWxsfQ==',
+        trx_token:'bec7436ceef6ba3f0f3568fd951ce4664aa9216dc3187a8645ac3ec32314249eeyJ0IjoxNzM5OTYzNjM3LCJjIjoiQlRDIiwiYSI6IjAuMDAwNDIxNDQiLCJmYyI6IkVVUiIsImZhIjoiNDAuNDQiLCJmIjoiMS41NCIsInIiOiI5MjMwNC4wMCIsImNpZCI6IjQ4OTA1YTA5OTNiOTFlZGU1OTVlZjkzNWZkNjQwZjVhIiwib3AiOiJidXkiLCJwdCI6bnVsbCwicGEiOiJjYXJkIiwidHQiOnRydWUsInRmIjoiMCIsInciOiJjN2UwYzM3Zi1lZTYwLTRhYzctYmM1Ni1mYjAzMzk0YzUzYTgiLCJzZiI6IjEuNTQiLCJwcyI6bnVsbCwiZmkiOm51bGwsIm4iOiJCSVRDT0lOIiwibWMiOm51bGwsImZsIjpudWxsfQ==',
         address:"msBE6aCaAesegu4VzbQW3L5xWBL8vi15Q7",
         merchant_transaction_id:generateTransactionId().toString()
       }, {
@@ -370,7 +370,7 @@ const testUser = {
 
 //ONRAMP TEST
 // const response = await buyMethodsOnramp()
-// const response = await buyRatesOnramp()
+//const response = await buyRatesOnramp()
 const response = await buyCrypto()
   // console.log(response?.data?.data?.features);
   console.log(response);
