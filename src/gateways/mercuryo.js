@@ -247,8 +247,8 @@ export const sellUsdtByCard = async () => {
     try {
       const response = await axios.post(`${MERCURYO_API_BASE}/oor/sell`,
         {
-          "trx_token": "42377ff3417635b6af3a8a30f8d9354bb8da6e802a4f1183d978bf2829218896eyJ0IjoxNzM5ODcyODUzLCJjIjoiQlRDIiwiYSI6IjAuMTAwMDAwMDAiLCJmYyI6IkVVUiIsImZhIjoiODgwMC4wMyIsImYiOiIzNDcuNjEiLCJyIjoiOTE0NzYuMzAwMDAwMDAwMCIsImNpZCI6IjE1MWQ1MTZhMWM1NWJkYzY2ZWZhODZlMTYwYTlhMWY3Iiwib3AiOiJzZWxsIiwicHQiOm51bGwsInBhIjoiY2FyZCIsInR0Ijp0cnVlLCJ0ZiI6IjAiLCJ3IjoiYzdlMGMzN2YtZWU2MC00YWM3LWJjNTYtZmIwMzM5NGM1M2E4Iiwic2YiOiIzNDcuNjEiLCJwcyI6bnVsbCwiZmkiOm51bGwsIm4iOiJCSVRDT0lOIiwibWMiOm51bGwsImZsIjpudWxsfQ==",
-            "merchant_transaction_id": "87654321"
+          "trx_token": "df7c88bd06fdcd62f4c44be36037550ba3af72d574a1dd2284b14dfd9c2d6557eyJ0IjoxNzM5ODc5MjczLCJjIjoiQlRDIiwiYSI6IjAuMTAwMDAwMDAiLCJmYyI6IkVVUiIsImZhIjoiODc5Mi42OSIsImYiOiIzNDcuMzIiLCJyIjoiOTE0MDAuMDAiLCJjaWQiOiI2MDRlZTg3OWQ3YTVmZTJiODhhOGZhZWZmNjI0ZTIyZSIsIm9wIjoic2VsbCIsInB0IjpudWxsLCJwYSI6ImNhcmQiLCJ0dCI6dHJ1ZSwidGYiOiIwIiwidyI6ImM3ZTBjMzdmLWVlNjAtNGFjNy1iYzU2LWZiMDMzOTRjNTNhOCIsInNmIjoiMzQ3LjMyIiwicHMiOm51bGwsImZpIjpudWxsLCJuIjoiQklUQ09JTiIsIm1jIjpudWxsLCJmbCI6bnVsbH0=",
+            "merchant_transaction_id": "8765432221"
           }
       , {
         headers: {
@@ -292,5 +292,11 @@ const response = await sellUsdt()
 // const response = await userKycAccessToken()
 // const response = await userKycStatus()
 
+  // console.log(response?.data?.data?.features);
   console.log(response);
 })();
+/**
+ * https://usdtmarketplace.com/?merchant_transaction_id=8765432221&address=2My772R4nGrFySPj6xehs5z6Bu71bL1JT1h&signature=41c19e8123bff68c7419896a19be28b7e7be80cbeb2d87599246a5793bf9d68f
+ * 
+ * 
+ */
