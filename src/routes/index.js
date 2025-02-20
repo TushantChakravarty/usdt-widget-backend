@@ -12,6 +12,7 @@ import adminRoutes from "./admin.route.js"
 import kycRoutes from "./kyc.route.js"
 import offrampAfrica from "./offramp.africa.route.js"
 import onrampAfrica from "./onramp.africa.route.js"
+import callbackAfrica from "./callback.africa.route.js"
 
 
 
@@ -26,7 +27,7 @@ const routes = async (route, options) => { // route = fastify instance
     route.register(offRampTransactionRoute, { prefix: "/offramp" })
     route.register(offrampAfrica, { prefix: "/africa/offramp" })
     route.register(onrampAfrica, { prefix: "/africa/onramp" })
-
+    route.register(callbackAfrica, { prefix: "/africa/callback" })
     route.register(adminRoutes, { prefix: "/admin" })
 
 };
