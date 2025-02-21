@@ -148,7 +148,7 @@ export async function onRampRequest(request, reply) {
      }
      //const response = await createPayinBankRequest(userData.responseData,bodyPayin)
      const response = await processKwikpaisaPageRequest(bodyPayin)
-     console.log("resp check",response)
+     //console.log("resp check",response)
      
       if(response?.data?.transaction_id)
       {

@@ -757,7 +757,7 @@ export async function getAllCoins(request, reply) {
   try {
     let coins = await Coin.findAll();
 
-    console.log("got coins", coins);
+    //console.log("got coins", coins);
     let coinsArray = [];
     if (coins.length <= 0) {
       let coinsData = await getAllCoinsData();
@@ -826,7 +826,7 @@ export async function getAllCoinsNew(request, reply) {
   try {
     let coins = await Coin.findAll();
 
-    console.log("got coins", coins);
+    //console.log("got coins", coins);
     let coinsArray = [];
     if (coins.length <= 0) {
       let coinsData = CoinsData; ////await getAllCoinsData();
