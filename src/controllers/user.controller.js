@@ -330,7 +330,7 @@ export async function sendLoginOtpV2(request, reply) {
     if (!match)
       return reply
         .status(401)
-        .send(responseMappingError(401, "Invalid username or password"));
+        .send(responseMappingError(401, "Wrong password. Try Again or click forgot to reset password."));
         const transporter = nodemailer.createTransport({
           host: "mail.privateemail.com",
           port: 587, // Use 465 for secure connection
@@ -560,7 +560,7 @@ export async function login(request, reply) {
       return reply
         .status(400)
         .send(
-          responseMappingError(400, `Invalid or expired OTP.`)
+          responseMappingError(400, `Wrong Code!`)
         );
     const match = await compare(password, user.password);
     if (!match)
