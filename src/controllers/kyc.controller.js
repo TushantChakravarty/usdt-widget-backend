@@ -224,7 +224,7 @@ export async function generateUserAadharOtp(request, reply) {
         .send(
           responseMappingError(
             500,
-            "Sorry unable to process aadhar kyc request at the moment please try later"
+            response?.message?response?.message:"Sorry unable to process aadhar kyc request at the moment please try later"
           )
         );
     }
