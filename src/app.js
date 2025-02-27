@@ -36,6 +36,9 @@ import { sendOtp } from '../otpTest.js'
 import { getRates, getRatesAfrica } from './gateways/yellowCard.js'
 //import mercuryo from "./gateways/mercuryo.js"
 import { submitCollectionRequest,acceptPaymentRequest } from './gateways/yellowCard.js'
+import { startProcessing } from './utils/sqs/worker.js'
+
+
 // import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 // import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
 // import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
@@ -56,7 +59,7 @@ process.env.TZ = "Asia/Kolkata" // set timezone
 //         "accountNumber": "1111111111"
 //     },
 //     "channelId": "5ad9add6-5187-46eb-9801-1cfd97a35d44",
-//     "sequenceId": "53f7c7fa-f2bb-450c-8f6d-9ff9990m998",
+//     "sequenceId": "53f7c7fa-f2bb-450c-8f6d-9ff9990z998",
 
 //     "amount": 10,
 //     "currency": "ZAR",
@@ -269,6 +272,8 @@ await server.get('/', async (request, reply) => {
     })
 
 }) // root route
+
+startProcessing()
 
 
 

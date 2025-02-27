@@ -46,8 +46,6 @@ let db = {
     Fees:feesModel(sequelize,Sequelize.DataTypes),
     Kyc:kycModel(sequelize,Sequelize.DataTypes),
     ValidatedAccounts:ValidatedAccounts(sequelize,Sequelize.DataTypes),
-
-
 };
 
 // Initialize model associations
