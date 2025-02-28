@@ -55,8 +55,8 @@ export async function validateBankAccount(account_number,ifsc)
               provider_secret:"b8A6yTxdrxd0Ays5LvoYbIwzj7fLnl3w"
 
             },
-            httpAgent: proxyAgent, // <-- Add this
-            httpsAgent: proxyAgent, // <-- Add this
+            // httpAgent: proxyAgent, // <-- Add this
+            // httpsAgent: proxyAgent, // <-- Add this
           }
         );
        // console.log('response',response?.data)
