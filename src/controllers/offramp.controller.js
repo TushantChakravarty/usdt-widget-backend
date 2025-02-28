@@ -331,7 +331,7 @@ export async function AddFiatAccountOfframp(request, reply) {
       if (fiat_account_exist && fiat_account_exist.delete === false) {
         return reply
           .status(500)
-          .send(responseMappingError(500, "This account already in use"));
+          .send(responseMappingError(400, "This account already in use"));
       }
       if (fiat_account_exist && fiat_account_exist.delete === true) {
         fiat_account_exist.delete = false;
@@ -363,7 +363,7 @@ export async function AddFiatAccountOfframp(request, reply) {
     else if(validate?.data?.status=='failure')
     {
       return reply
-      .status(500)
+      .status(400)
       .send(responseMappingError(400,validate?.data?.message));
     }else{
       return reply
