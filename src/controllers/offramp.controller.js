@@ -284,7 +284,7 @@ export async function AddFiatAccountOfframp(request, reply) {
     });
 
     const validate = await validateBankAccount(fiatAccount,ifsc)
-    console.log('validate', validate)
+    //console.log('validate', validate)
     if(validate?.data?.status=='success'||Validated_Accounts)
     {
       const create_validated_accounts = {
@@ -363,7 +363,7 @@ export async function AddFiatAccountOfframp(request, reply) {
     else if(validate?.data?.status=='failure')
     {
       return reply
-      .status(200)
+      .status(500)
       .send(responseMappingError(400,validate?.data?.message));
     }else{
       return reply
