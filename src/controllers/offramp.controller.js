@@ -922,6 +922,146 @@ export async function generateTransaction(request, reply) {
 
 export async function verifyTransaction(request, reply) {
   try {
+    const {
+      fromCurrency,
+      toCurrency,
+      chain,
+      fromAmount,
+      reference_id,
+      txHash,
+    } = request.body;
+    const transaction = await findRecord(OffRampTransaction, {
+      // txHash: txHash,
+      reference_id: reference_id.toString(),
+    });
+
+    const payoutTx = await findRecord(Payout, {
+      reference_id: reference_id.toString(),
+    });
+    const payoutHash = await findRecord(Payout, {
+      txHash: txHash,
+    });
+    console.log(transaction);
+    console.log(payoutTx);
+    if (
+      transaction &&
+      (transaction?.status === "PENDING" ||
+        transaction?.processed == "PENDING") &&
+      transaction?.txHash &&
+      transaction?.payout_id
+    ) {      
+      return reply
+      .status(400)
+      .send(responseMappingError(400, 'Transaction is already under process please check status from history'));
+
+    }
+    console.log(transaction?.processed);
+    if (transaction && transaction?.processed === "SUCCESS") {
+      return reply
+      .status(400)
+      .send(responseMappingError(400, 'Transaction is already under process please check status from history'));
+    }
+
+    if (transaction.length == 0) {
+      return reply
+      .status(400)
+      .send(responseMappingError(400, 'Transaction doesnt belong to our system'));
+    }
+    if (transaction.fromAmount !== fromAmount) {
+      return reply
+      .status(400)
+      .send(responseMappingError(400, 'Invalid amount'));
+    }
+    // if (payoutHash && payoutHash?.status === "SUCCESS") {
+    //   return reply
+    //   .status(400)
+    //   .send(responseMappingError(400, 'Transaction has already been processed'));
+    // }
+    // if (payoutHash && payoutHash?.status === "PENDING") {
+    //   return reply
+    //   .status(400)
+    //   .send(responseMappingError(400, 'Transaction is under process currently'));
+    // }
+
+    if (transaction.txHash && transaction.txHash !== txHash) {
+      return reply
+      .status(400)
+      .send(responseMappingError(400, 'Transaction has already been processed with different hash'));
+    }
+
+    if (
+      transaction.txStatus == "success" &&
+      transaction.user_id == request.user.id &&
+      payoutTx.transaction_id
+    ) {
+      console.log("transaction has already been processed");
+      return reply
+      .status(400)
+      .send(responseMappingError(400, 'Transaction has already been processed'));
+      
+    }
+    if (transaction && transaction.user_id !== request.user.id) {
+      console.log("Transaction belongs to another user");
+      return reply
+      .status(400)
+      .send(responseMappingError(400, 'Transaction belongs to another user'));
+    }
+
+    const transactionInfo = await tronWeb.trx
+    .getTransaction(txHash)
+    .catch((error) => {
+      return reply
+      .status(400)
+      .send(responseMappingError(404, 'Transaction not found.'));
+
+    });
+  console.log(transactionInfo);
+  if (!transactionInfo || !transactionInfo.txID) {
+    console.log("Transaction not found.");
+    return reply
+    .status(400)
+    .send(responseMappingError(404, 'Transaction not found.'));
+
+  }
+  let actualAmount;
+
+  if (transactionInfo.raw_data.contract[0].type === "TransferContract") {
+    // Native TRX transfer
+    console.log("contract native");
+    actualAmount =
+      transactionInfo.raw_data.contract[0].parameter.value.amount;
+  } else if (
+    transactionInfo.raw_data.contract[0].type === "TriggerSmartContract"
+  ) {
+    // Token transfer (e.g., USDT)
+    const data = transactionInfo.raw_data.contract[0].parameter.value.data;
+    console.log("contract smart");
+    if (data && data.length >= 64) {
+      // If the data is present directly, get the amount from the last 32 characters
+      const amountHex = data.substring(data.length - 32);
+      actualAmount = BigInt(`0x${amountHex}`);
+    } else {
+      // Fallback: If data is not directly accessible, use raw_data_hex to extract the amount
+      const rawDataHex = transactionInfo.raw_data_hex;
+      const amountHex = rawDataHex.substring(
+        rawDataHex.length - 64,
+        rawDataHex.length - 32
+      );
+      actualAmount = BigInt(`0x${amountHex}`);
+    }
+  }
+
+  const expectedAmountInSun = fromAmount * 1000000;
+  console.log(
+    "check check",
+    expectedAmountInSun.toString(),
+    actualAmount.toString()
+  );
+  if (expectedAmountInSun.toString() !== actualAmount.toString()) {
+    return reply.status(400).send(responseMappingError(400, "Invalid amount"));
+
+  }
+
     const enqueue_data = await enqueueCallback(request.body,"verifyTransaction")
     return reply.status(200).send(responseMappingError(200, "Your verify request is under process"));
   } catch (error) {
