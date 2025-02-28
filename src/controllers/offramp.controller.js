@@ -245,8 +245,7 @@ export async function validateFiatAccount(request, reply) {
 
 export async function AddFiatAccountOfframp(request, reply) {
   try {
-    const apiKey = process.env.apiKey;
-    const secret = process.env.secret;
+  
     const { fiatAccount, ifsc, bankName, accountName } = request.body;
     // if (!request.user.isKycCompleted) {
     //     return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
@@ -264,57 +263,119 @@ export async function AddFiatAccountOfframp(request, reply) {
           responseMappingError(400, "Account belongs to someone else")
         );
     }
-    if (
-      fiat_account_exist &&
-      request.user.id === fiat_account_exist.user_id &&
-      fiat_account_exist.delete === true
-    ) {
-      fiat_account_exist.delete = false;
-      await fiat_account_exist.save();
-      return reply
-        .status(200)
-        .send(responseMappingWithData(200, "success", "success"));
-    }
-    if (
-      fiat_account_exist &&
-      request.user.id === fiat_account_exist.user_id &&
-      fiat_account_exist.delete === true
-    ) {
-      fiat_account_exist.delete = false;
-      await fiat_account_exist.save();
-      return reply
-        .status(200)
-        .send(responseMappingWithData(200, "success", "success"));
-    }
+    // if (
+    //   fiat_account_exist &&
+    //   request.user.id === fiat_account_exist.user_id &&
+    //   fiat_account_exist.delete === false
+    // ) {
+     
+    //   return reply
+    //     .status(200)
+    //     .send(responseMappingError(400,"Account already added"));
+    // }
+    
     if (fiat_account_exist && fiat_account_exist.delete === false) {
       return reply
         .status(500)
-        .send(responseMappingError(500, "This account already in use"));
+        .send(responseMappingError(400, "This account already in use"));
     }
-    if (fiat_account_exist && fiat_account_exist.delete === true) {
-      fiat_account_exist.delete = false;
-      fiat_account_exist.user_id = request.user.id;
-      await fiat_account_exist.save();
+    const Validated_Accounts = await ValidatedAccounts.findOne({
+      where: { fiatAccount: fiatAccount },
+    });
+
+    const validate = await validateBankAccount(fiatAccount,ifsc)
+    console.log('validate', validate)
+    if(validate?.data?.status=='success'||Validated_Accounts)
+    {
+      const create_validated_accounts = {
+        fiatAccount: fiatAccount,
+        ifsc: ifsc,
+      };
+  
+      await createNewRecord(ValidatedAccounts, create_validated_accounts);
+      const fiat_account_exist = await FiatAccount.findOne({
+        where: { fiatAccount: fiatAccount },
+      });
+      if (
+        fiat_account_exist &&
+        request.user.id !== fiat_account_exist.user_id 
+      ) {
+        return reply
+          .status(400)
+          .send(
+            responseMappingError(400, "Account belongs to someone else")
+          );
+      }
+      if (
+        fiat_account_exist &&
+        request.user.id === fiat_account_exist.user_id &&
+        fiat_account_exist.delete === true
+      ) {
+        fiat_account_exist.delete = false;
+        await fiat_account_exist.save();
+        return reply
+          .status(200)
+          .send(responseMappingWithData(200, "success", "Bank added successfully"));
+      }
+      if (
+        fiat_account_exist &&
+        request.user.id === fiat_account_exist.user_id &&
+        fiat_account_exist.delete === true
+      ) {
+        fiat_account_exist.delete = false;
+        await fiat_account_exist.save();
+        return reply
+          .status(200)
+          .send(responseMappingWithData(200, "success", "success"));
+      }
+      if (fiat_account_exist && fiat_account_exist.delete === false) {
+        return reply
+          .status(500)
+          .send(responseMappingError(500, "This account already in use"));
+      }
+      if (fiat_account_exist && fiat_account_exist.delete === true) {
+        fiat_account_exist.delete = false;
+        fiat_account_exist.user_id = request.user.id;
+        await fiat_account_exist.save();
+        return reply
+          .status(200)
+          .send(responseMappingWithData(200, "success", "success"));
+      }
+  
+      const create_fiat_account = {
+        user_id: request.user.id,
+        fiatAccountId: generateRandomFiatId(),
+        fiatAccount: fiatAccount,
+        ifsc: ifsc,
+        bank_name: bankName,
+        account_name: accountName,
+      };
+  
+      await createNewRecord(FiatAccount, create_fiat_account);
+  
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", "success"));
+      // return reply
+      // .status(200)
+      // .send(responseMappingWithData(200, "success", "Valid bank account"));
     }
-
-    const create_fiat_account = {
-      user_id: request.user.id,
-      fiatAccountId: generateRandomFiatId(),
-      fiatAccount: fiatAccount,
-      ifsc: ifsc,
-      bank_name: bankName,
-      account_name: accountName,
-    };
-
-    await createNewRecord(FiatAccount, create_fiat_account);
-
-    return reply
+    else if(validate?.data?.status=='failure')
+    {
+      return reply
       .status(200)
-      .send(responseMappingWithData(200, "success", "success"));
+      .send(responseMappingError(400,validate?.data?.message));
+    }else{
+      return reply
+      .status(500)
+      .send(responseMappingError(500, "Internal server error"));
+    }
+    // if (!request.user.isKycCompleted) {
+    //     return reply.status(500).send(responseMappingError(500, "Please complete your kyc"))
+    // }
+   
   } catch (error) {
+    console.log("error add fiat account",error)
     return reply.status(500).send(responseMappingError(500, error.message));
   }
 }
