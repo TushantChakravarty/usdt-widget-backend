@@ -276,7 +276,7 @@ export async function AddFiatAccountOfframp(request, reply) {
     
     if (fiat_account_exist && fiat_account_exist.delete === false) {
       return reply
-        .status(500)
+        .status(400)
         .send(responseMappingError(400, "This account already in use"));
     }
     const Validated_Accounts = await ValidatedAccounts.findOne({
