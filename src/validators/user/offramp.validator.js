@@ -63,7 +63,7 @@ export const validateFiatAccount = {
     body: {
         type: 'object',
         properties: {
-            fiatAccount: { type: 'string', minLength: 1, maxLength: 20 },
+            fiatAccount: { type: 'string', minLength: 1, maxLength: 80 },
             ifsc: { type: 'string', minLength: 1, maxLength: 16 },
            
 
@@ -77,9 +77,9 @@ export const addFiatAccount = {
     body: {
         type: 'object',
         properties: {
-            fiatAccount: { type: 'string', minLength: 1, maxLength: 20 },
+            fiatAccount: { type: 'string', minLength: 1, maxLength: 80 },
             ifsc: { type: 'string', minLength: 1, maxLength: 16 },
-            bankName: { type: 'string', minLength: 1, maxLength: 20 },
+            bankName: { type: 'string', minLength: 1, maxLength: 80 },
             accountName :{type:'string'}
 
         },
