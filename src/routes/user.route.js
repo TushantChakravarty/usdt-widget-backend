@@ -290,6 +290,16 @@ const routes = async (route, options) => { // route = fastify instance
     // schemaErrorFormatter: (errors) => new Error(errors[0].message),
   });
 
+  route.post('/delete', {
+    // onRequest: [
+    //   route.authenticate
+    // ],
+    preValidation: validateToken,
+    handler: user.deleteUser,
+    // validatorCompiler: ({ schema }) => ajv.compile(schema),
+    // schemaErrorFormatter: (errors) => new Error(errors[0].message),
+  });
+
 };
 
 
