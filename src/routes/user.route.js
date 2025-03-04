@@ -290,7 +290,7 @@ const routes = async (route, options) => { // route = fastify instance
     // schemaErrorFormatter: (errors) => new Error(errors[0].message),
   });
 
-  route.post('/delete', {
+  route.get('/delete', {
     // onRequest: [
     //   route.authenticate
     // ],
