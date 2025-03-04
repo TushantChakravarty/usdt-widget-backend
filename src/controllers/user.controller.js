@@ -1993,3 +1993,33 @@ export async function bankList(request,reply){
 
   }
 }
+
+
+export async function deleteUser(request,reply){
+  try{
+    const id = request.user.id
+
+    const fiat_account_id = await FiatAccount.destroy({
+      where:{
+        user_id:id
+      }
+    })
+
+    const kyc = await Kyc.destroy({
+      where:{
+        userId:id
+      }
+    })
+
+    const user = await  User.destroy({
+      where:{
+        id:id
+      }
+    })
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", {message:"success"}));    
+  }catch(error){
+    return reply.status(500).send(responseMappingError(500, `Internal server error`))
+  }
+}
