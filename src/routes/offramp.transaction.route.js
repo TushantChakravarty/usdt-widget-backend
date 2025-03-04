@@ -179,6 +179,16 @@ const routes = async (route, options) => { // route = fastify instance
     handler: offramp.getAllOffRamp,
   });
 
+  route.get('/transactionStatus', {
+    //schema: validator.updatePhone,
+    // onRequest: [
+    //   route.authenticate
+    // ],
+     schema: validator.transactionStatus,
+    preValidation: validateToken,
+    handler: offramp.transactionStatus,
+  });
+
 
 };
 
