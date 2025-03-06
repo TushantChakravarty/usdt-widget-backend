@@ -132,6 +132,29 @@ export const getQuotesOfframp = {
     // },
 }
 
+
+export const transactionStatus = {
+    body: {
+        type: 'object',
+        properties: {
+            transactionId: {
+                type: "string", 
+            },
+        },
+        required: ["transactionId"],
+        additionalProperties: false,
+    },
+    // response: {
+    //     200: {
+    //         type: 'object',
+    //         properties: {
+    //             message: { type: 'string' },
+    //         },
+    //     },
+    //     ...commonSchemas.errorResponse,
+    // },
+}
+
 export const offrampRetry = {
     body: {
         type: 'object',

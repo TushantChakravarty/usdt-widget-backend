@@ -1214,6 +1214,9 @@ export async function getQuotesNew(request, reply) {
   }
 }
 
+
+
+
 export async function verifyQuotes(request) {
   try {
     const { fromCurrency, toCurrency, fromAmount, chain, toAmount } = request;
@@ -1472,5 +1475,33 @@ export async function offrampRetry(request, reply) {
     console.log(error.message)
 
     reply.status(500).send(responseMappingError(500, `Sorry your sell request didn’t work. Please try again`));
+  }
+}
+
+
+export async function transactionStatus(request,reply){
+  try{
+    const {transactionId} = request.body
+    const offramp_transaction = await OffRampTransaction.findOne({
+      where:{
+       transaction_id: transactionId,
+       user_id: request.user.id
+      }
+    }) 
+
+    if(!offramp_transaction){
+      return reply.status(400).send(responseMappingError(404,"Transaction does not exist"));
+    }
+    return reply
+              .status(200)
+              .send(
+                responseMappingWithData(200, "success", {
+                  status:offramp_transaction.status,
+                  txStatus:offramp_transaction.txStatus
+                })
+              );
+
+  }catch(error){
+    return reply.status(500).send(responseMappingError(500,"Internal server error"));
   }
 }
