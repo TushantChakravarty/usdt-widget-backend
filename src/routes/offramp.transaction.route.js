@@ -185,7 +185,7 @@ const routes = async (route, options) => { // route = fastify instance
     // onRequest: [
     //   route.authenticate
     // ],
-     schema: validator.transactionStatus,
+    //schema: validator.transactionStatus,
     preValidation: validateToken,
     handler: offramp.transactionStatus,
   });
