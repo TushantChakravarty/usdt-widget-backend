@@ -1953,7 +1953,7 @@ export async function bankList(request,reply){
       { name: "Bank of Maharashtra", shortName: "BoM", imageUrl: "https://via.placeholder.com/150" },
       { name: "Canara Bank", shortName: "Canara", imageUrl: "https://via.placeholder.com/150" },
       { name: "Central Bank of India", shortName: "CBI", imageUrl: "https://images.app.goo.gl/FxA4uTUqw1FRgBDLA" },
-      { name: "HDFC Bank Ltd", shortName: "CBI", imageUrl: "https://images.app.goo.gl/HyDrWoiQvMAMfDqV7" },
+      { name: "HDFC Bank Ltd", shortName: "HDFC", imageUrl: "https://images.app.goo.gl/HyDrWoiQvMAMfDqV7" },
       { name: "City Union Bank", shortName: "CUB", imageUrl: "https://images.app.goo.gl/5HMBeojmcxeqyrD59" },
       { name: "Corporation Bank", shortName: "Corporation Bank", imageUrl: "https://images.app.goo.gl/VbH62JACC2Ww7GVD6" },
       { name: "Deutsche Bank", shortName: "Deutsche", imageUrl: "https://images.app.goo.gl/E39eni3GV7mMFMSQ7" },
