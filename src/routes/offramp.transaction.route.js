@@ -180,7 +180,7 @@ const routes = async (route, options) => { // route = fastify instance
     handler: offramp.getAllOffRamp,
   });
 
-  route.get('/transactionStatus', {
+  route.post('/transactionStatus', {
     //schema: validator.updatePhone,
     // onRequest: [
     //   route.authenticate
