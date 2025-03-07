@@ -484,7 +484,7 @@ export async function getAllFiatAccount(request, reply) {
       const bankInfo = bankMap.get(account.bank_name) || { imageUrl: "", shortName: "" };
   
       return {
-          ...account,
+          ...account.dataValues,
           imageUrl: bankInfo.imageUrl,
           shortName: bankInfo.shortName
       };
