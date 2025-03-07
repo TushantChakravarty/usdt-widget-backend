@@ -409,6 +409,58 @@ export async function deleteAccount(request, reply) {
   }
 }
 
+const banksInIndia = [
+  { name: "Allahabad Bank", shortName: "AB", imageUrl: "https://images.app.goo.gl/SEWemD5kYdk7t6Zb9" },
+  { name: "Punjab National Bank", shortName: "PNB", imageUrl: "https://via.placeholder.com/150" },
+  { name: "HDFC Bank Ltd", shortName: "HDFC", imageUrl: "https://via.placeholder.com/150" },
+  { name: "ICICI Bank Ltd", shortName: "ICICI", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Kotak Mahindra Bank Ltd", shortName: "Kotak", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Andhra Pradesh Grameena Vikas Bank", shortName: "APGVB", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Punjab Gramin Bank", shortName: "PGB", imageUrl: "https://via.placeholder.com/150" },
+  { name: "HSBC Ltd", shortName: "HSBC", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Citibank N.A.", shortName: "Citibank", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Barclays Bank Plc.", shortName: "Barclays", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Andhra Bank", shortName: "Andhra Bank", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Axis Bank", shortName: "Axis", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Bank of Bahrain and Kuwait", shortName: "BBK", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Bank of Baroda - Corporate Banking", shortName: "BoB CB", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Bank of Baroda - Retail Banking", shortName: "BoB RB", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Bank of India", shortName: "BOI", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Bank of Maharashtra", shortName: "BoM", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Canara Bank", shortName: "Canara", imageUrl: "https://via.placeholder.com/150" },
+  { name: "Central Bank of India", shortName: "CBI", imageUrl: "https://images.app.goo.gl/FxA4uTUqw1FRgBDLA" },
+  { name: "HDFC Bank Ltd", shortName: "HDFC", imageUrl: "https://images.app.goo.gl/HyDrWoiQvMAMfDqV7" },
+  { name: "City Union Bank", shortName: "CUB", imageUrl: "https://images.app.goo.gl/5HMBeojmcxeqyrD59" },
+  { name: "Corporation Bank", shortName: "Corporation Bank", imageUrl: "https://images.app.goo.gl/VbH62JACC2Ww7GVD6" },
+  { name: "Deutsche Bank", shortName: "Deutsche", imageUrl: "https://images.app.goo.gl/E39eni3GV7mMFMSQ7" },
+  { name: "Development Credit Bank", shortName: "DCB", imageUrl: "https://images.app.goo.gl/tp96cprNw4vLZ3L56" },
+  { name: "Dhanlaxmi Bank", shortName: "Dhanlaxmi", imageUrl: "https://images.seeklogo.com/logo-png/31/1/dhanlaxmi-bank-logo-png_seeklogo-311132.png?v=1956420846047062880" },
+  { name: "Federal Bank", shortName: "Federal Bank", imageUrl: "https://images.app.goo.gl/RAgQ42X3jPWCX23M6" },
+  { name: "ICICI Bank", shortName: "ICICI", imageUrl: "https://images.app.goo.gl/rQua63rfD2S62Vqf6" },
+  { name: "IDBI Bank", shortName: "IDBI", imageUrl: "https://images.app.goo.gl/Wu8GoDYhcVuaDM2A6" },
+  { name: "Indian Bank", shortName: "Indian Bank", imageUrl: "https://images.app.goo.gl/ZB4ggm4ctoPbN6wZ9" },
+  { name: "Indian Overseas Bank", shortName: "IOB", imageUrl: "https://images.app.goo.gl/ZEEi7C1Dgm6MQ2b46" },
+  { name: "IndusInd Bank", shortName: "IndusInd", imageUrl: "https://images.app.goo.gl/amGRtyF65ubnPgNa7" },
+  { name: "ING Vysya Bank", shortName: "ING", imageUrl: "https://images.app.goo.gl/5h9MQFoJRAJyHiw76" },
+  { name: "Jammu and Kashmir Bank", shortName: "J&K Bank", imageUrl: "https://images.app.goo.gl/LEHP6b7ttf7zfBSMA" },
+  { name: "Karnataka Bank Ltd", shortName: "Karnataka Bank", imageUrl: "https://images.app.goo.gl/3cKwLMe9P2R1eCqH7" },
+  { name: "Karur Vysya Bank", shortName: "KVB", imageUrl: "https://images.app.goo.gl/GyJdsMD76s9TKS4eA" },
+  { name: "Kotak Bank", shortName: "Kotak", imageUrl: "https://images.app.goo.gl/AXuhUeXdMae6UfkW8" },
+  { name: "Laxmi Vilas Bank", shortName: "LVB", imageUrl: "https://images.app.goo.gl/JBBmbPG6vfrnB5gC9" },
+  { name: "Oriental Bank of Commerce", shortName: "OBC", imageUrl: "https://images.app.goo.gl/1ETVv9S37EHRYJCY6" },
+  { name: "Punjab National Bank - Corporate Banking", shortName: "PNB CB", imageUrl: "https://images.app.goo.gl/bBt6dPGQMZrNQ4vw9" },
+  { name: "Punjab National Bank - Retail Banking", shortName: "PNB RB", imageUrl: "https://images.app.goo.gl/bBt6dPGQMZrNQ4vw9" },
+  { name: "Punjab & Sind Bank", shortName: "PSB", imageUrl: "https://images.app.goo.gl/WXoUyB6efvMyeC556" },
+  { name: "Shamrao Vithal Co-operative Bank", shortName: "SVC Bank", imageUrl: "https://images.app.goo.gl/4TAcsoaDz4BHxNRz5" },
+  { name: "South Indian Bank", shortName: "SIB", imageUrl: "https://images.app.goo.gl/ZhSGuowi5wD5CW169" },
+  { name: "State Bank of Bikaner & Jaipur", shortName: "SBBJ", imageUrl: "https://images.app.goo.gl/JUmP6joZCDQsf2mY8" },
+  { name: "State Bank of Hyderabad", shortName: "SBH", imageUrl: "https://images.app.goo.gl/Lb5nYiMTTk4pDAFc6" },
+  { name: "State Bank of India", shortName: "SBI", imageUrl: "https://images.app.goo.gl/PJcXdadFzC5opDuK6" },
+  { name: "State Bank of Mysore", shortName: "SBM", imageUrl: "https://images.app.goo.gl/meQB7XeASZCjFmsi9" },
+  { name: "State Bank of Patiala", shortName: "SBP", imageUrl: "https://images.app.goo.gl/jCzt2wehiaeS6pG3A" },
+  // Additional banks from the user's request
+];
+
 export async function getAllFiatAccount(request, reply) {
   try {
     const { limit, skip } = request.query;
@@ -422,9 +474,24 @@ export async function getAllFiatAccount(request, reply) {
       order: [["createdAt", "DESC"]],
     };
     const all_fiat_account = await findAllRecord(FiatAccount, obj);
+
+    
+  // Convert bankDetails into a Map for faster lookup
+  const bankMap = new Map(banksInIndia.map(bank => [bank.name, bank]));
+    
+  // Merge the bank details into fiat accounts
+  const enrichedFiatAccounts = all_fiat_account.map(account => {
+      const bankInfo = bankMap.get(account.bank_name) || { imageUrl: "", shortName: "" };
+  
+      return {
+          ...account,
+          imageUrl: bankInfo.imageUrl,
+          shortName: bankInfo.shortName
+      };
+  });
     return reply
       .status(200)
-      .send(responseMappingWithData(200, "success", all_fiat_account));
+      .send(responseMappingWithData(200, "success", enrichedFiatAccounts));
   } catch (error) {
     console.log("this is error", error.message);
     return reply
