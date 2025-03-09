@@ -568,6 +568,25 @@ export async function callbackMercuryo(request, reply)
 console.log(request.body)
 }
 
+export async function callbackUsdt(request, reply)
+{
+console.log(request.body)
+const { txHash, from, to, value, contractAddress } = req.body;
+
+// Verify that the transaction is for USDT
+const USDT_CONTRACT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"; // TRON USDT Contract
+if (contractAddress !== USDT_CONTRACT_ADDRESS) {
+    console.log("❌ Not a USDT transaction. Ignoring...");
+    return res.status(400).json({ error: "Not a USDT transaction" });
+}
+
+// Convert amount from SUN to USDT (6 decimal places)
+const amount = value / 1e6;
+
+console.log(`✅ New USDT deposit detected! TxHash: ${txHash}, From: ${from}, Amount: ${amount} USDT`);
+
+}
+
 
 // /**
 //  * callback for onramp transactionsa=

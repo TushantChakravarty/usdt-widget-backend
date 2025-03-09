@@ -15,6 +15,11 @@ export const tronWeb = new TronWeb({
 });
 import Web3 from "web3";
 import axios from "axios";
+import WebSocket from "ws";
+
+const TRONGRID_WS = "wss://api.trongrid.io"; // Mainnet
+const ws = new WebSocket(TRONGRID_WS);
+
 const USDTaddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 
 // Function to get or mint USDT (if the contract supports minting)
@@ -243,3 +248,75 @@ export async function getRecipientAddressUsingTronscan(txHash) {
     return null;
   }
 }
+
+
+ws.on("open", () => {
+  console.log("✅ Connected to TronGrid WebSocket");
+
+  // Subscribe to transactions sent to your wallet
+  const subscribeMessage = JSON.stringify({
+    type: "subscribe",
+    eventName: "transactionTrigger",
+    address: walletAddress, // Your wallet address
+  });
+
+  ws.send(subscribeMessage);
+});
+
+ws.on("message", async (data) => {
+  const transaction = JSON.parse(data);
+
+  if (transaction.transaction && transaction.transaction.raw_data) {
+    const tx = transaction.transaction.raw_data;
+
+    if (tx.contract && tx.contract[0].type === "TransferContract") {
+      const sender = tronWeb.address.fromHex(tx.contract[0].parameter.value.owner_address);
+      const amount = tx.contract[0].parameter.value.amount / 1e6; // Convert from SUN to USDT
+      const txHash = transaction.transaction.txID;
+
+      console.log(`✅ New deposit detected! Sender: ${sender}, Amount: ${amount} USDT, TxHash: ${txHash}`);
+
+      // Verify deposit and trigger INR payout if valid
+      if (await isRegisteredWallet(sender)) {
+        console.log("✅ Sender wallet is registered, processing INR payout...");
+       // await processINRTransfer(sender, amount);
+      } else {
+        console.log("❌ Deposit from an unregistered wallet, ignoring...");
+      }
+    }
+  }
+});
+
+ws.on("close", () => {
+  console.log("❌ TronGrid WebSocket closed. Reconnecting...");
+  setTimeout(() => connectToWebSocket(), 5000);
+});
+
+ws.on("error", (error) => {
+  console.error("❌ WebSocket error:", error);
+});
+
+// Function to check if the sender's wallet is registered
+async function isRegisteredWallet(walletAddress) {
+  const registeredWallets = {
+    "TABC123...": { userId: 123, name: "Alice" },
+    "TXYZ456...": { userId: 456, name: "Bob" },
+  };
+  return registeredWallets[walletAddress] !== undefined;
+}
+
+// Simulated INR payout processing
+async function processINRTransfer(sender, amount) {
+  console.log(`💰 INR transfer of equivalent ${amount} initiated for ${sender}`);
+}
+
+// Function to reconnect WebSocket on disconnect
+function connectToWebSocket() {
+  const ws = new WebSocket(TRONGRID_WS);
+  ws.on("open", () => {
+    console.log("✅ Reconnected to TronGrid WebSocket");
+  });
+}
+
+// Start WebSocket listener
+connectToWebSocket();
