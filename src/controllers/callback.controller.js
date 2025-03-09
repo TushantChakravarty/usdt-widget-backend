@@ -594,7 +594,7 @@ export async function callbackUsdt(request, reply)
           fromAmount:transactionData?.fromAmount,
           reference_id:transactionData?.reference_id,
           txHash:txId,
-          user:transactionData?.user,
+          user:user,
         }
         const enqueue_data = await enqueueCallback(body,"verifyTransaction")
         console.log(`✅ New USDT deposit detected! TxHash: ${txHash}, From: ${from}, Amount: ${amount} USDT`);
