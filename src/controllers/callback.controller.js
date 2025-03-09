@@ -574,7 +574,7 @@ export async function callbackUsdt(request, reply)
   try{
 
     console.log(request.body)
-    const { address, counterAddress, asset, txId, chain, amount } = req.body;
+    const { address, counterAddress, asset, txId, chain, amount } =  request.body;
     
     if(asset === "USDT_TRON"&&address==process.env.walletAddress&&chain==="tron-mainnet")
       {
