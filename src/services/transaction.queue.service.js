@@ -371,7 +371,7 @@ export async function verifyTransaction(request) {
       fromAmount,
       reference_id,
       txHash,
-    } = details;
+    } = request;
 
    
 
