@@ -1,6 +1,7 @@
 import { findOneAndUpdate, findRecord, findRecordNew } from "../Dao/dao.js";
 import db from "../models/index.js";
 import { sendMailForFailedPayment, sendMailForSuccessPayment } from "../utils/mail/sendMail.js";
+import { responseMapping, responseMappingError, responseMappingWithData } from "../utils/responseMapper.js";
 import { enqueueCallback } from "../utils/sqs/producer.js";
 import { verifyTransactionDetails } from "./onramp.controller.js";
 
@@ -585,6 +586,7 @@ export async function callbackUsdt(request, reply)
           id:transactionData?.user_id
         })
         if(!user){
+          
           return reply.status(400).send(responseMappingError(400, "User not found"));
         }
         if(!transactionData){
@@ -598,7 +600,7 @@ export async function callbackUsdt(request, reply)
         }
         const enqueue_data = await enqueueCallback(body,"verifyTransaction")
         console.log(`✅ New USDT deposit detected! TxHash: ${txId}, From: ${counterAddress}, Amount: ${amount} USDT`);
-        return reply.status(200).send(responseMappingError(200, "Your verify request is under process"));
+        return reply.status(200).send(responseMapping(200, "Your verify request is under process"));
         
         
       }
