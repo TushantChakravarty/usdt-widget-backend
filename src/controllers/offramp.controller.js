@@ -669,6 +669,7 @@ export async function getAllOffRamp(request, reply) {
             ...item.dataValues,
             FiatMoneyTransferStatus: fiatDescriptionMapper[item.status],
             cryptoTransferStatus: cryptoDescriptionMapper[item.txStatus],
+            fiatAccount: fiatAccount?.fiatAccount,
           };
         })
       );
