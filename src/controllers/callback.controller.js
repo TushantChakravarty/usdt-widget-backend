@@ -597,7 +597,7 @@ export async function callbackUsdt(request, reply)
           user:user,
         }
         const enqueue_data = await enqueueCallback(body,"verifyTransaction")
-        console.log(`✅ New USDT deposit detected! TxHash: ${txHash}, From: ${from}, Amount: ${amount} USDT`);
+        console.log(`✅ New USDT deposit detected! TxHash: ${txId}, From: ${counterAddress}, Amount: ${amount} USDT`);
         return reply.status(200).send(responseMappingError(200, "Your verify request is under process"));
         
         
