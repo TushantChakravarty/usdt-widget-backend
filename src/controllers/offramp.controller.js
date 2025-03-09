@@ -18,6 +18,7 @@ import {
   findAllRecord,
   findOneAndUpdate,
   findRecord,
+  findRecordNew,
   getFee,
 } from "../Dao/dao.js";
 import { ethers } from "ethers";
@@ -60,7 +61,8 @@ const {
   FiatAccount,
   Payout,
   Usdt,
-  ValidatedAccounts
+  ValidatedAccounts,
+  OffRampLiveTransactions
 } = db;
 
 export async function AddFiatAccountId(request, reply) {
@@ -897,6 +899,7 @@ export async function generateTransaction(request, reply) {
     fromAmount,
     toAmount,
     rate,
+    userWalletAddress
   } = request.body;
 
   if (!request.user) {
@@ -906,6 +909,7 @@ export async function generateTransaction(request, reply) {
   if (!request?.user?.isKycCompleted) {
     return reply.status(400).send(responseMappingError(400, "please complete KYC first"));
   }
+
 
   if (fromAmount < 1) {
     return reply
@@ -919,6 +923,18 @@ export async function generateTransaction(request, reply) {
   }
   const verified = await verifyQuotes(request.body);
   console.log("verify check", verified);
+  const exists = await findRecordNew(OffRampLiveTransactions, {
+   walletAddress:userWalletAddress
+  });
+
+  console.log("exists", exists);
+  if(exists&&request.user.id!==exists.user_id)
+  {
+    return reply
+    .status(400)
+    .send(responseMappingError(400, "Wallet address belongs to someone else"));
+  }
+
   if (!verified) {
     return reply
       .status(400)
@@ -942,12 +958,14 @@ export async function generateTransaction(request, reply) {
       status: "PENDING",
       processed: "PENDING",
       depositAddress: walletAddress,
+      walletAddress:userWalletAddress
     };
 
     body.user_id = request.user.id;
 
     const transaction = await OffRampTransaction.create(body);
-    if (transaction) {
+    const liveTx = await OffRampLiveTransactions.create(body)
+    if (transaction&&liveTx) {
       let dataCrypto = {
         reference_id: transactionId,
         wallet: walletAddress,
@@ -990,9 +1008,6 @@ export async function generateTransaction(request, reply) {
 export async function verifyTransaction(request, reply) {
   try {
     const {
-      fromCurrency,
-      toCurrency,
-      chain,
       fromAmount,
       reference_id,
       txHash,
@@ -1039,16 +1054,16 @@ export async function verifyTransaction(request, reply) {
       .status(400)
       .send(responseMappingError(400, 'Invalid amount'));
     }
-    // if (payoutHash && payoutHash?.status === "SUCCESS") {
-    //   return reply
-    //   .status(400)
-    //   .send(responseMappingError(400, 'Transaction has already been processed'));
-    // }
-    // if (payoutHash && payoutHash?.status === "PENDING") {
-    //   return reply
-    //   .status(400)
-    //   .send(responseMappingError(400, 'Transaction is under process currently'));
-    // }
+    if (payoutHash && payoutHash?.status === "SUCCESS") {
+      return reply
+      .status(400)
+      .send(responseMappingError(400, 'Transaction has already been processed'));
+    }
+    if (payoutHash && payoutHash?.status === "PENDING") {
+      return reply
+      .status(400)
+      .send(responseMappingError(400, 'Transaction is under process currently'));
+    }
 
     if (transaction.txHash && transaction.txHash !== txHash) {
       return reply

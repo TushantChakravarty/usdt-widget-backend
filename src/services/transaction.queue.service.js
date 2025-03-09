@@ -65,7 +65,8 @@ const {
   FiatAccount,
   Payout,
   Usdt,
-  ValidatedAccounts
+  ValidatedAccounts,
+  OffRampLiveTransactions
 } = db;
 
 // export async function verifyTransaction(details) {
@@ -366,12 +367,7 @@ const {
 
 export async function verifyTransaction(details) {
   try {
-
-   
     const {
-      fromCurrency,
-      toCurrency,
-      chain,
       fromAmount,
       reference_id,
       txHash,
@@ -510,13 +506,18 @@ export async function verifyTransaction(details) {
         let query = {
           reference_id: reference_id.toString(),
         };
-
+       
         const transaction = await findOneAndUpdate(
           OffRampTransaction,
           query,
           updateDetails
         );
         if (transaction) {
+          await OffRampLiveTransactions.destroy({
+            where: {
+              reference_id: reference_id.toString(),
+            },
+          });
           const fiatAccount = await findRecord(FiatAccount, {
             fiatAccountId: transaction.fiatAccountId,
           });

@@ -16,22 +16,24 @@ export const createOfframp = {
             toCurrency: { type: 'string', minLength: 1, maxLength: 10 },
             chain: { type: 'string', minLength: 1, maxLength: 10 },
             fiatAccountId: { type: 'string', minLength: 1 },
-            fromAmount: { type: 'number', },
-            toAmount: { type: 'number', },
+            fromAmount: { type: 'number' },
+            toAmount: { type: 'number' },
             rate: { type: 'number' },
+            userWalletAddress: { 
+                type: 'string', 
+                minLength: 34, 
+                maxLength: 34,
+                pattern: "^T[a-zA-Z0-9]{33}$" // Ensures it starts with "T" and has 34 characters
+            },
         },
-        required: ["fromCurrency", "toCurrency", "chain", "fiatAccountId", "fromAmount", "toAmount", "rate"],
+        required: ["fromCurrency", "toCurrency", "chain", "fiatAccountId", "fromAmount", "toAmount", "rate", "userWalletAddress"],
         additionalProperties: false,
     },
-    // response: {
-    //     200: {
-    //         type: 'object',
-    //         properties: {
-    //             message: { type: 'string' },
-    //         },
-    //     },
-    //     ...commonSchemas.errorResponse,
-    // },
+    validate: (data) => {
+        if (!TronWeb.isAddress(data.userWallet)) {
+            throw new Error("Invalid TRON wallet address");
+        }
+    }
 }
 
 export const verifyTransaction = {

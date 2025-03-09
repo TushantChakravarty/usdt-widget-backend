@@ -2,13 +2,13 @@
 import { Model, UUIDV4 } from "sequelize";
 
 export default (sequelize, DataTypes) => {
-    class OffRampTransaction extends Model {
+    class OffRampLiveTransaction extends Model {
         static associate(models) {
             // define association here if needed
         }
     }
 
-    OffRampTransaction.init(
+    OffRampLiveTransaction.init(
         {
             user_id: {
                 type: DataTypes.INTEGER,
@@ -85,17 +85,18 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
-         
             walletAddress:{
                 type: DataTypes.STRING,
                 allowNull: true,
-
+                unique: true 
             },
+         
+
 
         },
         {
             sequelize,
-            modelName: "OffRampTransaction",
+            modelName: "OffRampLiveTransaction",
             timestamps: true,
             createdAt: 'date',  // Rename createdAt to 'date'
             updatedAt: 'time',  // Rename updatedAt to 'time'
@@ -103,5 +104,5 @@ export default (sequelize, DataTypes) => {
         }
     );
 
-    return OffRampTransaction;
+    return OffRampLiveTransaction;
 };

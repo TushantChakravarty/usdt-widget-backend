@@ -1,9 +1,10 @@
-import { findOneAndUpdate, findRecord } from "../Dao/dao.js";
+import { findOneAndUpdate, findRecord, findRecordNew } from "../Dao/dao.js";
 import db from "../models/index.js";
 import { sendMailForFailedPayment, sendMailForSuccessPayment } from "../utils/mail/sendMail.js";
+import { enqueueCallback } from "../utils/sqs/producer.js";
 import { verifyTransactionDetails } from "./onramp.controller.js";
 
-const { User, OnRampTransaction, OffRampTransaction, Payout, Payin } = db;
+const { User, OnRampTransaction, OffRampTransaction, Payout, Payin, OffRampLiveTransactions } = db;
 
 /**
  * get otp callback kyc.
@@ -570,22 +571,65 @@ console.log(request.body)
 
 export async function callbackUsdt(request, reply)
 {
-console.log(request.body)
-const { txHash, from, to, value, contractAddress } = req.body;
+  try{
 
-// Verify that the transaction is for USDT
-const USDT_CONTRACT_ADDRESS = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t"; // TRON USDT Contract
-if (contractAddress !== USDT_CONTRACT_ADDRESS) {
-    console.log("❌ Not a USDT transaction. Ignoring...");
-    return res.status(400).json({ error: "Not a USDT transaction" });
+    console.log(request.body)
+    const { address, counterAddress, asset, txId, chain, amount } = req.body;
+    
+    if(asset === "USDT_TRON"&&address==process.env.walletAddress&&chain==="tron-mainnet")
+      {
+        const transactionData = await findRecordNew(OffRampLiveTransactions, {
+          walletAddress:counterAddress
+        })
+        if(!transactionData){
+          return reply.status(400).send(responseMappingError(400, "Transaction not found"));
+        }
+        const body ={
+          fromAmount:transactionData?.fromAmount,
+          reference_id:transactionData?.reference_id,
+          txHash:txId,
+        }
+        const enqueue_data = await enqueueCallback(body,"verifyTransaction")
+        console.log(`✅ New USDT deposit detected! TxHash: ${txHash}, From: ${from}, Amount: ${amount} USDT`);
+        return reply.status(200).send(responseMappingError(200, "Your verify request is under process"));
+        
+        
+      }
+    }catch(error){
+      console.error("Error updating callback status:", error);
+      reply.status(500).send({ error: "Internal server error" });
+    }
 }
 
-// Convert amount from SUN to USDT (6 decimal places)
-const amount = value / 1e6;
-
-console.log(`✅ New USDT deposit detected! TxHash: ${txHash}, From: ${from}, Amount: ${amount} USDT`);
-
+/**
+ * {
+  0|widget|address: 'TDacAK43AuWhzX5cdU9Yga9hj1efkR7MZM',
+  0|widget|amount: '10',
+  0|widget|counterAddress: 'TCxhpEvuD7EARawhYEuVZWixWAKU8r4eX7',
+  0|widget|asset: 'TRON',
+  0|widget|blockNumber: 70283483,
+  0|widget|txId: '815647d281ec29721ecbb3b3a80b2b95ac7768dcd29f0384e3ba52d6b71d0264',
+  0|widget|type: 'native',
+  0|widget|tokenId: null,
+  0|widget|chain: 'tron-mainnet',
+  0|widget|subscriptionType: 'ADDRESS_EVENT'0|widget|
 }
+
+{
+0|widget  |   address: 'TCxhpEvuD7EARawhYEuVZWixWAKU8r4eX7',
+0|widget  |   amount: '10',
+0|widget  |   counterAddress: 'TDacAK43AuWhzX5cdU9Yga9hj1efkR7MZM',
+0|widget  |   asset: 'USDT_TRON',
+0|widget  |   blockNumber: 70283565,
+0|widget  |   txId: 'e6025e2345e7525f4551edd95f91e4b80d6551f1915c26f91a81c5889264971c',
+0|widget  |   type: 'trc20',
+0|widget  |   tokenId: null,
+0|widget  |   chain: 'tron-mainnet',
+0|widget  |   subscriptionType: 'ADDRESS_EVENT'
+0|widget  | }
+ * 
+ * 
+ */
 
 
 // /**

@@ -43,7 +43,7 @@ const routes = async (route, options) => { // route = fastify instance
     });
 
     route.post('/usdtCallback', {
-        handler: callback.callbackMercuryo,
+        handler: callback.callbackUsdt,
     });
 
 
