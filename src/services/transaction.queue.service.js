@@ -365,7 +365,7 @@ const {
 
 
 
-export async function verifyTransaction(details) {
+export async function verifyTransaction(request) {
   try {
     const {
       fromAmount,
