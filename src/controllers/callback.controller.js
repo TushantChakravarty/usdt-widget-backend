@@ -581,6 +581,12 @@ export async function callbackUsdt(request, reply)
         const transactionData = await findRecordNew(OffRampLiveTransactions, {
           walletAddress:counterAddress
         })
+        const user = await findRecordNew(User,{
+          id:transactionData?.user_id
+        })
+        if(!user){
+          return reply.status(400).send(responseMappingError(400, "User not found"));
+        }
         if(!transactionData){
           return reply.status(400).send(responseMappingError(400, "Transaction not found"));
         }
@@ -588,6 +594,7 @@ export async function callbackUsdt(request, reply)
           fromAmount:transactionData?.fromAmount,
           reference_id:transactionData?.reference_id,
           txHash:txId,
+          user:transactionData?.user,
         }
         const enqueue_data = await enqueueCallback(body,"verifyTransaction")
         console.log(`✅ New USDT deposit detected! TxHash: ${txHash}, From: ${from}, Amount: ${amount} USDT`);
