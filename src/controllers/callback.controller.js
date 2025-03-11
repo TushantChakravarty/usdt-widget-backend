@@ -580,7 +580,8 @@ export async function callbackUsdt(request, reply)
     if(asset === "USDT_TRON"&&address==process.env.walletAddress&&chain==="tron-mainnet")
       {
         const transactionData = await findRecordNew(OffRampLiveTransactions, {
-          walletAddress:counterAddress
+          walletAddress:counterAddress,
+          fromAmount:amount,
         })
         const user = await findRecordNew(User,{
           id:transactionData?.user_id
