@@ -50,7 +50,7 @@ import {
 import { createInstantPayoutBankRequest } from "../gateways/kwikpaisa.js";
 import { sendFundTransferRequest } from "../gateways/gennpayPayout.js";
 import { createRazorpayPayoutService } from "../gateways/razorpay.js";
-import { Op } from "sequelize";
+import { Op, where } from "sequelize";
 import {enqueueCallback} from "../utils/sqs/producer"
 
 const {
@@ -936,6 +936,8 @@ export async function generateTransaction(request, reply) {
     .send(responseMappingError(400, "Wallet address belongs to someone else"));
   }
 
+  
+
   if (!verified) {
     return reply
       .status(400)
@@ -963,10 +965,21 @@ export async function generateTransaction(request, reply) {
     };
 
     body.user_id = request.user.id;
+    // if(exists&&request.user.id==exists.user_id)
+    //   {
+    //     liveTx = await OffRampLiveTransactions.update(
+    //       body, // The new data to update
+    //       {
+    //           where: { reference_id: transactionId } // The condition for updating
+    //       }
+    //   );
+    //         }
 
     const transaction = await OffRampTransaction.create(body);
-    const liveTx = await OffRampLiveTransactions.create(body)
-    if (transaction&&liveTx) {
+    const [liveTx, created] = await OffRampLiveTransactions.findOrCreate({
+      where: { walletAddress: userWalletAddress},
+      defaults: body // Insert if not found
+  });    if (transaction&&liveTx) {
       let dataCrypto = {
         reference_id: transactionId,
         wallet: walletAddress,
@@ -999,10 +1012,17 @@ export async function generateTransaction(request, reply) {
         .status(200)
         .send(responseMappingWithData(200, "success", dataCrypto));
     } else {
+      return reply
+      .status(400)
+      .send(responseMappingError(400, "success","internal server error" ));
     }
     // Send this data to the frontend to display the QR code, or save it as an image file
   } catch (error) {
     console.error("Error generating QR code:", error);
+    return reply
+      .status(400)
+      .send(responseMappingError(400, "success","internal server error" ));
+    
   }
 }
 
