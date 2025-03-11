@@ -88,7 +88,7 @@ export default (sequelize, DataTypes) => {
             walletAddress:{
                 type: DataTypes.STRING,
                 allowNull: true,
-                unique: true 
+                unique: false 
             },
          
 
