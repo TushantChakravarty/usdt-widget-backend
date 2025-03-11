@@ -1574,10 +1574,10 @@ export async function offrampRetry(request, reply) {
 
 export async function transactionStatus(request,reply){
   try{
-    const {transactionId} = request.body
+    const {reference_id} = request.body
     const offramp_transaction = await OffRampTransaction.findOne({
       where:{
-       transaction_id: transactionId,
+       reference_id: reference_id,
        user_id: request.user.id
       }
     }) 
