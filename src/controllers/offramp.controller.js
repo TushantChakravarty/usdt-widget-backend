@@ -1570,7 +1570,7 @@ export async function offrampRetry(request, reply) {
 
 
 export async function transactionStatus(request,reply){
-  console.log('hereeeee')
+  //console.log('hereeeee')
   try{
     const {reference_id} = request.body
     const offramp_transaction = await OffRampTransaction.findOne({
@@ -1579,7 +1579,7 @@ export async function transactionStatus(request,reply){
        user_id: request.user.id
       }
     }) 
- console.log("offramp",offramp_transaction)
+ //console.log("offramp",offramp_transaction)
     if(!offramp_transaction){
       return reply.status(400).send(responseMappingError(404,"Transaction does not exist"));
     }
