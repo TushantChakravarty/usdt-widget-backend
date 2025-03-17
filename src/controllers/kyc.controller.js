@@ -35,35 +35,11 @@ export const generateAadhaarOTP = async (referenceId, aadhaarNumber) => {
 
   try {
     const response = await fetch(url, { method: "POST", headers, body });
-    const respJson = await response.json();
-    console.log("otp check", respJson);
     // if(respJson?.status=="SUCCESS")
     // {
 
-    return respJson;
-    // }else{
-    //     return {
-    //         "decentroTxnId": "98293839933",
-    //         "status": "SUCCESS",
-    //         "responseCode": "S00000",
-    //         "message": "OTP generated and sent successfully on the registered mobile number. Kindly trigger the Validate OTP API within the next 10 minutes.",
-    //         "data": {
-    //             "last3DigitsOfLinkedMobileNumber": "*******982"
-    //         },
-    //         "responseKey": "success_otp_generated"
-    //     }
-    // }
+    return await response.json();
   } catch (error) {
-    // return {
-    //     "decentroTxnId": "98293839933",
-    //     "status": "SUCCESS",
-    //     "responseCode": "S00000",
-    //     "message": "OTP generated and sent successfully on the registered mobile number. Kindly trigger the Validate OTP API within the next 10 minutes.",
-    //     "data": {
-    //         "last3DigitsOfLinkedMobileNumber": "*******982"
-    //     },
-    //     "responseKey": "success_otp_generated"
-    // }
     return { status: "ERROR", message: error.message };
   }
 };

@@ -3,6 +3,9 @@ import { findAllRecord, findCombinedRecords, findOneAndUpdate, getFee } from "..
 import db from "../models/index.js";
 import { encrypt } from "../utils/password.util.js";
 import { responseMappingError, responseMapping, responseMappingWithData } from "../utils/responseMapper.js";
+
+import { countTodayTransactions,successfullTxCount24hr, allOnrampTransactionCount, sumTodaySuccessTransactionsToAmount, sumTodaySuccessTransactionsFromAmount, sumYesterdaySuccessTransactionsToAmount, sumYesterdaySuccessTransactionsFromAmount, totalVolumeToAmount, totalVolumeFromAmount, sumTodaySuccessTransactionsOffRampToAmount, sumTodaySuccessTransactionsOffRampFromAmount, sumYesterdaySuccessTransactionsOfframpToAmount, sumYesterdaySuccessTransactionsOfframpFromAmount, allOfframpTransactionCount, countTodayTransactionsOfframp, successfullTxCount24hrofframp, totalVolumeOfframpToAmount, totalVolumeOfframpFromAmount} from "../services/metrics.service.js";
+
 import { Sequelize } from "sequelize";
 const { User, OnRampTransaction, OffRampTransaction, Payout, Admin, Fees, Usdt,sequelize } = db;
 
@@ -159,10 +162,6 @@ export async function getUsersOfframpTransactions(request, reply) {
           ['date', 'DESC'] // Orders by 'created_at' in descending order
       ]
       })
-      // const transactions = await findAllRecord(OffRampTransaction)
-      // console.log(transactions);
-      // if (!transactions)
-      //   return reply.status(404).send(responseMappingWithData(200, "Success", [] )); // generic error to prevent bruteforce
     
       return reply.status(200).send(responseMappingWithData(200, "Success", transaction ));
     } catch (error) {
@@ -178,32 +177,6 @@ export async function getUsersOfframpTransactions(request, reply) {
  * @param {Object} reply - The reply object.
  * @throws {Error} If an error occurs while logging in.
  */
-// export async function getUsersTransactions(request, reply) {
-//   try {
-//     // Extract pagination and sorting options from the request query or use defaults
-//     const { limit = 10, skip = 0, sortField = "createdAt", sortOrder = "desc" } = request.query;
-
-//     const options = {
-//       limit: parseInt(limit, 10),
-//       skip: parseInt(skip, 10),
-//       sortField,
-//       sortOrder,
-//     };
-
-//     // Query for fetching the transactions (excluding limit and skip)
-//     // const query = { where: { userId: request.params.userId } };
-   
-//     const transactions = await findCombinedRecords(OffRampTransaction, OnRampTransaction, options);
-
-//     if (!transactions || transactions.length === 0) {
-//       return reply.status(404).send(responseMappingWithData(200, "Success", [])); // Generic response
-//     }
-
-//     return reply.status(200).send(responseMappingWithData(200, "Success", transactions));
-//   } catch (error) {
-//     reply.status(500).send(responseMappingError(500, error.message));
-//   }
-// }
 
 export async function getUsersTransactions(request,reply) {
   const {limit =10,skip:offset=0} = request.query
@@ -241,7 +214,6 @@ export async function getUsersTransactions(request,reply) {
 export async function getFeesData(request, reply) {
     try {
       const fees = await getFee()
-      console.log(fees);
       if (!fees)
       reply.status(500).send(responseMappingError(500, "No fees data found")); // generic error to prevent bruteforce
     
@@ -262,7 +234,6 @@ export async function getFeesData(request, reply) {
 export async function getRatesData(request, reply) {
   try {
     const rates = await findAllRecord(Usdt)
-    console.log(rates);
     if (!rates)
     reply.status(500).send(responseMappingError(500, "No Rates data found")); // generic error to prevent bruteforce
   
@@ -306,13 +277,6 @@ export async function updateFeesAndRatesData(request, reply) {
 }
   
 
-import { countTodayTransactions,successfullTxCount24hr, allOnrampTransactionCount, sumTodaySuccessTransactionsToAmount, sumTodaySuccessTransactionsFromAmount, sumYesterdaySuccessTransactionsToAmount, sumYesterdaySuccessTransactionsFromAmount, totalVolumeToAmount, totalVolumeFromAmount, sumTodaySuccessTransactionsOffRampToAmount, sumTodaySuccessTransactionsOffRampFromAmount, sumYesterdaySuccessTransactionsOfframpToAmount, sumYesterdaySuccessTransactionsOfframpFromAmount, allOfframpTransactionCount, countTodayTransactionsOfframp, successfullTxCount24hrofframp, totalVolumeOfframpToAmount, totalVolumeOfframpFromAmount} from "../services/metrics.service.js";
-
-/**
- * 
- */
-
-
 
 
 
@@ -322,17 +286,12 @@ export async function metricsDataOnRamp(request,reply){
     const todaySuccessfullTransactionTotalFromAmount = await sumTodaySuccessTransactionsFromAmount()
     const yesterdaySuccessfullTransactionTotalToAmount = await sumYesterdaySuccessTransactionsToAmount()
     const yesterdaySuccessfullTransactionTotalFromAmount = await sumYesterdaySuccessTransactionsFromAmount()
-
     const allOnrampTxCount =await allOnrampTransactionCount()
     const countTodayAllTransaction = await countTodayTransactions()
     const successfullTxCount24hrcount = await successfullTxCount24hr()
     const totalVolumeOnRampToAmount = await totalVolumeToAmount()
     const totalVolumeOnRampFromAmount = await totalVolumeFromAmount()
-
-
     const successRate =(successfullTxCount24hrcount/countTodayAllTransaction)*100
-
-
     const response_data = {
       todayToAmountSuccessVolume :todaySuccessfullTransactionTotalToAmount,
       todayFromAmountSuccessVolume :todaySuccessfullTransactionTotalFromAmount,
@@ -345,7 +304,6 @@ export async function metricsDataOnRamp(request,reply){
       totalFromAmountSuccessfullVolume : totalVolumeOnRampFromAmount,
       successRate:successRate
     }
-
     return reply.status(200).send(responseMappingWithData(200, "Success", response_data));
 
   }catch(error){
