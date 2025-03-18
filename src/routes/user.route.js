@@ -300,6 +300,16 @@ const routes = async (route, options) => { // route = fastify instance
     // schemaErrorFormatter: (errors) => new Error(errors[0].message),
   });
 
+  route.post('/updateProfile', {
+    preValidation: validateToken,
+    handler: user.updateProfile,
+  });
+
+  route.post('/updateOtp', {
+    preValidation: validateToken,
+    handler: user.updateOtp,
+  });
+
 };
 
 

@@ -52,6 +52,7 @@ import { sendFundTransferRequest } from "../gateways/gennpayPayout.js";
 import { createRazorpayPayoutService } from "../gateways/razorpay.js";
 import { Op } from "sequelize";
 import {enqueueCallback} from "../utils/sqs/producer"
+import { banksInIndia } from "../constants/bank.constants.js";
 
 const {
   User,
@@ -410,55 +411,6 @@ export async function deleteAccount(request, reply) {
     return reply.status(500).send(responseMappingError(500, error.message));
   }
 }
-
-const banksInIndia = [
-  { name: "Allahabad Bank", shortName: "AB", imageUrl: "https://designersio.com/wp-content/uploads/2024/04/png-clipart-allahabad-bank-purasawalkam-branch-bank-of-india-bank-blue-angle-300x171.png" },
-  { name: "Punjab National Bank", shortName: "PNB", imageUrl: "https://companieslogo.com/img/orig/PNB.NS-f0a1e3ee.png?t=1720244493" },
-  { name: "HDFC Bank Ltd", shortName: "HDFC", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSquouX3qJzp6uZwleCOtTBppHfDKlN6vDHg&s" },
-  { name: "ICICI Bank Ltd", shortName: "ICICI", imageUrl: "https://companieslogo.com/img/orig/IBN-af38b5c0.png?t=1720244492" },
-  { name: "Kotak Mahindra Bank Ltd", shortName: "Kotak", imageUrl: "https://annapurnafinance.in/wp-content/uploads/2019/02/Kotak-Mahindra-Bank.png" },
-  { name: "Andhra Pradesh Grameena Vikas Bank", shortName: "APGVB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT96iRBgAyO_V6YrTigsA9UPV-WWl19Z9OwuA&s" },
-  { name: "Punjab Gramin Bank", shortName: "PGB", imageUrl: "https://pgb.org.in/wp-content/uploads/2023/08/pgb.png" },
-  { name: "HSBC Ltd", shortName: "HSBC", imageUrl: "https://i.pinimg.com/736x/6b/5e/11/6b5e11195b9fad6e1d87a374fb65a7c4.jpg" },
-  { name: "Citibank N.A.", shortName: "Citibank", imageUrl: "https://w7.pngwing.com/pngs/486/181/png-transparent-citi-bank-logo-citibank-foundation-investment-banking-funding-citigroup-logo-blue-text-trademark-thumbnail.png" },
-  { name: "Barclays Bank Plc.", shortName: "Barclays", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSd1tJMVJf4XcEnDoSOa-tZAhQzhQqlwT-3Ug&s" },
-  { name: "Andhra Bank", shortName: "Andhra Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSi-acXe9CNEg2DZ3gTm56_ZEmI4poXAb_cmw&s" },
-  { name: "Axis Bank", shortName: "Axis", imageUrl: "https://w7.pngwing.com/pngs/461/399/png-transparent-axis-bank-logo-bank-logos-thumbnail.png" },
-  { name: "Bank of Baroda - Corporate Banking", shortName: "BoB CB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpbuKeXwKCeoGLdIyqo9IgFIptmg88MZBypA&s" },
-  { name: "Bank of Baroda - Retail Banking", shortName: "BoB RB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpbuKeXwKCeoGLdIyqo9IgFIptmg88MZBypA&s" },
-  { name: "Bank of India", shortName: "BOI", imageUrl: "https://companieslogo.com/img/orig/BANKINDIA.NS-e3d88e01.png?t=1720244490" },
-  { name: "Bank of Maharashtra", shortName: "BoM", imageUrl: "https://w7.pngwing.com/pngs/756/482/png-transparent-bank-of-maharashtra-logo-thumbnail-bank-logos.png" },
-  { name: "Canara Bank", shortName: "Canara", imageUrl: "https://w7.pngwing.com/pngs/246/850/png-transparent-canara-bank-loan-branch-andhra-bank-bank-angle-triangle-branch-thumbnail.png" },
-  { name: "Central Bank of India", shortName: "CBI", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-52rR-J6jnK2GWW2-0KPbXGdWGXSBPC6EeA&s" },
-  { name: "City Union Bank", shortName: "CUB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3LWgIynjdKcLGA-VHf-5gMmYZxCPI33HMqQ&s" },
-  { name: "Corporation Bank", shortName: "Corporation Bank", imageUrl: "https://i.pinimg.com/736x/94/17/96/941796d9f543e8d8f5fe2746be40b6a8.jpg" },
-  { name: "Deutsche Bank", shortName: "Deutsche", imageUrl: "https://banner2.cleanpng.com/20180811/gr/786106bcd4e4f1f0bdd34065785d04b0.webp" },
-  { name: "Development Credit Bank", shortName: "DCB", imageUrl: "https://cdn.griclub.org/uploads/crm_company/0033600000sgOtb_Marketing_Edited_Logo_2021-05-09_00-37-20.jpg?rand=657771" },
-  { name: "Dhanlaxmi Bank", shortName: "Dhanlaxmi", imageUrl: "https://play-lh.googleusercontent.com/KiikErActK_AzBRWeHqgVffNXBSoFrmyxrHglaZusbeLXDIh9JPN8F6A3q1DAYh61VNh" },
-  { name: "Federal Bank", shortName: "Federal Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM5RNGf241jlovYbUlNPaVli8iQiPXjs9FIw&s" },
-  { name: "IDBI Bank", shortName: "IDBI", imageUrl: "https://w7.pngwing.com/pngs/30/236/png-transparent-idbi-bank-logo-thumbnail-bank-logos.png" },
-  { name: "Indian Bank", shortName: "Indian Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV7h-byZxe1wCzE33fcSzIPgIARSf7jGniLw&s" },
-  { name: "Indian Overseas Bank", shortName: "IOB", imageUrl: "https://w7.pngwing.com/pngs/994/738/png-transparent-indian-overseas-bank-thumbnail-bank-logos-thumbnail.png" },
-  { name: "IndusInd Bank", shortName: "IndusInd", imageUrl: "https://icon2.cleanpng.com/20180727/bi/e6f87583191ffce7eed820e4c3997cd6.webp" },
-  { name: "ING Vysya Bank", shortName: "ING", imageUrl: "https://e7.pngegg.com/pngimages/653/281/png-clipart-ing-group-logo-ing-diba-a-g-bank-bank-text-orange.png" },
-  { name: "Jammu and Kashmir Bank", shortName: "J&K Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk5GF4pfV3ncjNrKbJLG83bLjvSpK2pKoe3w&s" },
-  { name: "Karnataka Bank Ltd", shortName: "Karnataka Bank", imageUrl: "https://companieslogo.com/img/orig/KTKBANK.NS-6f6bc8b3.png?t=1720244492" },
-  { name: "Karur Vysya Bank", shortName: "KVB", imageUrl: "https://static.wikia.nocookie.net/logopedia/images/e/e6/KVB.jpeg/revision/latest?cb=20200407114627" },
-  { name: "Kotak Bank", shortName: "Kotak", imageUrl: "https://e7.pngegg.com/pngimages/20/41/png-clipart-kotak-mahindra-bank-logo-thumbnail-bank-logos.png" },
-  { name: "Laxmi Vilas Bank", shortName: "LVB", imageUrl: "https://static.wikia.nocookie.net/logopedia/images/0/01/LVB.png/revision/latest?cb=20200407113848" },
-  { name: "Oriental Bank of Commerce", shortName: "OBC", imageUrl: "https://seeklogo.com/images/O/oriental-bank-of-commerce-logo-DB49143B66-seeklogo.com.png" },
-  { name: "Punjab National Bank - Corporate Banking", shortName: "PNB CB", imageUrl: "https://companieslogo.com/img/orig/PNB.NS-f0a1e3ee.png?t=1720244493" },
-  { name: "Punjab National Bank - Retail Banking", shortName: "PNB RB", imageUrl: "https://companieslogo.com/img/orig/PNB.NS-f0a1e3ee.png?t=1720244493" },
-  { name: "Punjab & Sind Bank", shortName: "PSB", imageUrl: "https://s3-symbol-logo.tradingview.com/punjab-and-sind-bank--600.png" },
-  { name: "Shamrao Vithal Co-operative Bank", shortName: "SVC Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1YWnl2Sk81DD-D0c3enGgDguQnpLFK9i8HQ&s" },
-  { name: "South Indian Bank", shortName: "SIB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9hUbZEYp8zsVKMasCO2nWGBQ4RUiQqKXvWQ&s" },
-  { name: "State Bank of Bikaner & Jaipur", shortName: "SBBJ", imageUrl: "https://images.crunchbase.com/image/upload/c_pad,h_256,w_256,f_auto,q_auto:eco,dpr_1/v1470827899/blntmetuok6nttw8imes.jpg" },
-  { name: "State Bank of Hyderabad", shortName: "SBH", imageUrl: "https://seeklogo.com/images/S/state-bank-of-india-logo-447EAC7B3E-seeklogo.com.png" },
-  { name: "State Bank of India", shortName: "SBI", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwNszJbzW3RQ-j2qmkzICrYWBo3pFcMTQDZg&s" },
-  { name: "State Bank of Mysore", shortName: "SBM", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/2/22/State_Bank_of_Mauritius_Logo.jpg" },
-  { name: "State Bank of Patiala", shortName: "SBP", imageUrl: "https://e7.pngegg.com/pngimages/940/301/png-clipart-state-bank-of-india-patiala-mobile-banking-bank-blue-freedom-thumbnail.png" },
-  // Additional banks from the user's request
-];
 
 export async function getAllFiatAccount(request, reply) {
   try {

@@ -4,10 +4,11 @@ import { compare, encrypt } from "../utils/password.util.js";
 import { Op } from "sequelize";
 import logger from "../utils/logger.util.js";
 import nodemailer from "nodemailer";
+import twilio from 'twilio'
+import { banksInIndia } from "../constants/bank.constants.js";
 import {
   getAllCoinsData,
   getAllNetworkData,
-  getWithdrawFee,
 } from "../ApiCalls/usdtapicalls.js";
 import {
   responseMapping,
@@ -22,6 +23,8 @@ import { countryCodes } from "../utils/countryCodes.js";
 import { generateRandomCustomerId } from "../utils/utils.js";
 import { CoinsData } from "../../blockchainData/coins_data.js";
 import { AllNetworksData } from "../../blockchainData/network_data.js";
+import { sendMail } from "../utils/mail/sendMail.js";
+import { createMessage } from "../utils/twilio/twilio.js";
 
 const { User, Coin, OnRampTransaction, Usdt,Otp, Fees,FiatAccount, Kyc } = db;
 /**
@@ -98,79 +101,19 @@ export async function sendSignUpOtp(request, reply) {
         .status(500)
         .send(responseMappingError(500, `Account already exist`));
     }
-    const transporter = nodemailer.createTransport({
-      host: "mail.privateemail.com",
-      port: 587, // Use 465 for secure connection
-      secure: false, // Set to true if using port 465
-      auth: {
-        user: "support@usdtmarketplace.com",
-        pass: "Usdtmp123$",
-      },
-      tls: {
-        rejectUnauthorized: false, // Helps with self-signed certificates
-      },
-    });
+
     const otp = await generateOTP(email);
-    console.log(otp);
-    // const mailOptions = {
-    //   from: {
-    //     name: "GSX solutions",
-    //     address: "tshubhanshu007@gmail.com"
-    //   },
-    //   to: email,
-    //   subject: "Forget password otp",
-    //   text: `Hello, Here is your forget password ${otp}`,
-    //   html: `
-    //     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    //       <h2 style="color: #0056b3;">USDT Marketplace</h2>
-    //       <p>Hello,</p>
-    //       <p>Your One-Time Password (OTP) for accessing USDT Marketplace is:</p>
-    //       <p style="font-size: 24px; font-weight: bold; color: #0056b3;">${otp}</p>
-    //       <p>Please enter this OTP to complete your verification process. This OTP is valid for 10 minutes.</p>
-    //       <p>If you did not request this OTP, please contact our support team immediately.</p>
-    //       <p>Thank you,</p>
-    //       <p>The USDT Marketplace Team</p>
-    //       <hr>
-    //       <small>If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com">support@usdtmarketplace.com</a></small>
-    //     </div>`
-    // };
-    const mailOptions = {
-      from: {
-        name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
-      },
-      to: email,
-      subject: "Sign-up OTP",
-      text: `Hello, your sign-up OTP is ${otp}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-            
-            <h2 style="text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">USDT Marketplace</h2>
-            
-            <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
-            <p style="font-size: 16px; line-height: 1.5;">Your One-Time Password (OTP) for Sign up in USDT Marketplace is:</p>
-    
-            <div style="text-align: center; padding: 20px; margin: 20px 0; background-color: #f1f1f1; border-radius: 8px;">
-              <p style="font-size: 36px; font-weight: bold; color: #007bff; margin: 0;">${otp}</p>
-            </div>
-    
-            <p style="font-size: 16px; line-height: 1.5;">Please enter this OTP to complete your sign up process. This OTP is valid for <strong>10 minutes</strong>.</p>
-    
-            <div style="background-color: #007bff; color: white; padding: 10px; border-radius: 8px; text-align: center; margin: 20px 0;">
-              <p>If you did not request this OTP, please <a href="mailto:support@usdtmarketplace.com" style="color: white; text-decoration: underline;">contact our support team</a> immediately.</p>
-            </div>
-    
-            <p style="font-size: 16px; line-height: 1.5;">Thank you,</p>
-            <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
-    
-            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
-            <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
-          </div>
-        </div>
-      `,
-    };
-    await transporter.sendMail(mailOptions);
+
+
+    const email_sent =  await sendMail(email, 'Sign-up OTP', 'signUpOtp', {
+      otp:otp
+    })
+
+    if(!email_sent){
+      return reply
+        .status(500)
+        .send(responseMappingError(500, `Sorry we are unable to send otp please try after sometime`));
+    }
     return reply
       .status(200)
       .send(
@@ -222,7 +165,10 @@ export async function checkUser(request,reply){
       );
 
   }catch(error){
-
+    console.log("user.controller.changePassword", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
   }
 }
 
@@ -241,57 +187,18 @@ export async function sendLoginOtp(request, reply) {
         .status(500)
         .send(responseMappingError(500, `Account not found.`));
     }
-    const transporter = nodemailer.createTransport({
-      host: "mail.privateemail.com",
-      port: 587, // Use 465 for secure connection
-      secure: false, // Set to true if using port 465
-      auth: {
-        user: "support@usdtmarketplace.com",
-        pass: "Usdtmp123$",
-      },
-      tls: {
-        rejectUnauthorized: false, // Helps with self-signed certificates
-      },
-    });
+   
     const otp = await generateOTP(email);
-    console.log(otp);
-    const mailOptions = {
-      from: {
-        name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
-      },
-      to: email,
-      subject: "Login OTP",
-      text: `Hello, your Login OTP is ${otp}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-            
-            <h2 style="text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">USDT Marketplace</h2>
-            
-            <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
-            <p style="font-size: 16px; line-height: 1.5;">Your One-Time Password (OTP) for Login in USDT Marketplace is:</p>
+    const email_sent =  await sendMail(email, 'Login OTP', 'loginOtp', {
+      otp:otp
+    })
+
+    if(!email_sent){
+      return reply
+        .status(500)
+        .send(responseMappingError(500, `Sorry we are unable to send otp please try after sometime`));
+    }
     
-            <div style="text-align: center; padding: 20px; margin: 20px 0; background-color: #f1f1f1; border-radius: 8px;">
-              <p style="font-size: 36px; font-weight: bold; color: #007bff; margin: 0;">${otp}</p>
-            </div>
-    
-            <p style="font-size: 16px; line-height: 1.5;">Please enter this OTP to complete your login process. This OTP is valid for <strong>10 minutes</strong>.</p>
-    
-            <div style="background-color: #007bff; color: white; padding: 10px; border-radius: 8px; text-align: center; margin: 20px 0;">
-              <p>If you did not request this OTP, please <a href="mailto:support@usdtmarketplace.com" style="color: white; text-decoration: underline;">contact our support team</a> immediately.</p>
-            </div>
-    
-            <p style="font-size: 16px; line-height: 1.5;">Thank you,</p>
-            <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
-    
-            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
-            <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
-          </div>
-        </div>
-      `,
-    };
-    await transporter.sendMail(mailOptions);
     return reply
       .status(200)
       .send(
@@ -327,62 +234,59 @@ export async function sendLoginOtpV2(request, reply) {
     }
 
     const match = await compare(password, existingUser.password);
-    if (!match)
+    if (!match){
       return reply
-        .status(401)
-        .send(responseMappingError(401, "Wrong password. Try Again or click forgot to reset password."));
-        const transporter = nodemailer.createTransport({
-          host: "mail.privateemail.com",
-          port: 587, // Use 465 for secure connection
-          secure: false, // Set to true if using port 465
-          auth: {
-            user: "support@usdtmarketplace.com",
-            pass: "Usdtmp123$",
-          },
-          tls: {
-            rejectUnauthorized: false, // Helps with self-signed certificates
-          },
-        });
-        
+      .status(401)
+      .send(responseMappingError(401, "Wrong password. Try Again or click forgot to reset password."));
+    }     
     const otp = await generateOTP(email);
     console.log(otp);
-    const mailOptions = {
-      from: {
-        name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
-      },
-      to: email,
-      subject: "Login OTP",
-      text: `Hello, your Login OTP is ${otp}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+    const email_sent =  await sendMail(email, 'Login OTP', 'loginOtp', {
+      otp:otp
+    })
+
+    if(!email_sent){
+      return reply
+        .status(500)
+        .send(responseMappingError(500, `Sorry we are unable to send otp please try after sometime`));
+    }
+    // const mailOptions = {
+    //   from: {
+    //     name: "GSX solutions",
+    //     address: "support@usdtmarketplace.com",
+    //   },
+    //   to: email,
+    //   subject: "Login OTP",
+    //   text: `Hello, your Login OTP is ${otp}`,
+    //   html: `
+    //     <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
+    //       <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
             
-            <h2 style="text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">USDT Marketplace</h2>
+    //         <h2 style="text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">USDT Marketplace</h2>
             
-            <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
-            <p style="font-size: 16px; line-height: 1.5;">Your One-Time Password (OTP) for Login in USDT Marketplace is:</p>
+    //         <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
+    //         <p style="font-size: 16px; line-height: 1.5;">Your One-Time Password (OTP) for Login in USDT Marketplace is:</p>
     
-            <div style="text-align: center; padding: 20px; margin: 20px 0; background-color: #f1f1f1; border-radius: 8px;">
-              <p style="font-size: 36px; font-weight: bold; color: #007bff; margin: 0;">${otp}</p>
-            </div>
+    //         <div style="text-align: center; padding: 20px; margin: 20px 0; background-color: #f1f1f1; border-radius: 8px;">
+    //           <p style="font-size: 36px; font-weight: bold; color: #007bff; margin: 0;">${otp}</p>
+    //         </div>
     
-            <p style="font-size: 16px; line-height: 1.5;">Please enter this OTP to complete your login process. This OTP is valid for <strong>10 minutes</strong>.</p>
+    //         <p style="font-size: 16px; line-height: 1.5;">Please enter this OTP to complete your login process. This OTP is valid for <strong>10 minutes</strong>.</p>
     
-            <div style="background-color: #007bff; color: white; padding: 10px; border-radius: 8px; text-align: center; margin: 20px 0;">
-              <p>If you did not request this OTP, please <a href="mailto:support@usdtmarketplace.com" style="color: white; text-decoration: underline;">contact our support team</a> immediately.</p>
-            </div>
+    //         <div style="background-color: #007bff; color: white; padding: 10px; border-radius: 8px; text-align: center; margin: 20px 0;">
+    //           <p>If you did not request this OTP, please <a href="mailto:support@usdtmarketplace.com" style="color: white; text-decoration: underline;">contact our support team</a> immediately.</p>
+    //         </div>
     
-            <p style="font-size: 16px; line-height: 1.5;">Thank you,</p>
-            <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
+    //         <p style="font-size: 16px; line-height: 1.5;">Thank you,</p>
+    //         <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
     
-            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
-            <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
-          </div>
-        </div>
-      `,
-    };
-    await transporter.sendMail(mailOptions);
+    //         <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+    //         <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
+    //       </div>
+    //     </div>
+    //   `,
+    // };
+    // await transporter.sendMail(mailOptions);
     return reply
       .status(200)
       .send(
@@ -399,38 +303,6 @@ export async function sendLoginOtpV2(request, reply) {
       .send(responseMappingError(500, `Internal server error`));
   }
 }
-
-
-
-
-import twilio from 'twilio'
-
-
-// Find your Account SID and Auth Token at twilio.com/console
-// and set the environment variables. See http://twil.io/secure
-
-
-async function createMessage(otp,phone) {
-  try{
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const client = twilio(accountSid, authToken);
-  const message = await client.messages.create({
-    body: `Your one time password (OTP) for Log-in USDT Marketplace is: @usdt-marketplace.com #${otp}`,
-    to: `${phone}`,
-    from: process.env.TWILIIO_PHONE_NUMBER,
-  });
-  // console.log("message response ",message)
-  return message
-  }catch(error){
-    console.log(`user.controller.createMessage`,error.message)
-    return false
-
-  }
-
-
-}
-
 
 
 
@@ -1735,78 +1607,17 @@ export async function sendForgetPasswordOtp(request, reply) {
         .status(500)
         .send(responseMappingError(500, `Email not exist`));
     }
-    const transporter = nodemailer.createTransport({
-      host: "mail.privateemail.com",
-      port: 587, // Use 465 for secure connection
-      secure: false, // Set to true if using port 465
-      auth: {
-        user: "support@usdtmarketplace.com",
-        pass: "Usdtmp123$",
-      },
-      tls: {
-        rejectUnauthorized: false, // Helps with self-signed certificates
-      },
-    });
     const otp = await generateOTP(email);
-    // const mailOptions = {
-    //   from: {
-    //     name: "GSX solutions",
-    //     address: "tshubhanshu007@gmail.com"
-    //   },
-    //   to: email,
-    //   subject: "Forget password otp",
-    //   text: `Hello, Here is your forget password ${otp}`,
-    //   html: `
-    //     <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-    //       <h2 style="color: #0056b3;">USDT Marketplace</h2>
-    //       <p>Hello,</p>
-    //       <p>Your One-Time Password (OTP) for accessing USDT Marketplace is:</p>
-    //       <p style="font-size: 24px; font-weight: bold; color: #0056b3;">${otp}</p>
-    //       <p>Please enter this OTP to complete your verification process. This OTP is valid for 10 minutes.</p>
-    //       <p>If you did not request this OTP, please contact our support team immediately.</p>
-    //       <p>Thank you,</p>
-    //       <p>The USDT Marketplace Team</p>
-    //       <hr>
-    //       <small>If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com">support@usdtmarketplace.com</a></small>
-    //     </div>`
-    // };
-    const mailOptions = {
-      from: {
-        name: "GSX solutions",
-        address: "support@usdtmarketplace.com",
-      },
-      to: email,
-      subject: "Forget Password OTP",
-      text: `Hello, your forget password OTP is ${otp}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; color: #333;">
-          <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-            
-            <h2 style="text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">USDT Marketplace</h2>
-            
-            <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
-            <p style="font-size: 16px; line-height: 1.5;">Your One-Time Password (OTP) for accessing USDT Marketplace is:</p>
-    
-            <div style="text-align: center; padding: 20px; margin: 20px 0; background-color: #f1f1f1; border-radius: 8px;">
-              <p style="font-size: 36px; font-weight: bold; color: #007bff; margin: 0;">${otp}</p>
-            </div>
-    
-            <p style="font-size: 16px; line-height: 1.5;">Please enter this OTP to complete your verification process. This OTP is valid for <strong>10 minutes</strong>.</p>
-    
-            <div style="background-color: #007bff; color: white; padding: 10px; border-radius: 8px; text-align: center; margin: 20px 0;">
-              <p>If you did not request this OTP, please <a href="mailto:support@usdtmarketplace.com" style="color: white; text-decoration: underline;">contact our support team</a> immediately.</p>
-            </div>
-    
-            <p style="font-size: 16px; line-height: 1.5;">Thank you,</p>
-            <p style="font-size: 16px; line-height: 1.5;">The USDT Marketplace Team</p>
-    
-            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
-            <small style="color: #666; font-size: 12px;">If you have any questions, feel free to reach out to us at <a href="mailto:support@usdtmarketplace.com" style="color: #007bff; text-decoration: none;">support@usdtmarketplace.com</a></small>
-          </div>
-        </div>
-      `,
-    };
-    await transporter.sendMail(mailOptions);
+    const email_sent =  await sendMail(email, 'Forget Password OTP', 'forgetPasswordOtp', {
+      otp:otp
+    })
+
+    if(!email_sent){
+      return reply
+        .status(500)
+        .send(responseMappingError(500, `Sorry we are unable to send otp please try after sometime`));
+    }
+   
     return reply
       .status(200)
       .send(
@@ -1901,6 +1712,10 @@ export async function generateOTP(email) {
 }
 
 
+
+
+
+
 export async function checkMobileAndBankAddedOrNot(request,reply){
   try{
     const isPhoneAdded = request?.user?.isPhoneAdded || false
@@ -1917,8 +1732,6 @@ export async function checkMobileAndBankAddedOrNot(request,reply){
     if(bank_data && bank_data.delete === false){
       isBankAdded = true
     }
-
-
     return reply
     .status(200)
     .send(responseMappingWithData(200, "success", {isPhoneAdded,isBankAdded,userKycData}));
@@ -1933,62 +1746,12 @@ export async function checkMobileAndBankAddedOrNot(request,reply){
 
 export async function bankList(request,reply){
   try{
-    const banksInIndia = [
-      { name: "Allahabad Bank", shortName: "AB", imageUrl: "https://designersio.com/wp-content/uploads/2024/04/png-clipart-allahabad-bank-purasawalkam-branch-bank-of-india-bank-blue-angle-300x171.png" },
-      { name: "Punjab National Bank", shortName: "PNB", imageUrl: "https://companieslogo.com/img/orig/PNB.NS-f0a1e3ee.png?t=1720244493" },
-      { name: "HDFC Bank Ltd", shortName: "HDFC", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSSquouX3qJzp6uZwleCOtTBppHfDKlN6vDHg&s" },
-      { name: "ICICI Bank Ltd", shortName: "ICICI", imageUrl: "https://companieslogo.com/img/orig/IBN-af38b5c0.png?t=1720244492" },
-      { name: "Kotak Mahindra Bank Ltd", shortName: "Kotak", imageUrl: "https://annapurnafinance.in/wp-content/uploads/2019/02/Kotak-Mahindra-Bank.png" },
-      { name: "Andhra Pradesh Grameena Vikas Bank", shortName: "APGVB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT96iRBgAyO_V6YrTigsA9UPV-WWl19Z9OwuA&s" },
-      { name: "Punjab Gramin Bank", shortName: "PGB", imageUrl: "https://pgb.org.in/wp-content/uploads/2023/08/pgb.png" },
-      { name: "HSBC Ltd", shortName: "HSBC", imageUrl: "https://i.pinimg.com/736x/6b/5e/11/6b5e11195b9fad6e1d87a374fb65a7c4.jpg" },
-      { name: "Citibank N.A.", shortName: "Citibank", imageUrl: "https://w7.pngwing.com/pngs/486/181/png-transparent-citi-bank-logo-citibank-foundation-investment-banking-funding-citigroup-logo-blue-text-trademark-thumbnail.png" },
-      { name: "Barclays Bank Plc.", shortName: "Barclays", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSd1tJMVJf4XcEnDoSOa-tZAhQzhQqlwT-3Ug&s" },
-      { name: "Andhra Bank", shortName: "Andhra Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSi-acXe9CNEg2DZ3gTm56_ZEmI4poXAb_cmw&s" },
-      { name: "Axis Bank", shortName: "Axis", imageUrl: "https://w7.pngwing.com/pngs/461/399/png-transparent-axis-bank-logo-bank-logos-thumbnail.png" },
-      { name: "Bank of Baroda - Corporate Banking", shortName: "BoB CB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpbuKeXwKCeoGLdIyqo9IgFIptmg88MZBypA&s" },
-      { name: "Bank of Baroda - Retail Banking", shortName: "BoB RB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpbuKeXwKCeoGLdIyqo9IgFIptmg88MZBypA&s" },
-      { name: "Bank of India", shortName: "BOI", imageUrl: "https://companieslogo.com/img/orig/BANKINDIA.NS-e3d88e01.png?t=1720244490" },
-      { name: "Bank of Maharashtra", shortName: "BoM", imageUrl: "https://w7.pngwing.com/pngs/756/482/png-transparent-bank-of-maharashtra-logo-thumbnail-bank-logos.png" },
-      { name: "Canara Bank", shortName: "Canara", imageUrl: "https://w7.pngwing.com/pngs/246/850/png-transparent-canara-bank-loan-branch-andhra-bank-bank-angle-triangle-branch-thumbnail.png" },
-      { name: "Central Bank of India", shortName: "CBI", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR-52rR-J6jnK2GWW2-0KPbXGdWGXSBPC6EeA&s" },
-      { name: "City Union Bank", shortName: "CUB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT3LWgIynjdKcLGA-VHf-5gMmYZxCPI33HMqQ&s" },
-      { name: "Corporation Bank", shortName: "Corporation Bank", imageUrl: "https://i.pinimg.com/736x/94/17/96/941796d9f543e8d8f5fe2746be40b6a8.jpg" },
-      { name: "Deutsche Bank", shortName: "Deutsche", imageUrl: "https://banner2.cleanpng.com/20180811/gr/786106bcd4e4f1f0bdd34065785d04b0.webp" },
-      { name: "Development Credit Bank", shortName: "DCB", imageUrl: "https://cdn.griclub.org/uploads/crm_company/0033600000sgOtb_Marketing_Edited_Logo_2021-05-09_00-37-20.jpg?rand=657771" },
-      { name: "Dhanlaxmi Bank", shortName: "Dhanlaxmi", imageUrl: "https://play-lh.googleusercontent.com/KiikErActK_AzBRWeHqgVffNXBSoFrmyxrHglaZusbeLXDIh9JPN8F6A3q1DAYh61VNh" },
-      { name: "Federal Bank", shortName: "Federal Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTM5RNGf241jlovYbUlNPaVli8iQiPXjs9FIw&s" },
-      { name: "IDBI Bank", shortName: "IDBI", imageUrl: "https://w7.pngwing.com/pngs/30/236/png-transparent-idbi-bank-logo-thumbnail-bank-logos.png" },
-      { name: "Indian Bank", shortName: "Indian Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQV7h-byZxe1wCzE33fcSzIPgIARSf7jGniLw&s" },
-      { name: "Indian Overseas Bank", shortName: "IOB", imageUrl: "https://w7.pngwing.com/pngs/994/738/png-transparent-indian-overseas-bank-thumbnail-bank-logos-thumbnail.png" },
-      { name: "IndusInd Bank", shortName: "IndusInd", imageUrl: "https://icon2.cleanpng.com/20180727/bi/e6f87583191ffce7eed820e4c3997cd6.webp" },
-      { name: "ING Vysya Bank", shortName: "ING", imageUrl: "https://e7.pngegg.com/pngimages/653/281/png-clipart-ing-group-logo-ing-diba-a-g-bank-bank-text-orange.png" },
-      { name: "Jammu and Kashmir Bank", shortName: "J&K Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTk5GF4pfV3ncjNrKbJLG83bLjvSpK2pKoe3w&s" },
-      { name: "Karnataka Bank Ltd", shortName: "Karnataka Bank", imageUrl: "https://companieslogo.com/img/orig/KTKBANK.NS-6f6bc8b3.png?t=1720244492" },
-      { name: "Karur Vysya Bank", shortName: "KVB", imageUrl: "https://static.wikia.nocookie.net/logopedia/images/e/e6/KVB.jpeg/revision/latest?cb=20200407114627" },
-      { name: "Kotak Bank", shortName: "Kotak", imageUrl: "https://e7.pngegg.com/pngimages/20/41/png-clipart-kotak-mahindra-bank-logo-thumbnail-bank-logos.png" },
-      { name: "Laxmi Vilas Bank", shortName: "LVB", imageUrl: "https://static.wikia.nocookie.net/logopedia/images/0/01/LVB.png/revision/latest?cb=20200407113848" },
-      { name: "Oriental Bank of Commerce", shortName: "OBC", imageUrl: "https://seeklogo.com/images/O/oriental-bank-of-commerce-logo-DB49143B66-seeklogo.com.png" },
-      { name: "Punjab National Bank - Corporate Banking", shortName: "PNB CB", imageUrl: "https://companieslogo.com/img/orig/PNB.NS-f0a1e3ee.png?t=1720244493" },
-      { name: "Punjab National Bank - Retail Banking", shortName: "PNB RB", imageUrl: "https://companieslogo.com/img/orig/PNB.NS-f0a1e3ee.png?t=1720244493" },
-      { name: "Punjab & Sind Bank", shortName: "PSB", imageUrl: "https://s3-symbol-logo.tradingview.com/punjab-and-sind-bank--600.png" },
-      { name: "Shamrao Vithal Co-operative Bank", shortName: "SVC Bank", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1YWnl2Sk81DD-D0c3enGgDguQnpLFK9i8HQ&s" },
-      { name: "South Indian Bank", shortName: "SIB", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9hUbZEYp8zsVKMasCO2nWGBQ4RUiQqKXvWQ&s" },
-      { name: "State Bank of Bikaner & Jaipur", shortName: "SBBJ", imageUrl: "https://images.crunchbase.com/image/upload/c_pad,h_256,w_256,f_auto,q_auto:eco,dpr_1/v1470827899/blntmetuok6nttw8imes.jpg" },
-      { name: "State Bank of Hyderabad", shortName: "SBH", imageUrl: "https://seeklogo.com/images/S/state-bank-of-india-logo-447EAC7B3E-seeklogo.com.png" },
-      { name: "State Bank of India", shortName: "SBI", imageUrl: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwNszJbzW3RQ-j2qmkzICrYWBo3pFcMTQDZg&s" },
-      { name: "State Bank of Mysore", shortName: "SBM", imageUrl: "https://upload.wikimedia.org/wikipedia/commons/2/22/State_Bank_of_Mauritius_Logo.jpg" },
-      { name: "State Bank of Patiala", shortName: "SBP", imageUrl: "https://e7.pngegg.com/pngimages/940/301/png-clipart-state-bank-of-india-patiala-mobile-banking-bank-blue-freedom-thumbnail.png" },
-      // Additional banks from the user's request
-    ];
-    
-
     return reply
     .status(200)
     .send(responseMappingWithData(200, "success", banksInIndia));
 
   }catch(error){
-
+    return reply.status(500).send(responseMappingError(500, `Internal server error`))
   }
 }
 
@@ -2019,5 +1782,196 @@ export async function deleteUser(request,reply){
     .send(responseMappingWithData(200, "success", {message:"success"}));    
   }catch(error){
     return reply.status(500).send(responseMappingError(500, `Internal server error`))
+  }
+}
+
+
+
+export async function updateProfile(request,reply){
+  try{
+    const {field,value} = request.body
+    if(field === 'email'){
+      if (request.user.email === value){
+        return reply
+        .status(500)
+        .send(responseMappingError(500, `Email already in use by you.`));
+      }
+      const existing_user = await User.findOne({
+        where :{
+          email:value
+        }
+      })
+
+      if(existing_user){
+        return reply
+        .status(500)
+        .send(responseMappingError(500, `Email already exists.`));
+      }
+
+      const otp = await generateOTP(value);
+
+
+    const email_sent =  await sendMail(value, 'Email Update OTP', 'signUpOtp', {
+      otp:otp
+    })
+
+    if(!email_sent){
+      return reply
+        .status(500)
+        .send(responseMappingError(500, `Sorry we are unable to send otp please try after sometime`));
+    }
+    return reply
+      .status(200)
+      .send(
+        responseMappingWithData(
+          200,
+          "success",
+          "Check your email for the OTP."
+        )
+      );
+
+    }else if(field==='phone'){
+      if (request.user.phone === value){
+        return reply
+        .status(500)
+        .send(responseMappingError(500, `Email already in use by you.`));
+      }
+      const existing_user = await User.findOne({
+        where :{
+          phone:value
+        }
+      })
+
+      if(existing_user){
+        return reply
+        .status(500)
+        .send(responseMappingError(500, `Email already exists.`));
+      }
+
+      const otp = await generateOTP(`${value}`)
+
+      const send_message = await createMessage(otp,phone)
+  
+      if(!send_message){
+        return reply.status(500).send(responseMappingError(500, `Failed to send OTP.`)) 
+      }
+
+
+      return reply
+      .status(200)
+      .send(
+        responseMappingWithData(
+          200,
+          "success",
+          "Check your phone for the OTP."
+        )
+      );
+
+    }else if(field === 'password'){
+
+    }
+
+  }catch(error){
+    return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
+  }
+}
+
+
+export async function updateOtp(request,reply){
+  try{
+    const {field,value,otp}=request.body
+
+    if(field ==='email'){
+      const userExists = await User.findOne({ where: { email: value } });
+    if (userExists)
+      return reply
+        .status(409)
+        .send(responseMappingError(500, `User already exist`));
+
+    const activeOtp = await Otp.findOne({
+      where: {
+        email: value,
+        otp,
+        sent_at: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+    if (!activeOtp)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(500, `Invalid or expired OTP.`)
+        );
+    // encrypt password
+    await Otp.destroy({
+      where: { email: value },
+    });
+    // create user
+
+    const user = await User.findOne({
+      where:{
+        email: request.user.email,
+      }
+    })
+
+    user.email = value
+    await user.save()
+
+    const token = await reply.jwtSign({
+      id: user.id,
+      role: user.role,
+      emailId: value,
+    });
+    if (user) return reply.status(200).send(responseMappingWithData(200, "success", {token:token}));
+    else return reply.status(500).send(responseMappingError(500, `Signup failed`));
+    }else if(field === 'phone'){
+    let user = await User.findOne({where:{
+      email:request.user.email
+    }})
+
+    let existing_phone_user = await User.findOne({
+      where:{
+        phone:value
+      }
+    })
+    if(!existing_phone_user){
+      return reply.status(500).send(responseMappingError(401, `Phone already exist`))
+    }
+
+    if(!user){
+      return reply.status(500).send(responseMappingError(401, `Unauthorized`))
+    }
+
+    const activeOtp = await Otp.findOne({
+      where: {
+        email: value,
+        otp,
+        sent_at: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+    if (!activeOtp)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(500, `Invalid or expired OTP.`)
+        );
+    // encrypt password
+    await Otp.destroy({
+      where: { email: phone },
+    });
+    user.phone= value
+    user.isPhoneAdded = true
+    await user.save()
+    return reply
+    .status(200)
+    .send(responseMappingWithData(200, "success", "Phone is Updated"));
+    }
+
+
+  }catch(error){
+    return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
   }
 }
