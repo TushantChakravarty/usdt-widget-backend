@@ -267,7 +267,7 @@ await server.get('/', async (request, reply) => {
     const state_code = request.headers['X-State-Code'] || 'Unknown';
     // Use state code in your application logic
     return reply.send({
-        message: 'Hello world.2234',
+        message: 'Hello world',
         environment: process.env.NODE_ENV,
     })
 
