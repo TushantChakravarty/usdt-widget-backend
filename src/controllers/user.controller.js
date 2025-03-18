@@ -1923,7 +1923,7 @@ export async function updateOtp(request,reply){
       role: user.role,
       emailId: value,
     });
-    if (user) return reply.status(200).send(responseMappingWithData(200, "success", {token:token}));
+    if (user) return reply.status(200).send(responseMappingWithData(200, "success", "success"));
     else return reply.status(500).send(responseMappingError(500, `Signup failed`));
     }else if(field === 'phone'){
     let user = await User.findOne({where:{
