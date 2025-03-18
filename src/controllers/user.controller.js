@@ -1887,6 +1887,7 @@ export async function deleteUser(request,reply){
 export async function updateProfile(request,reply){
   try{
     const {field,value} = request.query
+    console.log('check',field,value)
     if(field === 'email'){
       if (request.user.email === value){
         return reply
