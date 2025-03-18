@@ -270,7 +270,7 @@ export async function sendUpdateEmailOtp(request, reply) {
 
 export async function sendUpdatePhoneOtp(request, reply) {
   try {
-    const value = request.query.phone
+    const value =  request.body.phone
     if (request.user.phone === value){
       return reply
       .status(500)
