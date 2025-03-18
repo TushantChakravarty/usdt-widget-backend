@@ -80,8 +80,7 @@ export default (sequelize, DataTypes) => {
             },
             username:{
                 type: DataTypes.STRING,
-                unique:true,
-                allowNull: false,
+                allowNull: true,
             },
             profile_image_url:{
                 type: DataTypes.STRING,
