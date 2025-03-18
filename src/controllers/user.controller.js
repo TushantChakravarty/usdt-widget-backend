@@ -1943,7 +1943,8 @@ export async function deleteUser(request,reply){
 
 export async function updateProfile(request,reply){
   try{
-    const {field,value} = request.body
+    const {field,value} = request.query
+    console.log('check',field,value)
     if(field === 'email'){
       if (request.user.email === value){
         return reply
@@ -2026,6 +2027,7 @@ export async function updateProfile(request,reply){
     }
 
   }catch(error){
+    console.log('error', error)
     return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
   }
 }
