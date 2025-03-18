@@ -586,7 +586,7 @@ export async function getProfile(request, reply) {
     });
     if (user) {
       user = user.toJSON(); // Convert the Sequelize instance to a plain object
-      user.profile_image_url = null
+      // user.profile_image_url = null
       delete user.password;
       delete user.token;
     }
