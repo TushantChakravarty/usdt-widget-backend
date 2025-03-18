@@ -1944,7 +1944,6 @@ export async function deleteUser(request,reply){
 export async function updateProfile(request,reply){
   try{
     const {field,value} = request.query
-    console.log('check',field,value)
     if(field === 'email'){
       if (request.user.email === value){
         return reply
@@ -1986,14 +1985,14 @@ export async function updateProfile(request,reply){
       );
 
     }else if(field==='phone'){
-      if (request.user.phone === value){
+      if (request.user.phone_number === value){
         return reply
         .status(500)
         .send(responseMappingError(500, `Email already in use by you.`));
       }
       const existing_user = await User.findOne({
         where :{
-          phone:value
+          phone_number:value
         }
       })
 
@@ -2005,7 +2004,7 @@ export async function updateProfile(request,reply){
 
       const otp = await generateOTP(`${value}`)
 
-      const send_message = await createMessage(otp,phone)
+      const send_message = await createMessage(otp,value)
   
       if(!send_message){
         return reply.status(500).send(responseMappingError(500, `Failed to send OTP.`)) 
