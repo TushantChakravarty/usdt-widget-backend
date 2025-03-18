@@ -217,6 +217,103 @@ export async function sendLoginOtp(request, reply) {
 }
 
 
+export async function sendUpdateEmailOtp(request, reply) {
+  try {
+    const value = request.query.email;
+    
+    if (request.user.email === value){
+      return reply
+      .status(500)
+      .send(responseMappingError(500, `Email already in use by you.`));
+    }
+    const existing_user = await User.findOne({
+      where :{
+        email:value
+      }
+    })
+
+    if(existing_user){
+      return reply
+      .status(500)
+      .send(responseMappingError(500, `Email already exists.`));
+    }
+
+    const otp = await generateOTP(value);
+
+
+  const email_sent =  await sendMail(value, 'Email Update OTP', 'signUpOtp', {
+    otp:otp
+  })
+
+  if(!email_sent){
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Sorry we are unable to send otp please try after sometime`));
+  }
+  return reply
+    .status(200)
+    .send(
+      responseMappingWithData(
+        200,
+        "success",
+        "Check your email for the OTP."
+      )
+    );
+    
+  } catch (error) {
+    console.log("user.controller.changePassword", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
+  }
+}
+
+export async function sendUpdatePhoneOtp(request, reply) {
+  try {
+    const value = request.query.phone
+    if (request.user.phone === value){
+      return reply
+      .status(500)
+      .send(responseMappingError(500, `Email already in use by you.`));
+    }
+    const existing_user = await User.findOne({
+      where :{
+        phone:value
+      }
+    })
+
+    if(existing_user){
+      return reply
+      .status(500)
+      .send(responseMappingError(500, `Email already exists.`));
+    }
+
+    const otp = await generateOTP(`${value}`)
+
+    const send_message = await createMessage(otp,phone)
+
+    if(!send_message){
+      return reply.status(500).send(responseMappingError(500, `Failed to send OTP.`)) 
+    }
+
+
+    return reply
+    .status(200)
+    .send(
+      responseMappingWithData(
+        200,
+        "success",
+        "Check your phone for the OTP."
+      )
+    );
+  } catch (error) {
+    console.log("user.controller.changePassword", error.message);
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Internal server error`));
+  }
+}
+
 export async function sendLoginOtpV2(request, reply) {
   try {
     const email = request.body.email;

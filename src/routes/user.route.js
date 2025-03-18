@@ -71,6 +71,23 @@ const routes = async (route, options) => { // route = fastify instance
   });
 
 
+  /**
+   * Route for user signup.
+   * Handles the user signup functionality.
+   */
+  route.get('/updateEmailOtp', {
+    // schema: validator.loginOtp,
+    preValidation: validateToken,
+    handler: user.sendUpdateEmailOtp,
+  });
+
+
+  route.post('/updatePhoneOtp', {
+    // schema: validator.sendAddPhoneOtp,
+    preValidation: validateToken,
+    handler: user.sendUpdatePhoneOtp,
+  });
+
   route.get('/checkUser', {
     schema: validator.loginOtp,
     handler: user.checkUser,
