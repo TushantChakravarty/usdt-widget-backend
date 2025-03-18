@@ -78,6 +78,15 @@ export default (sequelize, DataTypes) => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            username:{
+                type: DataTypes.STRING,
+                unique:true,
+                allowNull: false,
+            },
+            profile_image_url:{
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
             kyc: {
                 type: DataTypes.JSONB, // or DataTypes.JSON if you don't need PostgreSQL-specific functionality
                 allowNull: false,
