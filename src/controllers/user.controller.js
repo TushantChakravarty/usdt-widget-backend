@@ -1970,6 +1970,7 @@ export async function updateProfile(request,reply){
     }
 
   }catch(error){
+    console.log('error', error)
     return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
   }
 }
