@@ -1197,7 +1197,7 @@ export async function getQuotesNew(request, reply) {
 
     // Calculate final amount after fees
     const toAmountOfframp =
-      fromAmount * usdtRate - (onrampFee + gatewayFee + tdsFee);
+      fromAmount * usdtRate //- (onrampFee + gatewayFee + tdsFee);
 
     // // Log results
     // console.log("Total Fees:", onrampFee + gatewayFee + tdsFee);
@@ -1223,7 +1223,7 @@ export async function getQuotesNew(request, reply) {
         ],
       },
     };
-    console.log(offrampAmount);
+    //console.log(offrampAmount);
 
     const enter = await request.server.redis.set(
       `${fromCurrency}-${toCurrency}-${fromAmount}-${chain}-offramp`,
@@ -1312,7 +1312,7 @@ export async function verifyQuotes(request) {
 
     // Calculate final amount after fees
     const toAmountOfframp =
-      fromAmount * usdtRate - (onrampFee + gatewayFee + tdsFee);
+      fromAmount * usdtRate //- (onrampFee + gatewayFee + tdsFee);
 
     // // Log results
     // console.log("Total Fees:", onrampFee + gatewayFee + tdsFee);
