@@ -5,6 +5,7 @@ import { Op } from "sequelize";
 import logger from "../utils/logger.util.js";
 import nodemailer from "nodemailer";
 import twilio from 'twilio'
+
 import { banksInIndia } from "../constants/bank.constants.js";
 import {
   getAllCoinsData,
@@ -25,6 +26,18 @@ import { CoinsData } from "../../blockchainData/coins_data.js";
 import { AllNetworksData } from "../../blockchainData/network_data.js";
 import { sendMail } from "../utils/mail/sendMail.js";
 import { createMessage } from "../utils/twilio/twilio.js";
+
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { s3Upload } from "../utils/s3/s3.utils.js";
+
+// Setup __dirname equivalent in ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
 
 const { User, Coin, OnRampTransaction, Usdt,Otp, Fees,FiatAccount, Kyc } = db;
 /**
@@ -2127,6 +2140,66 @@ export async function updateOtp(request,reply){
 
 
   }catch(error){
+    return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
+  }
+}
+
+
+
+
+
+
+export async function uploadProfile(request, reply) {
+  try {
+    const data = await request.file(); // Get uploaded file
+    if (!data) {
+        return reply.status(400).send(responseMappingError(400, `No file uploaded`)) 
+    }
+
+    // Validate file type
+    if (!ALLOWED_IMAGE_TYPES.includes(data.mimetype)) {
+      return reply.status(400).send(responseMappingError(400, `only image files are allowed (JPEG, PNG, GIF, WEBP)`)) 
+    }
+
+    // Read file buffer
+    const fileBuffer = await data.toBuffer();
+    const fileExt = path.extname(data.filename);
+    const fileName = `uploads/${Date.now()}${fileExt}`;
+
+    // Upload to S3
+    const uploadParams = {
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: fileName,
+        Body: fileBuffer,
+        ContentType: data.mimetype,
+        ACL: 'public-read', // Change ACL if needed
+    };
+
+
+    let user = await User.findOne({
+      where:{
+        id:request.user.id
+      }
+    })
+
+
+
+
+    try {
+      const s3Response = await s3Upload(uploadParams)
+        user.profile_image_url = s3Response.Location
+        await user.save()
+
+        return reply
+        .status(200)
+        .send(responseMappingWithData(200, "success", "success"));
+    } catch (err) {
+      console.log(`error in s3Upload function`,err.message)
+      return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
+    }
+
+  } catch (err) {
+    console.log(`error in upload Profile`,err.message)
     return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
   }
 }
