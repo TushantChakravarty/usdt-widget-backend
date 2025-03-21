@@ -321,6 +321,13 @@ const routes = async (route, options) => { // route = fastify instance
     handler: user.updateOtp,
   });
 
+
+  route.post("/uploadProfile", {
+       preValidation: validateToken,
+       handler:user.uploadProfile
+  })
+
+
 };
 
 
