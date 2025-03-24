@@ -567,6 +567,7 @@ export async function onrampCallback(request, reply) {
 
 export async function callbackMercuryo(request, reply)
 {
+console.log("hitt")
 console.log(request.body.payload.payment.entity)
 console.log(request.body.payload.qr_code.entity)
 
