@@ -290,7 +290,7 @@ const routes = async (route, options) => { // route = fastify instance
     // schemaErrorFormatter: (errors) => new Error(errors[0].message),
   });
 
-  route.get('/delete', {
+  route.post('/delete', {
     // onRequest: [
     //   route.authenticate
     // ],
@@ -327,6 +327,15 @@ const routes = async (route, options) => { // route = fastify instance
        handler:user.uploadProfile
   })
 
+  route.post("/sendUpdateEmailOtp", {
+    preValidation: validateToken,
+    handler:user.updateEmailByOtp
+})
+
+route.post("/verifyUpdateEmailOtp", {
+  preValidation: validateToken,
+  handler:user.verifyUpdateEmailOtp
+})
 
 };
 

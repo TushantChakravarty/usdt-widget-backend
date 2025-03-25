@@ -283,7 +283,8 @@ export async function sendUpdateEmailOtp(request, reply) {
 
 export async function sendUpdatePhoneOtp(request, reply) {
   try {
-    const value =  request.body.phone
+    const {new_phone,password} =  request.body
+    const value = new_phone
     if (request.user.phone === value){
       return reply
       .status(500)
@@ -1925,7 +1926,24 @@ export async function bankList(request,reply){
 
 export async function deleteUser(request,reply){
   try{
+    const {password} = request.body
     const id = request.user.id
+
+
+    const delete_user = await User.scope("private").findOne({
+      where:{
+        id:id
+      }
+    })
+
+    const match = await compare(password, delete_user.password);
+    if (!match)
+      return reply
+        .status(500)
+        .send(responseMappingError(500, "Wrong password"))
+
+
+
 
     const fiat_account_id = await FiatAccount.destroy({
       where:{
@@ -2141,6 +2159,134 @@ export async function updateOtp(request,reply){
 
   }catch(error){
     return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
+  }
+}
+
+
+export async function updateEmailByOtp(request,reply){
+  try{
+    const {new_email,password} = request.body
+    const email_exist = await User.findOne({
+      where:{
+        email:new_email
+      }
+    })
+
+    if(email_exist){
+      return reply.status(400).send(responseMappingError(400, `Email already exist`)) 
+  }
+
+  const user = await User.scope("private").findOne({
+    where:{
+      email:request.user.email
+    }
+  })
+
+  if(!user){
+    return reply.status(400).send(responseMappingError(401, `Unauthorized`)) 
+  }
+    
+  const match = await compare(password, user.password);
+  if (!match)
+    return reply
+      .status(500)
+      .send(responseMappingError(500, "Wrong password"));
+
+  
+  const otp = await generateOTP(new_email);
+
+
+  const email_sent =  await sendMail(new_email, 'Email Update OTP', 'signUpOtp', {
+    otp:otp
+  })
+
+  if(!email_sent){
+    return reply
+      .status(500)
+      .send(responseMappingError(500, `Sorry we are unable to send otp please try after sometime`));
+  }
+  return reply
+    .status(200)
+    .send(
+      responseMappingWithData(
+        200,
+        "success",
+        "Check your email for the OTP."
+      )
+    );
+  }catch(error){
+    return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
+  }
+}
+
+
+export async function verifyUpdateEmailOtp(request,reply){
+  try{
+    const {new_email,otp} = request.body
+    const new_user = await User.findOne({
+      where:{
+        email:new_email
+      }
+    })
+
+    if(new_user){
+      return reply.status(500).send(responseMappingError(500, `Email already exists`)) 
+    }
+
+    const activeOtp = await Otp.findOne({
+      where: {
+        email:new_email,
+        otp,
+        sent_at: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+
+    if (!activeOtp)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(500, `Invalid or expired OTP.`)
+        );
+
+  
+
+    await Otp.destroy({
+      where: { email:new_email },
+    });
+   const user = await User.findOne({where:{
+    email:request.user.email
+   }})
+
+   if(!user){
+    return reply
+    .status(401)
+    .send(
+      responseMappingError(401, `Unauthorized`)
+    );
+   }
+
+   user.email = new_email
+   await user.save()
+
+  return reply
+   .status(200)
+   .send(
+     responseMappingWithData(
+       200,
+       "success",
+       "success"
+     )
+   );
+
+
+  }catch(error){
+    return reply
+    .status(500)
+    .send(
+      responseMappingError(500, `Internal server error`)
+    );
   }
 }
 
