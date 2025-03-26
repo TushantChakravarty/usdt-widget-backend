@@ -878,7 +878,7 @@ export async function generateTransaction(request, reply) {
       .send(
         responseMappingError(
           400,
-          `Amount should be smaller than or equal to 500`
+          `Amount should be smaller than  500`
         )
       );
   }
@@ -1150,7 +1150,7 @@ export async function getQuotesNew(request, reply) {
         .send(
           responseMappingError(
             400,
-            `Amount should be smaller than or equal to 500`
+            `Amount should be smaller than 500`
           )
         );
     }
@@ -1301,7 +1301,7 @@ export async function verifyQuotes(request) {
         .send(
           responseMappingError(
             400,
-            `Amount should be smaller than or equal to 500`
+            `Amount should be smaller than  to 500`
           )
         );
     }
