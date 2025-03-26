@@ -861,13 +861,24 @@ export async function generateTransaction(request, reply) {
   }
 
 
-  if (fromAmount < 1) {
+  if (fromAmount < 10) {
     return reply
-      .status(500)
+      .status(400)
       .send(
         responseMappingError(
           400,
           `Amount should be greater than or equal to 10`
+        )
+      );
+  }
+
+  if (fromAmount > 500) {
+    return reply
+      .status(400)
+      .send(
+        responseMappingError(
+          400,
+          `Amount should be smaller than or equal to 500`
         )
       );
   }
@@ -1122,13 +1133,24 @@ export async function getQuotesNew(request, reply) {
     };
     const usdt = await findRecord(Usdt, query);
 
-    if (fromAmount < 1) {
+    if (fromAmount < 10) {
       return reply
-        .status(500)
+        .status(400)
         .send(
           responseMappingError(
             400,
             `Amount should be greater than or equal to 10`
+          )
+        );
+    }
+
+    if (fromAmount > 500) {
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be smaller than or equal to 500`
           )
         );
     }
@@ -1262,6 +1284,27 @@ export async function getQuotesNew(request, reply) {
 export async function verifyQuotes(request) {
   try {
     const { fromCurrency, toCurrency, fromAmount, chain, toAmount } = request;
+    if (fromAmount < 10) {
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be greater than or equal to 10`
+          )
+        );
+    }
+
+    if (fromAmount > 500) {
+      return reply
+        .status(400)
+        .send(
+          responseMappingError(
+            400,
+            `Amount should be smaller than or equal to 500`
+          )
+        );
+    }
     let query = {
       id: 1,
     };
