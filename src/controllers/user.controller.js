@@ -794,13 +794,15 @@ export async function getAllCoins(request, reply) {
               .filter((coin) => coin.coinid === 54)
               .map((coin) => ({
                 ...coin.dataValues,
-                minSellValue: 1, // Replace with actual logic
+                minSellValue: 10, // Replace with actual logic
+                maxSellValue:500
               }))
           : coins
               .filter((coin) => coin.coinid === 54)
               .map((coin) => ({
                 ...coin.dataValues,
-                minSellValue: 1, // Replace with actual logic
+                minSellValue: 10, // Replace with actual logic
+                maxSellValue:500
               }));
 
       return reply
@@ -865,13 +867,15 @@ export async function getAllCoinsNew(request, reply) {
               .filter((coin) => coin.coinid === 54)
               .map((coin) => ({
                 ...coin.dataValues,
-                minSellValue: 1.1, // Replace with actual logic
+                minSellValue: 10, // Replace with actual logic
+                maxSellValue:500
               }))
           : coins
               .filter((coin) => coin.coinid === 54)
               .map((coin) => ({
                 ...coin.dataValues,
-                minSellValue: 1.1, // Replace with actual logic
+                minSellValue: 10, // Replace with actual logic
+                maxSellValue:500
               }));
 
       return reply
@@ -901,7 +905,8 @@ export async function getAllCurrencies(request, reply) {
     const usdt = await findRecord(Usdt, query);
     const updatedData = data.map((currency) => ({
       ...currency,
-      minSellValue: (Number(1) * Number(usdt.inrRateOfframp)).toFixed(2) ,
+      minSellValue: (Number(10) * Number(usdt.inrRateOfframp)).toFixed(2) ,
+      maxSellValue: (Number(500) * Number(usdt.inrRateOfframp)).toFixed(2) ,
     }));
     if (data) {
       return reply
