@@ -281,52 +281,67 @@ export async function sendUpdateEmailOtp(request, reply) {
   }
 }
 
-export async function sendUpdatePhoneOtp(request, reply) {
-  try {
-    const {new_phone,password} =  request.body
-    const value = new_phone
-    if (request.user.phone === value){
-      return reply
-      .status(500)
-      .send(responseMappingError(500, `Email already in use by you.`));
-    }
-    const existing_user = await User.findOne({
-      where :{
-        phone:value
-      }
-    })
+// export async function sendUpdatePhoneOtp(request, reply) {
+//   try {
+//     const {new_phone,password} =  request.body
+//     const value = new_phone
+//     if (request.user.phone === value){
+//       return reply
+//       .status(500)
+//       .send(responseMappingError(500, `Email already in use by you.`));
+//     }
+//     const existing_user = await User.findOne({
+//       where :{
+//         phone:value
+//       }
+//     })
 
-    if(existing_user){
-      return reply
-      .status(500)
-      .send(responseMappingError(500, `Email already exists.`));
-    }
+//     if(existing_user){
+//       return reply
+//       .status(500)
+//       .send(responseMappingError(500, `Email already exists.`));
+//     }
 
-    const otp = await generateOTP(`${value}`)
+//     const old_user = await User.scope("private").findOne({
+//       where:{
+//          id:request.user.id
+//       }
+//     })
 
-    const send_message = await createMessage(otp,phone)
+//     const match = await compare(password, old_user.password);
+//   if (!match)
+//     return reply
+//       .status(500)
+//       .send(responseMappingError(500, "Wrong password"));
 
-    if(!send_message){
-      return reply.status(500).send(responseMappingError(500, `Failed to send OTP.`)) 
-    }
 
 
-    return reply
-    .status(200)
-    .send(
-      responseMappingWithData(
-        200,
-        "success",
-        "Check your phone for the OTP."
-      )
-    );
-  } catch (error) {
-    console.log("user.controller.changePassword", error.message);
-    return reply
-      .status(500)
-      .send(responseMappingError(500, `Internal server error`));
-  }
-}
+//     const otp = await generateOTP(`${value}`)
+
+//     const send_message = await createMessage(otp,phone)
+
+
+//     if(!send_message){
+//       return reply.status(500).send(responseMappingError(500, `Failed to send OTP.`)) 
+//     }
+
+
+//     return reply
+//     .status(200)
+//     .send(
+//       responseMappingWithData(
+//         200,
+//         "success",
+//         "Check your phone for the OTP."
+//       )
+//     );
+//   } catch (error) {
+//     console.log("user.controller.changePassword", error.message);
+//     return reply
+//       .status(500)
+//       .send(responseMappingError(500, `Internal server error`));
+//   }
+// }
 
 export async function sendLoginOtpV2(request, reply) {
   try {
@@ -2293,6 +2308,143 @@ export async function verifyUpdateEmailOtp(request,reply){
 
 
 
+
+
+
+export async function sendUpdatePhoneOtp(request,reply){
+  try{
+    const {password,new_phone} = request.body
+    
+      if (request.user.phone_number === new_phone){
+        return reply
+        .status(500)
+        .send(responseMappingError(500, `Phone already in use by you.`));
+      }
+      const existing_user = await User.findOne({
+        where :{
+          phone_number:new_phone
+        }
+      })
+
+      if(existing_user){
+        return reply
+        .status(500)
+        .send(responseMappingError(500, `Phone already exists.`));
+      }
+
+      const user = await User.scope("private").findOne({
+        where:{
+          email:request.user.email
+        }
+      })
+    
+      if(!user){
+        return reply.status(400).send(responseMappingError(401, `Unauthorized`)) 
+      }
+        
+      const match = await compare(password, user.password);
+      if (!match)
+        return reply
+          .status(500)
+          .send(responseMappingError(500, "Wrong password"));
+
+      const otp = await generateOTP(`${new_phone}`)
+
+      const send_message = await createMessage(otp,new_phone)
+  
+      if(!send_message){
+        return reply.status(500).send(responseMappingError(500, `Failed to send OTP.`)) 
+      }
+
+
+      return reply
+      .status(200)
+      .send(
+        responseMappingWithData(
+          200,
+          "success",
+          "Check your phone for the OTP."
+        )
+      );
+
+    
+
+  }catch(error){
+    console.log('error', error)
+    return reply.status(500).send(responseMappingError(500, `Internal server error`)) 
+  }
+}
+
+
+export async function verifyUpdatePhoneOtp(request,reply){
+  try{
+    const {new_phone,otp} = request.body
+    const new_user = await User.findOne({
+      where:{
+        phone_number:new_phone
+      }
+    })
+
+    if(new_user){
+      return reply.status(500).send(responseMappingError(500, `Phone already exists`)) 
+    }
+
+    const activeOtp = await Otp.findOne({
+      where: {
+        phone_number:new_phone,
+        otp,
+        sent_at: {
+          [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
+        },
+      },
+    });
+
+    if (!activeOtp)
+      return reply
+        .status(500)
+        .send(
+          responseMappingError(500, `Invalid or expired OTP.`)
+        );
+
+  
+
+    await Otp.destroy({
+      where: { email:new_phone },
+    });
+   const user = await User.findOne({where:{
+    email:request.user.email
+   }})
+
+   if(!user){
+    return reply
+    .status(401)
+    .send(
+      responseMappingError(401, `Unauthorized`)
+    );
+   }
+
+   user.phone_number = new_phone
+   await user.save()
+
+  return reply
+   .status(200)
+   .send(
+     responseMappingWithData(
+       200,
+       "success",
+       "success"
+     )
+   );
+
+
+  }catch(error){
+    return reply
+    .status(500)
+    .send(
+      responseMappingError(500, `Internal server error`)
+    );
+  }
+}
 
 
 export async function uploadProfile(request, reply) {

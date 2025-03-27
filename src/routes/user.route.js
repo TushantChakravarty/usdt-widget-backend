@@ -332,9 +332,19 @@ const routes = async (route, options) => { // route = fastify instance
     handler:user.updateEmailByOtp
 })
 
+route.post("/sendUpdatePhoneOtp", {
+  preValidation: validateToken,
+  handler:user.sendUpdatePhoneOtp
+})
+
 route.post("/verifyUpdateEmailOtp", {
   preValidation: validateToken,
   handler:user.verifyUpdateEmailOtp
+})
+
+route.post("/verifyUpdatePhoneOtp", {
+  preValidation: validateToken,
+  handler:user.verifyUpdatePhoneOtp
 })
 
 };
