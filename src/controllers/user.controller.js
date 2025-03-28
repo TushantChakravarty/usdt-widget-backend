@@ -2396,7 +2396,7 @@ export async function verifyUpdatePhoneOtp(request,reply){
 
     const activeOtp = await Otp.findOne({
       where: {
-        email:new_phone
+        email:new_phone,
         otp,
         sent_at: {
           [Op.gte]: new Date(new Date() - 5 * 60 * 1000), // 5 minutes
