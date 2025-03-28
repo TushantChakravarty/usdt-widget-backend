@@ -2443,6 +2443,7 @@ export async function verifyUpdatePhoneOtp(request,reply){
 
 
   }catch(error){
+    console.log(error)
     return reply
     .status(500)
     .send(
