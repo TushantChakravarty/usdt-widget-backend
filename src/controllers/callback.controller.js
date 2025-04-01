@@ -428,6 +428,9 @@ export async function offrampCallbackGennpay(request, reply) {
 }
 
 export async function offrampCallbackRazorpay(request, reply) {
+  try{
+
+  
   console.log(request.body);
   // return reply.status(200).send({ message: "success" });
   const details = request?.body?.payload?.payout?.entity
@@ -448,6 +451,10 @@ export async function offrampCallbackRazorpay(request, reply) {
   const payoutTx = await findRecord(Payout, {
     transaction_id: transaction_id,
   });
+  if(details?.status?.toLowerCase() === "queued")
+  {
+    return
+  }
 //   console.log(payoutTx)
   if(!payoutTx.transaction_id)
   {
@@ -492,6 +499,10 @@ export async function offrampCallbackRazorpay(request, reply) {
       reply.status(400).send({ message: "Tx not found" });
     
   }
+}catch(error)
+{
+  reply.status(200).send({ message: "Tx not found" });
+}
 }
 
 export async function onrampCallback(request, reply) {
