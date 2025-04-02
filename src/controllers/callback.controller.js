@@ -456,10 +456,10 @@ export async function offrampCallbackRazorpay(request, reply) {
     return
   }
    console.log(payoutTx)
-  // if(!payoutTx.transaction_id)
-  // {
-  //   return reply.status(400).send({ message: "Tx not found" });
-  // }
+  if(!payoutTx.transaction_id)
+  {
+    return reply.status(400).send({ message: "Tx not found" });
+  }
   const transaction = await findRecord(OffRampTransaction, {
     reference_id: payoutTx.reference_id,
   });
