@@ -890,24 +890,30 @@ export async function generateTransaction(request, reply) {
   });
 
   console.log("exists", exists);
-  if(exists)
+  let walletAddressInstance
+  let walletAddress
+  let instance
+  if(!exists)
   {
-    return reply
-    .status(400)
-    .send(responseMappingError(400, "You already have a an active session"));
-  }
 
-  const walletAddressInstance = await WalletPoolModel.findOne({
-    where: {
-      inUse: false,
-      isActive: true
-    }
-  });
+    walletAddressInstance = await WalletPoolModel.findOne({
+      where: {
+        inUse: false,
+        isActive: true
+      }
+    });
+     instance = walletAddressInstance?.get({ plain: true });
+    walletAddress = instance.address
+  }else{
+
+    walletAddress = exists.depositAddress
+
+  }
   
-  const walletAddress = walletAddressInstance?.get({ plain: true });
+  
   console.log(walletAddress)
 
-  if (!walletAddress.address) {
+  if (!walletAddress) {
     return reply
       .status(500)
       .send(responseMappingError(500, "Please try after sometime"));
@@ -935,7 +941,7 @@ export async function generateTransaction(request, reply) {
       rate: rate,
       status: "PENDING",
       processed: "PENDING",
-      depositAddress: walletAddress?.address,
+      depositAddress: walletAddress,
       walletAddress:userWalletAddress?userWalletAddress:''
     };
 
@@ -947,7 +953,7 @@ export async function generateTransaction(request, reply) {
     if (transaction&&liveTx) {
       let dataCrypto = {
         reference_id: transactionId,
-        wallet: walletAddress?.address,
+        wallet: walletAddress,
         qrCode: tronQrCode,
         fromCurrency,
         toCurrency,
@@ -972,18 +978,23 @@ export async function generateTransaction(request, reply) {
           },
         ],
       };
-      await WalletPoolModel.update(
-        {
-          inUse: true,
-          assignedToUserId: request.user.id
-        },
-        {
-          where: {
-            id: walletAddress.id
+      if(!exists)
+      {
+
+        await WalletPoolModel.update(
+          {
+            inUse: true,
+            assignedToUserId: request.user.id,
+            lastAssignedAt: new Date()
+          },
+          {
+            where: {
+              id: instance.id
+            }
           }
-        }
-      );
-      
+        );
+        
+    }
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", dataCrypto));
