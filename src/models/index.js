@@ -22,12 +22,13 @@ import FiatAccount from "./fiat.account.model.js"
 import Otp from "./otp.model.js"
 import payoutModel from './payout.model.js';
 import payinModel from './payin.model.js';
-
 import adminModel from './admin.model.js';
 import feesModel from './fees.model.js';
 import kycModel from './kyc.model.js';
 import ValidatedAccounts from './validatedAccounts.model.js';
 import OffRampLiveTransactions from './offrampLiveTransactions.model.js';
+import WalletPoolModel from './walletPool.model.js'
+
 
 
 // Initialize the Sequelize instance
@@ -49,6 +50,7 @@ let db = {
     Kyc:kycModel(sequelize,Sequelize.DataTypes),
     ValidatedAccounts:ValidatedAccounts(sequelize,Sequelize.DataTypes),
     OffRampLiveTransactions:OffRampLiveTransactions(sequelize,Sequelize.DataTypes),
+    WalletPoolModel:WalletPoolModel(sequelize,Sequelize.DataTypes),
 
 };
 

@@ -18,7 +18,7 @@ async function processQueue(queueUrl, dlqUrl, callbackType) {
     VisibilityTimeout: 30,   
   };
 
-  //console.log(`Worker ready to process messages for ${callbackType} queue.`);
+  console.log(`Worker ready to process messages for ${callbackType} queue.`);
 
   try {
     const data = await sqs.receiveMessage(params).promise();

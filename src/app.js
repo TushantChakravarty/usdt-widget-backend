@@ -37,56 +37,12 @@ import { getRates, getRatesAfrica } from './gateways/yellowCard.js'
 //import mercuryo from "./gateways/mercuryo.js"
 import { submitCollectionRequest,acceptPaymentRequest } from './gateways/yellowCard.js'
 import { startProcessing } from './utils/sqs/worker.js'
-
-
 // import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 // import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
 // import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
 // import { sumTodaySuccessTransactions } from './services/metrics.service.js'
 process.env.TZ = "Asia/Kolkata" // set timezone
-// const data = await submitCollectionRequest({
-//     "recipient": {
-//         "name": "John Doe",
-//         "country": "Nigeria",
-//         "phone": "+2349092916898",
-//         "address": "Home Address",
-//         "dob": "02/01/1997",
-//         "idNumber": "314159",
-//         "idType": "license"
-//     },
-//     "source": {
-//         "accountType": "bank",
-//         "accountNumber": "1111111111"
-//     },
-//     "channelId": "5ad9add6-5187-46eb-9801-1cfd97a35d44",
-//     "sequenceId": "53f7c7fa-f2bb-450c-8f6d-9ff9990z998",
 
-//     "amount": 10,
-//     "currency": "ZAR",
-//     "country": "ZA",
-//     "reason": "other",
-//     "forceAccept": false,
-//     "redirectUrl":"https://usdtmarketplace.com/"
-// })
-
-// await acceptPaymentRequest(data.id)
-
-
-
-// await executePayment()
-
-// sendFundTransferRequest(
-//     '7b7d2684-ff99-46ae-9a1e-3b10fe101b6e',
-//     '753235687799',
-//     '100.00',
-//     '50100771180561',
-//     'HDFC0009640',
-//     'IMPS',
-//     {
-//         accountName: 'Tushant chakraborty',
-//         bankName: 'HDFC',
-//     }
-//   );
 /**
  * Fastify server instance
  * @type {FastifyInstance}
@@ -94,11 +50,7 @@ process.env.TZ = "Asia/Kolkata" // set timezone
 export const server = Fastify({
     logger
 })
-//generateTransaction()
-//createTronWallet()
-//verifyTransaction()
-//getRecipientAddressWeb3('5a8f3817af2446afdc359d5ba7280e7d3f7b93c4feb57fd6d711abe25c457f93')
-//getRecipientAddressUsingTronscan('5a8f3817af2446afdc359d5ba7280e7d3f7b93c4feb57fd6d711abe25c457f93')
+
 server.setErrorHandler(function (error, request, reply) {
   // Check if it's a validation error
   if (error.validation && error.validation.length > 0) {

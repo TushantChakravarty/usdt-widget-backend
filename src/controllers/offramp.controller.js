@@ -63,7 +63,8 @@ const {
   Payout,
   Usdt,
   ValidatedAccounts,
-  OffRampLiveTransactions
+  OffRampLiveTransactions,
+  WalletPoolModel
 } = db;
 
 export async function AddFiatAccountId(request, reply) {
@@ -884,19 +885,27 @@ export async function generateTransaction(request, reply) {
   }
   const verified = await verifyQuotes(request.body);
   console.log("verify check", verified);
-  const exists = await findRecordNew(OffRampLiveTransactions, {
-   walletAddress:userWalletAddress
+  // const exists = await findRecordNew(OffRampLiveTransactions, {
+  //  walletAddress:userWalletAddress
+  // });
+
+  // console.log("exists", exists);
+  // if(exists&&request.user.id!==exists.user_id)
+  // {
+  //   return reply
+  //   .status(400)
+  //   .send(responseMappingError(400, "Wallet address belongs to someone else"));
+  // }
+
+  const walletAddressInstance = await WalletPoolModel.findOne({
+    where: {
+      inUse: false,
+      isActive: true
+    }
   });
-
-  console.log("exists", exists);
-  if(exists&&request.user.id!==exists.user_id)
-  {
-    return reply
-    .status(400)
-    .send(responseMappingError(400, "Wallet address belongs to someone else"));
-  }
-
   
+  const walletAddress = walletAddressInstance?.get({ plain: true });
+  console.log(walletAddress)
 
   if (!verified) {
     return reply
@@ -920,8 +929,8 @@ export async function generateTransaction(request, reply) {
       rate: rate,
       status: "PENDING",
       processed: "PENDING",
-      depositAddress: walletAddress,
-      walletAddress:userWalletAddress
+      depositAddress: walletAddress?.address,
+      walletAddress:userWalletAddress?userWalletAddress:''
     };
 
     body.user_id = request.user.id;
@@ -932,7 +941,7 @@ export async function generateTransaction(request, reply) {
     if (transaction&&liveTx) {
       let dataCrypto = {
         reference_id: transactionId,
-        wallet: walletAddress,
+        wallet: walletAddress?.address,
         qrCode: tronQrCode,
         fromCurrency,
         toCurrency,
@@ -957,21 +966,32 @@ export async function generateTransaction(request, reply) {
           },
         ],
       };
-
+      await WalletPoolModel.update(
+        {
+          inUse: true,
+          assignedToUserId: request.user.id
+        },
+        {
+          where: {
+            id: walletAddress.id
+          }
+        }
+      );
+      
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", dataCrypto));
     } else {
       return reply
       .status(400)
-      .send(responseMappingError(400, "success","internal server error" ));
+      .send(responseMappingError(400, "failed","internal server error" ));
     }
     // Send this data to the frontend to display the QR code, or save it as an image file
   } catch (error) {
     console.error("Error generating QR code:", error);
     return reply
       .status(400)
-      .send(responseMappingError(400, "success","internal server error" ));
+      .send(responseMappingError(400, "failed","internal server error" ));
     
   }
 }

@@ -591,11 +591,10 @@ export async function callbackUsdt(request, reply)
     console.log(request.body)
     const { address, counterAddress, asset, txId, chain, amount } =  request.body;
     
-    if(asset === "USDT_TRON"&&address==process.env.walletAddress&&chain==="tron-mainnet")
+    if(asset === "USDT_TRON"&&chain==="tron-mainnet")
       {
         const transactionData = await findRecordNew(OffRampLiveTransactions, {
-          walletAddress:counterAddress,
-          fromAmount:amount,
+          depositAddress:address
         })
         const user = await findRecordNew(User,{
           id:transactionData?.user_id
@@ -612,6 +611,8 @@ export async function callbackUsdt(request, reply)
           reference_id:transactionData?.reference_id,
           txHash:txId,
           user:user,
+          depositAddress:address
+
         }
         const enqueue_data = await enqueueCallback(body,"verifyTransaction")
         console.log(`✅ New USDT deposit detected! TxHash: ${txId}, From: ${counterAddress}, Amount: ${amount} USDT`);

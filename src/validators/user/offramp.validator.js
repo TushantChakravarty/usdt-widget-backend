@@ -19,15 +19,15 @@ export const createOfframp = {
             fromAmount: { type: 'number' },
             toAmount: { type: 'number' },
             rate: { type: 'number' },
-            userWalletAddress: { 
-                type: 'string', 
-                minLength: 34, 
-                maxLength: 34,
-                pattern: "^T[a-zA-Z0-9]{33}$" // Ensures it starts with "T" and has 34 characters
-            },
+            // userWalletAddress: { 
+            //     type: 'string', 
+            //     minLength: 34, 
+            //     maxLength: 34,
+            //     pattern: "^T[a-zA-Z0-9]{33}$" // Ensures it starts with "T" and has 34 characters
+            // },
         },
-        required: ["fromCurrency", "toCurrency", "chain", "fiatAccountId", "fromAmount", "toAmount", "rate", "userWalletAddress"],
-        additionalProperties: false,
+        required: ["fromCurrency", "toCurrency", "chain", "fiatAccountId", "fromAmount", "toAmount", "rate"],
+        additionalProperties: true,
     },
     validate: (data) => {
         if (!TronWeb.isAddress(data.userWallet)) {

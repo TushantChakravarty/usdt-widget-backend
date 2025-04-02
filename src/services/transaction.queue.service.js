@@ -371,6 +371,8 @@ export async function verifyTransaction(request) {
       fromAmount,
       reference_id,
       txHash,
+      user,
+      depositAddress
     } = request;
 
    
@@ -493,7 +495,7 @@ export async function verifyTransaction(request) {
       if (
         expectedAmountInSun.toString() == actualAmount.toString() &&
         transactionStatus === "SUCCESS" &&
-        recipientAddress == walletAddress
+        recipientAddress == depositAddress
       ) {
         console.log(
           "Transaction is valid, amount matches, and the transaction was successful."
@@ -605,6 +607,12 @@ export async function verifyTransaction(request) {
           //   //razorpay payouts end
           console.log(payoutRequest);
           if (payoutRequest.code == 200 && payoutRequest.data.transaction_id) {
+            await OffRampLiveTransactions.destroy({
+              where: {
+                reference_id: reference_id
+              }
+            });
+            
             let updatedData = {
               name: fiatAccount.account_name,
               email: request.user.email,
