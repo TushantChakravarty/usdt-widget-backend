@@ -63,7 +63,8 @@ const {
   Payout,
   Usdt,
   ValidatedAccounts,
-  OffRampLiveTransactions
+  OffRampLiveTransactions,
+  WalletPoolModel
 } = db;
 
 export async function AddFiatAccountId(request, reply) {
@@ -885,18 +886,38 @@ export async function generateTransaction(request, reply) {
   const verified = await verifyQuotes(request.body);
   console.log("verify check", verified);
   const exists = await findRecordNew(OffRampLiveTransactions, {
-   walletAddress:userWalletAddress
+    user_id:request.user.id
   });
 
   console.log("exists", exists);
-  if(exists&&request.user.id!==exists.user_id)
+  let walletAddressInstance
+  let walletAddress
+  let instance
+  if(!exists)
   {
-    return reply
-    .status(400)
-    .send(responseMappingError(400, "Wallet address belongs to someone else"));
-  }
 
+    walletAddressInstance = await WalletPoolModel.findOne({
+      where: {
+        inUse: false,
+        isActive: true
+      }
+    });
+     instance = walletAddressInstance?.get({ plain: true });
+    walletAddress = instance.address
+  }else{
+
+    walletAddress = exists.depositAddress
+
+  }
   
+  
+  console.log(walletAddress)
+
+  if (!walletAddress) {
+    return reply
+      .status(500)
+      .send(responseMappingError(500, "Please try after sometime"));
+  }
 
   if (!verified) {
     return reply
@@ -921,7 +942,7 @@ export async function generateTransaction(request, reply) {
       status: "PENDING",
       processed: "PENDING",
       depositAddress: walletAddress,
-      walletAddress:userWalletAddress
+      walletAddress:userWalletAddress?userWalletAddress:''
     };
 
     body.user_id = request.user.id;
@@ -957,21 +978,88 @@ export async function generateTransaction(request, reply) {
           },
         ],
       };
+      if(!exists)
+      {
 
+        await WalletPoolModel.update(
+          {
+            inUse: true,
+            assignedToUserId: request.user.id,
+            lastAssignedAt: new Date()
+          },
+          {
+            where: {
+              id: instance.id
+            }
+          }
+        );
+        
+    }
       return reply
         .status(200)
         .send(responseMappingWithData(200, "success", dataCrypto));
     } else {
       return reply
       .status(400)
-      .send(responseMappingError(400, "success","internal server error" ));
+      .send(responseMappingError(400, "failed","internal server error" ));
     }
     // Send this data to the frontend to display the QR code, or save it as an image file
   } catch (error) {
     console.error("Error generating QR code:", error);
     return reply
       .status(400)
-      .send(responseMappingError(400, "success","internal server error" ));
+      .send(responseMappingError(400, "failed","internal server error" ));
+    
+  }
+}
+
+export async function quitSession(request, reply) {
+  // const transactionHash = await preGenerateTransaction("TN7Nh9nNHW9he4mP7FXwEcDM6jMeY7i3vp",10)
+  // console.log(transactionHash)
+  
+  const {reference_id, depositAddress} = request.body
+  if (!request.user) {
+    return reply.status(401).send(responseMappingError(401, "Invalid request"));
+  }
+
+  if (!request?.user?.isKycCompleted) {
+    return reply.status(400).send(responseMappingError(400, "please complete KYC first"));
+  }
+
+try{
+    const transaction = await OffRampTransaction.destroy({
+      where:{
+        reference_id:reference_id
+      }
+    })
+    const liveTx = await OffRampLiveTransactions.destroy({
+      where:{
+        reference_id:reference_id
+      }
+    })
+
+      await WalletPoolModel.update(
+        {
+          inUse: false,
+          assignedToUserId: null
+        },
+        {
+          where: {
+            address: depositAddress
+          }
+        }
+      );
+      
+      return reply
+        .status(200)
+        .send(responseMappingWithData(200, "success", "success"));
+  
+    // Send this data to the frontend to display the QR code, or save it as an image file
+  } catch (error) {
+    console.error("Error quitting session:", error);
+    return reply
+      .status(400)
+      .send(responseMappingError(400, "failed","internal server error" ));
     
   }
 }

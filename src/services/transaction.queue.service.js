@@ -66,7 +66,8 @@ const {
   Payout,
   Usdt,
   ValidatedAccounts,
-  OffRampLiveTransactions
+  OffRampLiveTransactions,
+  WalletPoolModel
 } = db;
 
 // export async function verifyTransaction(details) {
@@ -371,6 +372,8 @@ export async function verifyTransaction(request) {
       fromAmount,
       reference_id,
       txHash,
+      user,
+      depositAddress
     } = request;
 
    
@@ -493,7 +496,7 @@ export async function verifyTransaction(request) {
       if (
         expectedAmountInSun.toString() == actualAmount.toString() &&
         transactionStatus === "SUCCESS" &&
-        recipientAddress == walletAddress
+        recipientAddress == depositAddress
       ) {
         console.log(
           "Transaction is valid, amount matches, and the transaction was successful."
@@ -513,11 +516,11 @@ export async function verifyTransaction(request) {
           updateDetails
         );
         if (transaction) {
-          await OffRampLiveTransactions.destroy({
-            where: {
-              reference_id: reference_id.toString(),
-            },
-          });
+          // await OffRampLiveTransactions.destroy({
+          //   where: {
+          //     reference_id: reference_id.toString(),
+          //   },
+          // });
           const fiatAccount = await findRecord(FiatAccount, {
             fiatAccountId: transaction.fiatAccountId,
           });
@@ -605,6 +608,24 @@ export async function verifyTransaction(request) {
           //   //razorpay payouts end
           console.log(payoutRequest);
           if (payoutRequest.code == 200 && payoutRequest.data.transaction_id) {
+            await OffRampLiveTransactions.destroy({
+              where: {
+                reference_id: reference_id
+              }
+            });
+
+            await WalletPoolModel.update(
+              {
+                inUse: false,
+                assignedToUserId: null
+              },
+              {
+                where: {
+                  address: depositAddress
+                }
+              }
+            );
+            
             let updatedData = {
               name: fiatAccount.account_name,
               email: request.user.email,
