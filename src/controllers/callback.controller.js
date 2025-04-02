@@ -594,8 +594,10 @@ export async function callbackUsdt(request, reply)
     if(asset === "USDT_TRON"&&chain==="tron-mainnet")
       {
         const transactionData = await OffRampLiveTransactions.findOne({
-          depositAddress: address,
-          fromAmount: amount
+          where:{
+            depositAddress: address,
+            fromAmount: amount
+          }
         }).sort({ createdAt: -1 });
         const user = await findRecordNew(User,{
           id:transactionData?.user_id
