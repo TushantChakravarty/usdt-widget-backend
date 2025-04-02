@@ -598,7 +598,7 @@ export async function callbackUsdt(request, reply)
             depositAddress: address,
             fromAmount: amount
           },
-          order: [['createdAt', 'DESC']]
+          order: [['date', 'DESC'], ['time', 'DESC']]
         });
         const user = await findRecordNew(User,{
           id:transactionData?.user_id
