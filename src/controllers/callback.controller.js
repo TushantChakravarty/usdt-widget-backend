@@ -455,11 +455,11 @@ export async function offrampCallbackRazorpay(request, reply) {
   {
     return
   }
-//   console.log(payoutTx)
-  if(!payoutTx.transaction_id)
-  {
-    reply.status(400).send({ message: "Tx not found" });
-  }
+   console.log(payoutTx)
+  // if(!payoutTx.transaction_id)
+  // {
+  //   return reply.status(400).send({ message: "Tx not found" });
+  // }
   const transaction = await findRecord(OffRampTransaction, {
     reference_id: payoutTx.reference_id,
   });
@@ -479,7 +479,7 @@ export async function offrampCallbackRazorpay(request, reply) {
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
         sendMailForSuccessPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.chain, transaction?.txHash, payoutTx?.email)
-        reply.status(200).send({ message: "success" });
+        return reply.status(200).send({ message: "success" });
       }
     } else {
       transaction.processed = "FAILED";
@@ -491,17 +491,17 @@ export async function offrampCallbackRazorpay(request, reply) {
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
         sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.chain, transaction?.txHash, payoutTx?.email)
-        reply.status(200).send({ message: "success" });
+        return reply.status(200).send({ message: "success" });
       }
     }
   } else {
    
-      reply.status(400).send({ message: "Tx not found" });
+      return reply.status(400).send({ message: "Tx not found" });
     
   }
 }catch(error)
 {
-  reply.status(200).send({ message: "Tx not found" });
+  return reply.status(200).send({ message: "Tx not found" });
 }
 }
 
