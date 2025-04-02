@@ -29,11 +29,19 @@ export const createOfframp = {
         required: ["fromCurrency", "toCurrency", "chain", "fiatAccountId", "fromAmount", "toAmount", "rate"],
         additionalProperties: true,
     },
-    validate: (data) => {
-        if (!TronWeb.isAddress(data.userWallet)) {
-            throw new Error("Invalid TRON wallet address");
-        }
-    }
+}
+
+export const quitSession = {
+    body: {
+        type: 'object',
+        properties: {
+            reference_id: { type: 'string', minLength: 1, maxLength: 20 },
+            depositAddress: { type: 'string', minLength: 1 },
+           
+        },
+        required: ["reference_id", "depositAddress"],
+        additionalProperties: true,
+    },
 }
 
 export const verifyTransaction = {

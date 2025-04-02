@@ -885,17 +885,17 @@ export async function generateTransaction(request, reply) {
   }
   const verified = await verifyQuotes(request.body);
   console.log("verify check", verified);
-  // const exists = await findRecordNew(OffRampLiveTransactions, {
-  //  walletAddress:userWalletAddress
-  // });
+  const exists = await findRecordNew(OffRampLiveTransactions, {
+    user_id:request.user.id
+  });
 
-  // console.log("exists", exists);
-  // if(exists&&request.user.id!==exists.user_id)
-  // {
-  //   return reply
-  //   .status(400)
-  //   .send(responseMappingError(400, "Wallet address belongs to someone else"));
-  // }
+  console.log("exists", exists);
+  if(exists)
+  {
+    return reply
+    .status(400)
+    .send(responseMappingError(400, "You already have a an active session"));
+  }
 
   const walletAddressInstance = await WalletPoolModel.findOne({
     where: {
@@ -910,7 +910,7 @@ export async function generateTransaction(request, reply) {
   if (!walletAddress.address) {
     return reply
       .status(500)
-      .send(responseMappingError(500, "Internal server error"));
+      .send(responseMappingError(500, "Please try after sometime"));
   }
 
   if (!verified) {
@@ -995,6 +995,57 @@ export async function generateTransaction(request, reply) {
     // Send this data to the frontend to display the QR code, or save it as an image file
   } catch (error) {
     console.error("Error generating QR code:", error);
+    return reply
+      .status(400)
+      .send(responseMappingError(400, "failed","internal server error" ));
+    
+  }
+}
+
+export async function quitSession(request, reply) {
+  // const transactionHash = await preGenerateTransaction("TN7Nh9nNHW9he4mP7FXwEcDM6jMeY7i3vp",10)
+  // console.log(transactionHash)
+  
+  const {reference_id, depositAddress} = request.body
+  if (!request.user) {
+    return reply.status(401).send(responseMappingError(401, "Invalid request"));
+  }
+
+  if (!request?.user?.isKycCompleted) {
+    return reply.status(400).send(responseMappingError(400, "please complete KYC first"));
+  }
+
+try{
+    const transaction = await OffRampTransaction.destroy({
+      where:{
+        reference_id:reference_id
+      }
+    })
+    const liveTx = await OffRampLiveTransactions.destroy({
+      where:{
+        reference_id:reference_id
+      }
+    })
+
+      await WalletPoolModel.update(
+        {
+          inUse: false,
+          assignedToUserId: null
+        },
+        {
+          where: {
+            address: depositAddress
+          }
+        }
+      );
+      
+      return reply
+        .status(200)
+        .send(responseMappingWithData(200, "success", "success"));
+  
+    // Send this data to the frontend to display the QR code, or save it as an image file
+  } catch (error) {
+    console.error("Error quitting session:", error);
     return reply
       .status(400)
       .send(responseMappingError(400, "failed","internal server error" ));

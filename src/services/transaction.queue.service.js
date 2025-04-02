@@ -621,7 +621,7 @@ export async function verifyTransaction(request) {
               },
               {
                 where: {
-                  address: walletAddress
+                  address: depositAddress
                 }
               }
             );
