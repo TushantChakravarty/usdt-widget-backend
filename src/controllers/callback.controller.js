@@ -595,7 +595,7 @@ export async function callbackUsdt(request, reply)
       {
         const transactionData = await findRecordNew(OffRampLiveTransactions, {
           depositAddress:address,
-          amount:amount
+          fromAmount:amount
         })
         const user = await findRecordNew(User,{
           id:transactionData?.user_id
