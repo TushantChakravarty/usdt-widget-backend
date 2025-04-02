@@ -17,32 +17,32 @@ const { User, OnRampTransaction, OffRampTransaction, Payout, Payin, OffRampLiveT
  * @returns {CronJob}
  * @see {@link https://www.npmjs.com/package/cron}
  */
-const Every1HourCronJob = new CronJob("0 * * * *", async () => {
-    try {
-        console.log("Hourly cron job starting for quotes");
-        const body = {
-            fromCurrency: "INR",
-            toCurrency: "USDT",
-            fromAmount: "1000",
-            chain: "erc20",
-            paymentMethodType: "UPI"
-        };
-        const bodyOfframp = 
-            {
-                "fromCurrency":"USDT",
-                "toCurrency":"INR",
-                "fromAmount":"10",
-                "chain":"trc20"
-            }
+// const Every1HourCronJob = new CronJob("0 * * * *", async () => {
+//     try {
+//         console.log("Hourly cron job starting for quotes");
+//         const body = {
+//             fromCurrency: "INR",
+//             toCurrency: "USDT",
+//             fromAmount: "1000",
+//             chain: "erc20",
+//             paymentMethodType: "UPI"
+//         };
+//         const bodyOfframp = 
+//             {
+//                 "fromCurrency":"USDT",
+//                 "toCurrency":"INR",
+//                 "fromAmount":"10",
+//                 "chain":"trc20"
+//             }
         
-        await getQuotes(body); 
-        await getQuotesOfframp(bodyOfframp)
-         // Make sure to await asynchronous functions
-        console.log("Hourly cron job end");
-    } catch (err) {
-        console.error(`HourlyCronJob error: ${err}`);  // Changed logger.error to console.error for simplicity
-    }
-}, null, true, "Asia/Kolkata");
+//         await getQuotes(body); 
+//         await getQuotesOfframp(bodyOfframp)
+//          // Make sure to await asynchronous functions
+//         console.log("Hourly cron job end");
+//     } catch (err) {
+//         console.error(`HourlyCronJob error: ${err}`);  // Changed logger.error to console.error for simplicity
+//     }
+// }, null, true, "Asia/Kolkata");
 
 const FifteenMinuteCleanupJob = new CronJob("*/1 * * * *", async () => {
     try {
