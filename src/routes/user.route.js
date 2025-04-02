@@ -17,6 +17,7 @@ import { validateToken } from "../utils/jwt.util";
 import Validator from "../validators";
 
 const { User: user } = Controller;
+const {HelpAndSupport:help} = Controller
 const { User: validator } = Validator;
 
 const routes = async (route, options) => { // route = fastify instance
@@ -345,6 +346,12 @@ route.post("/verifyUpdateEmailOtp", {
 route.post("/verifyUpdatePhoneOtp", {
   preValidation: validateToken,
   handler:user.verifyUpdatePhoneOtp
+})
+
+
+route.post("/createQuery", {
+  preValidation: validateToken,
+  handler:help.createTicket
 })
 
 };

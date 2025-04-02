@@ -45,6 +45,48 @@ export async function sendMail(email,subject,templateName,data){
 }
 
 
+export async function sendMailSupport(email,subject,templateName,data){
+  try{
+      const transporter = nodemailer.createTransport({
+          host: "mail.privateemail.com",
+          port: 587, // Use 465 for secure connection
+          secure: false, // Set to true if using port 465
+          auth: {
+            user: process.env.SENDER_EMAIL,
+            pass: process.env.SENDER_EMAIL_PASSWORD,
+          },
+          tls: {
+            rejectUnauthorized: false, // Helps with self-signed certificates
+          },
+        });
+
+        let html = emailTemplates[templateName];
+      if (!html) throw new Error('Template not found');
+
+      // Replace placeholders with actual data
+      html = html.replace(/\{\{(.*?)\}\}/g, (_, key) => data[key.trim()] || '');
+
+        const mailOptions = {
+          from: {
+            name: "USDT MARKETPLACE",
+            address: process.env.SENDER_EMAIL,
+          },
+          to: email,
+          subject: subject,
+          html: html,
+        };
+        await transporter.sendMail(mailOptions);
+        return true
+
+
+  }catch(error){
+      console.log(`sendMail.${error.message}`)
+      return false
+  }
+}
+
+
+
 export async function sendMailForFailedPayment(transactionId,amount,localCurrency,cryptoAmount,cryptoType,hash,email){
   try{
 const transporter = nodemailer.createTransport({

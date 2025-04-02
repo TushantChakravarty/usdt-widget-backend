@@ -12,10 +12,11 @@ import * as Kyc from "./kyc.controller.js"
 import * as OfframpAfrica from "./offramp.africa.controller.js"
 import * as OnRampAfrica from "./onramp.africa.controller.js"
 import * as CallbackAfrica from "./callback.africa.controller.js"
+import * as HelpAndSupport from "./help.controller.js"
 
 
 const Controller = {
-    User, Callback, Onramp, Offramp,Admin,Kyc,OfframpAfrica,OnRampAfrica,CallbackAfrica
+    User, Callback, Onramp, Offramp,Admin,Kyc,OfframpAfrica,OnRampAfrica,CallbackAfrica,HelpAndSupport
 }
 
 export default Controller

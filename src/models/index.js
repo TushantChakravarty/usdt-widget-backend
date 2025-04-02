@@ -28,6 +28,7 @@ import feesModel from './fees.model.js';
 import kycModel from './kyc.model.js';
 import ValidatedAccounts from './validatedAccounts.model.js';
 import OffRampLiveTransactions from './offrampLiveTransactions.model.js';
+import HelpAndSupport from './help.model.js'
 
 
 // Initialize the Sequelize instance
@@ -35,6 +36,7 @@ const sequelize = new Sequelize(config);
 
 let db = {
     User: User(sequelize, Sequelize.DataTypes),
+    HelpAndSupport: HelpAndSupport(sequelize, Sequelize.DataTypes),
     Coin: Coin(sequelize, Sequelize.DataTypes),
     OnRampTransaction: OnRampTransaction(sequelize, Sequelize.DataTypes),
     Network: Network(sequelize, Sequelize.DataTypes),
