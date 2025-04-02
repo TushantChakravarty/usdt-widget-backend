@@ -44,6 +44,20 @@ const routes = async (route, options) => { // route = fastify instance
     handler: offramp.generateTransaction,
   });
 
+    /**
+ * Route for getting all supported networks
+ * Handles getting all supported networks data
+ */
+    route.post('/quitSession', {
+      //schema: validator.updatePhone,
+      // onRequest: [
+      //   route.authenticate
+      // ],
+      schema: validator.quitSession,
+      preValidation: validateToken,
+      handler: offramp.quitSession,
+    });
+
 
   /**
  * Route for getting all supported networks

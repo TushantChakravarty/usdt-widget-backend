@@ -16,7 +16,8 @@ export const tronWeb = new TronWeb({
 import Web3 from "web3";
 import axios from "axios";
 const USDTaddress = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-
+import db from '../models/index.js'; // Adjust based on your setup
+const { WalletPoolModel } = db;
 // Function to get or mint USDT (if the contract supports minting)
 export async function getUSDT() {
   try {
@@ -243,3 +244,53 @@ export async function getRecipientAddressUsingTronscan(txHash) {
     return null;
   }
 }
+
+export const generateTronAccounts = async (count = 5) => {
+  const tronWeb = new TronWeb({
+    fullHost: 'https://api.trongrid.io',
+  });
+
+  const promises = [];
+  
+  for (let i = 0; i < count; i++) {
+    promises.push(tronWeb.createAccount());
+  }
+
+  const createdAccounts = await Promise.all(promises);
+
+  const recordsToInsert = createdAccounts.map(acc => ({
+    address: acc.address.base58,
+    privateKey: acc.privateKey,
+    isActive: false,
+    inUse: false,
+    assignedToUserId: null,
+    lastAssignedAt: null,
+  }));
+
+  await WalletPoolModel.bulkCreate(recordsToInsert);
+  console.log(`${recordsToInsert.length} TRON accounts saved to pool.`);
+
+  return recordsToInsert;
+};
+
+
+export const activateAccount = async () => {
+ 
+  const toBeActivated = await WalletPoolModel.findAll({
+    where: {
+      isActive: false
+    }
+  });
+  
+
+  console.log('to be activated',toBeActivated)
+  toBeActivated.map(async (acc)=>{
+    console.log('acc checksssss',acc)
+    const tx = await tronWeb.transactionBuilder.sendTrx(acc.address, 1000000); // 1 TRX in SUN
+    const signedTx = await tronWeb.trx.sign(tx);
+    const result = await tronWeb.trx.sendRawTransaction(signedTx);
+    console.log("result check", result)
+  })
+
+  // return result;
+};
