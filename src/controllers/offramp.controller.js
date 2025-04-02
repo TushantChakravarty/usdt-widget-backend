@@ -907,6 +907,12 @@ export async function generateTransaction(request, reply) {
   const walletAddress = walletAddressInstance?.get({ plain: true });
   console.log(walletAddress)
 
+  if (!walletAddress.address) {
+    return reply
+      .status(500)
+      .send(responseMappingError(500, "Internal server error"));
+  }
+
   if (!verified) {
     return reply
       .status(400)

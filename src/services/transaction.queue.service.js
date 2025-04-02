@@ -66,7 +66,8 @@ const {
   Payout,
   Usdt,
   ValidatedAccounts,
-  OffRampLiveTransactions
+  OffRampLiveTransactions,
+  WalletPoolModel
 } = db;
 
 // export async function verifyTransaction(details) {
@@ -515,11 +516,11 @@ export async function verifyTransaction(request) {
           updateDetails
         );
         if (transaction) {
-          await OffRampLiveTransactions.destroy({
-            where: {
-              reference_id: reference_id.toString(),
-            },
-          });
+          // await OffRampLiveTransactions.destroy({
+          //   where: {
+          //     reference_id: reference_id.toString(),
+          //   },
+          // });
           const fiatAccount = await findRecord(FiatAccount, {
             fiatAccountId: transaction.fiatAccountId,
           });
@@ -612,6 +613,18 @@ export async function verifyTransaction(request) {
                 reference_id: reference_id
               }
             });
+
+            await WalletPoolModel.update(
+              {
+                inUse: false,
+                assignedToUserId: null
+              },
+              {
+                where: {
+                  address: walletAddress
+                }
+              }
+            );
             
             let updatedData = {
               name: fiatAccount.account_name,
