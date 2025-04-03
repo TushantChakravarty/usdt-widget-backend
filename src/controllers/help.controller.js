@@ -50,15 +50,16 @@ export async function signup(request, reply) {
 
 export async function createTicket(request,reply){
   try{
-    const { title , description} = request.body
+    const { email,title , description} = request.body
     const created = await HelpAndSupport.create({
-      user_id: request.user.id,
+      email:email,
       title:title,
       description:description
     })
      const email_sent =  await sendMail("dev@gsxsolutions.com", 'Support', 'helpAndSupport', {
         title:title,
-        description:description
+        description:description,
+        email:email
       })
 
       if(!email_sent){

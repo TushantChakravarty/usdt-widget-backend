@@ -166,7 +166,7 @@ export const emailTemplates = {
     <h2 style="text-align: center; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">USDT Marketplace - Help & Support</h2>
     
     <p style="font-size: 16px; line-height: 1.5;">Hello,</p>
-    <p style="font-size: 16px; line-height: 1.5;">You have a new support message regarding:</p>
+    <p style="font-size: 16px; line-height: 1.5;">You have a new support message regarding: {{email}}</p>
 
     <div style="text-align: center; padding: 20px; margin: 20px 0; background-color: #f1f1f1; border-radius: 8px;">
       <h3 style="font-size: 24px; font-weight: bold; color: #007bff; margin: 0;">{{title}}</h3>

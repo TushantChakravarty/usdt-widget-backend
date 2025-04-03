@@ -10,9 +10,8 @@ export default (sequelize, DataTypes) => {
 
     HelpAndSupport.init(
         {
-            user_id:{
-                type: DataTypes.INTEGER,
-                allowNull: false
+            email:{
+              type :DataTypes.STRING,
             },
             title:{
               type :DataTypes.STRING,
@@ -20,8 +19,6 @@ export default (sequelize, DataTypes) => {
             description:{
               type :DataTypes.TEXT,
             }
-
-
         },
         {
             sequelize,

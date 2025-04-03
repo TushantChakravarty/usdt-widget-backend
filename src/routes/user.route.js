@@ -350,7 +350,6 @@ route.post("/verifyUpdatePhoneOtp", {
 
 
 route.post("/createQuery", {
-  preValidation: validateToken,
   handler:help.createTicket
 })
 
