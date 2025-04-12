@@ -1565,6 +1565,10 @@ export async function offrampRetry(request, reply) {
       return reply.status(400).send(responseMappingError(400,"Transaction is already processed"));
 
     }
+    if(!offramp?.txHash)
+    {
+      return reply.status(400).send(responseMappingError(400,"Invalid transaction"));
+    }
 
     if (sentFiatAccount) {
       const fiatAccountexist = await FiatAccount.findOne({
