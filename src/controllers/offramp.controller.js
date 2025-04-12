@@ -1583,20 +1583,41 @@ export async function offrampRetry(request, reply) {
         return reply.status(400).send(responseMappingError(400, "Account doesn't belong to user"));
       }
 
-      const transactionID = generateTransactionId();
+      // const transactionID = generateTransactionId();
 
-      const payoutRequest = await sendFundTransferRequest(
-        process.env.GENNPAYAPIKEY,
-        transactionID.toString(),
-        offramp.toAmount.toString(),
-        fiatAccountexist.fiatAccount,
-        fiatAccountexist.ifsc,
-        "IMPS",
-        {
-          accountName: fiatAccountexist.account_name,
-          bankName: fiatAccountexist.bank_name,
-        }
-      );
+      // const payoutRequest = await sendFundTransferRequest(
+      //   process.env.GENNPAYAPIKEY,
+      //   transactionID.toString(),
+      //   offramp.toAmount.toString(),
+      //   fiatAccountexist.fiatAccount,
+      //   fiatAccountexist.ifsc,
+      //   "IMPS",
+      //   {
+      //     accountName: fiatAccountexist.account_name,
+      //     bankName: fiatAccountexist.bank_name,
+      //   }
+      // );
+      const phone = request.user.phone.replace("+91-", "");
+
+      let body = {
+        id:request.user.customerId,
+        emailId: request.user.email,
+        amount: offramp.toAmount.toString(),
+        customer_name: "tushant",
+        customer_email: request.user.email,
+        customer_phone: phone,
+        account_number: fiatAccountexist.fiatAccount,
+        customer_upiId: "success@upi",
+        bank_ifsc: fiatAccountexist.ifsc,
+        account_name: fiatAccountexist.account_name,
+        bank_name: fiatAccountexist.bank_name,
+        customer_address: "xyz",
+        method: "bank",
+        transaction_id: offramp?.reference_id.toString(),
+      };
+      const payoutRequest = await createRazorpayPayoutService(body)
+
+
 
       payoutTx.transaction_id = payoutRequest.data.transaction_id.toString();
       payoutTx.payout_id = payoutRequest.data.transaction_id.toString();
@@ -1619,20 +1640,39 @@ export async function offrampRetry(request, reply) {
       if (fiatAccountexist) {
         return reply.status(400).send(responseMappingError(400, "Account already exists"));
       }
-      const transactionID = generateTransactionId();
+      // const transactionID = generateTransactionId();
 
-      const payoutRequest = await sendFundTransferRequest(
-        process.env.GENNPAYAPIKEY,
-        transactionID.toString(),
-        offramp.toAmount.toString(),
-        fiatAccount?.toString(),
-        ifsc,
-        "IMPS",
-        {
-          accountName: accountName,
-          bankName: bankName,
-        }
-      );
+      // const payoutRequest = await sendFundTransferRequest(
+      //   process.env.GENNPAYAPIKEY,
+      //   transactionID.toString(),
+      //   offramp.toAmount.toString(),
+      //   fiatAccount?.toString(),
+      //   ifsc,
+      //   "IMPS",
+      //   {
+      //     accountName: accountName,
+      //     bankName: bankName,
+      //   }
+      // );
+      const phone = request.user.phone.replace("+91-", "");
+      let body = {
+        id:request.user.customerId,
+        emailId: request.user.email,
+        amount: offramp.toAmount.toString(),
+        customer_name: "tushant",
+        customer_email: request.user.email,
+        customer_phone: phone,
+        account_number: fiatAccount,
+        customer_upiId: "success@upi",
+        bank_ifsc: ifsc,
+        account_name: accountName,
+        bank_name: bankName,
+        customer_address: "xyz",
+        method: "bank",
+        transaction_id: offramp?.reference_id.toString(),
+      };
+      const payoutRequest = await createRazorpayPayoutService(body)
+
 
       payoutTx.transaction_id = payoutRequest.data.transaction_id.toString();
       payoutTx.payout_id = payoutRequest.data.transaction_id.toString();
