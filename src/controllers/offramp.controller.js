@@ -1550,6 +1550,10 @@ export async function offrampRetry(request, reply) {
         return reply.status(400).send(responseMappingError(400,"Transaction does not exist"));
       }
 
+      if (payoutTx && payoutTx?.status === "SUCCESS") {
+        return reply.status(400).send(responseMappingError(400,"Transaction is already processed"));
+      }
+
     if (
       offramp &&
       offramp?.user_id!==request?.user?.id
