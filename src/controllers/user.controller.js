@@ -2310,12 +2310,6 @@ export async function verifyUpdateEmailOtp(request,reply){
   }
 }
 
-
-
-
-
-
-
 export async function sendUpdatePhoneOtp(request,reply){
   try{
     const {password,new_phone} = request.body
