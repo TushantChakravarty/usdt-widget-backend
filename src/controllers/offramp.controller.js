@@ -1610,7 +1610,7 @@ export async function offrampRetry(request, reply) {
       let body = {
         id:request.user.customerId,
         emailId: request.user.email,
-        amount: 100,
+        amount: offramp.toAmount.toString(),
         customer_name: "tushant",
         customer_email: request.user.email,
         customer_phone: phone,
@@ -1670,7 +1670,7 @@ export async function offrampRetry(request, reply) {
       let body = {
         id:request.user.customerId,
         emailId: request.user.email,
-        amount: 100,
+        amount: offramp.toAmount.toString(),
         customer_name: "tushant",
         customer_email: request.user.email,
         customer_phone: phone,
