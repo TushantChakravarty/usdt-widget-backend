@@ -1610,7 +1610,7 @@ export async function offrampRetry(request, reply) {
       let body = {
         id:request.user.customerId,
         emailId: request.user.email,
-        amount: offramp.toAmount.toString(),
+        amount: 100,
         customer_name: "tushant",
         customer_email: request.user.email,
         customer_phone: phone,
@@ -1629,6 +1629,10 @@ export async function offrampRetry(request, reply) {
 
       payoutTx.transaction_id = payoutRequest.data.transaction_id.toString();
       payoutTx.payout_id = payoutRequest.data.transaction_id.toString();
+      payoutTx.status= "PENDING";
+      offramp.status = "PENDING";
+      offramp.processed = "PENDING";
+      await offramp.save()
       await payoutTx.save();
       return reply
               .status(200)
@@ -1666,7 +1670,7 @@ export async function offrampRetry(request, reply) {
       let body = {
         id:request.user.customerId,
         emailId: request.user.email,
-        amount: offramp.toAmount.toString(),
+        amount: 100,
         customer_name: "tushant",
         customer_email: request.user.email,
         customer_phone: phone,
@@ -1684,6 +1688,10 @@ export async function offrampRetry(request, reply) {
 
       payoutTx.transaction_id = payoutRequest.data.transaction_id.toString();
       payoutTx.payout_id = payoutRequest.data.transaction_id.toString();
+      payoutTx.status= "PENDING";
+      offramp.status = "PENDING";
+      offramp.processed = "PENDING";
+      await offramp.save()
       await payoutTx.save();
       return reply
               .status(200)
@@ -1693,7 +1701,7 @@ export async function offrampRetry(request, reply) {
 
     }
   } catch (error) {
-    console.log(error.message)
+    console.log("error",error.message)
 
     reply.status(500).send(responseMappingError(500, `Sorry your sell request didn’t work. Please try again`));
   }
