@@ -226,7 +226,7 @@ export async function getFeesData(request, reply) {
 /**
  * get all usdt rates
  * @controller admin
- * @route POST /api/v1/admin/getRates
+ * @route POST /api/v1/user/getRates
  * @param {Object} request - The request object.
  * @param {Object} reply - The reply object.
  * @throws {Error} If an error occurs while logging in.
