@@ -17,6 +17,8 @@ import { validateToken } from "../utils/jwt.util";
 import Validator from "../validators";
 
 const { User: user } = Controller;
+const { Admin: admin } = Controller;
+
 const {HelpAndSupport:help} = Controller
 const { User: validator } = Validator;
 
@@ -352,6 +354,11 @@ route.post("/verifyUpdatePhoneOtp", {
 route.post("/createQuery", {
   handler:help.createTicket
 })
+
+route.get("/getRates", {
+  handler: admin.getRatesData
+})
+
 
 };
 
