@@ -676,7 +676,7 @@ export async function callbackUsdt(request, reply) {
         reference_id: transactionData?.reference_id,
         txHash: txId,
         user: user,
-        depositAddress: address,
+        depositAddress: counterAddress,
       };
       const enqueue_data = await enqueueCallback(body, "verifyTransaction");
       console.log(

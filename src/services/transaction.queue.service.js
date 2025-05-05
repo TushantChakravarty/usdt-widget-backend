@@ -404,7 +404,9 @@ export async function verifyTransaction(request) {
     if (transaction.length == 0) {
       throw new Error("Transaction doesnt belong to our system");
     }
-    if (transaction.fromAmount !== fromAmount) {
+    if (Number(transaction.fromAmount) !== Number(fromAmount)) {
+      
+      console.log('invalid')
       throw new Error("Invalid amount");
     }
     if (payoutHash && payoutHash?.status === "SUCCESS") {
@@ -473,20 +475,20 @@ export async function verifyTransaction(request) {
         }
       }
 
-      const expectedAmountInSun = fromAmount * 1000000;
+      const expectedAmountInSun = BigInt(fromAmount) * 1000000n; // ← note the 'n'
+      const toleranceInSun = 5n * 1000000n;
+      
       console.log(
         "check check",
         expectedAmountInSun.toString(),
         actualAmount.toString()
       );
-      // if (expectedAmountInSun.toString() !== actualAmount.toString()) {
-      //   throw new Error('Invalid amount')
-      // }
-      const toleranceInSun = 5 * 1000000; // fault tolerance of 5 TRX in Sun units
-
+      
       if (
-        Math.abs(expectedAmountInSun - actualAmountInNumber) > toleranceInSun
+        expectedAmountInSun > actualAmount + toleranceInSun ||
+        expectedAmountInSun < actualAmount - toleranceInSun
       ) {
+        console.log('herrrr');
         throw new Error("Invalid amount");
       }
       // Check if the transaction was successful
@@ -495,10 +497,18 @@ export async function verifyTransaction(request) {
       let recipientAddress = await getRecipientAddressUsingTronscan(txHash);
       console.log("reciepent check", recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
+      
+       console.log(transactionStatus,recipientAddress,expectedAmountInSun,actualAmount,depositAddress,toleranceInSun)
+       const withinTolerance =
+  expectedAmountInSun <= actualAmount + toleranceInSun &&
+  expectedAmountInSun >= actualAmount - toleranceInSun;
+ 
+
+const isValid =
+  withinTolerance && transactionStatus === "SUCCESS" && recipientAddress === depositAddress;
+  console.log(isValid)
       if (
-        Math.abs(expectedAmountInSun - actualAmountInNumber) > toleranceInSun &&
-        transactionStatus === "SUCCESS" &&
-        recipientAddress == depositAddress
+        isValid
       ) {
         console.log(
           "Transaction is valid, amount matches, and the transaction was successful."
