@@ -434,7 +434,7 @@ export async function offrampCallbackRazorpay(request, reply) {
   console.log(request.body);
   // return reply.status(200).send({ message: "success" });
   const details = request?.body?.payload?.payout?.entity
-  console.log(details)
+  //console.log(details)
   const transaction_id = details?.id
   const status = details?.status?.toLowerCase() === "processed" ? "success" : "failed"
   const utr = details?.utr?details?.utr:""
@@ -456,12 +456,12 @@ export async function offrampCallbackRazorpay(request, reply) {
     return
   }
    console.log(payoutTx)
-  if(!payoutTx.transaction_id)
+  if(!payoutTx?.transaction_id)
   {
-    return reply.status(400).send({ message: "Tx not found" });
+    return reply.status(200).send({ message: "Tx not found" });
   }
   const transaction = await findRecord(OffRampTransaction, {
-    reference_id: payoutTx.reference_id,
+    reference_id: payoutTx?.reference_id,
   });
 
   if (payoutTx && transaction) {
@@ -496,7 +496,7 @@ export async function offrampCallbackRazorpay(request, reply) {
     }
   } else {
    
-      return reply.status(400).send({ message: "Tx not found" });
+      return reply.status(200).send({ message: "Tx not found" });
     
   }
 }catch(error)
