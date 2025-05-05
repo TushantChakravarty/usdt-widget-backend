@@ -4,6 +4,7 @@ import { sendMailForFailedPayment, sendMailForSuccessPayment } from "../utils/ma
 import { responseMapping, responseMappingError, responseMappingWithData } from "../utils/responseMapper.js";
 import { enqueueCallback } from "../utils/sqs/producer.js";
 import { verifyTransactionDetails } from "./onramp.controller.js";
+import { Op } from 'sequelize';
 
 const { User, OnRampTransaction, OffRampTransaction, Payout, Payin, OffRampLiveTransactions } = db;
 
@@ -598,13 +599,23 @@ export async function callbackUsdt(request, reply)
     
     if(asset === "USDT_TRON"&&chain==="tron-mainnet")
       {
+        // const transactionData = await OffRampLiveTransactions.findOne({
+        //   where: {
+        //     depositAddress: address,
+        //     fromAmount: amount
+        //   },
+        //   order: [['date', 'DESC'], ['time', 'DESC']]
+        // });
         const transactionData = await OffRampLiveTransactions.findOne({
           where: {
             depositAddress: address,
-            fromAmount: amount
+            fromAmount: {
+              [Op.between]: [amount - 5, amount + 5]
+            }
           },
           order: [['date', 'DESC'], ['time', 'DESC']]
         });
+        
         const user = await findRecordNew(User,{
           id:transactionData?.user_id
         })
