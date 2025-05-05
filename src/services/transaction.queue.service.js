@@ -1,8 +1,6 @@
 // import { findOneAndUpdate, findRecord } from "../Dao/dao";
 // import { getRecipientAddressUsingTronscan } from "../utils/tronUtils";
 
-
-
 import cryptoJs from "crypto-js";
 import db from "../models/index.js";
 import { compare, encrypt } from "../utils/password.util.js";
@@ -36,7 +34,11 @@ import {
   Plugin,
 } from "tronweb";
 import QRCode from "qrcode";
-import { generateRandomFiatId, generateTransactionId, validateBankAccount } from "../utils/utils.js";
+import {
+  generateRandomFiatId,
+  generateTransactionId,
+  validateBankAccount,
+} from "../utils/utils.js";
 // import {
 //   createPayoutBankRequest,
 //   generateToken,
@@ -55,7 +57,7 @@ import { createInstantPayoutBankRequest } from "../gateways/kwikpaisa.js";
 import { sendFundTransferRequest } from "../gateways/gennpayPayout.js";
 import { createRazorpayPayoutService } from "../gateways/razorpay.js";
 import { Op } from "sequelize";
-import {enqueueCallback} from "../utils/sqs/producer"
+import { enqueueCallback } from "../utils/sqs/producer";
 
 const {
   User,
@@ -67,7 +69,7 @@ const {
   Usdt,
   ValidatedAccounts,
   OffRampLiveTransactions,
-  WalletPoolModel
+  WalletPoolModel,
 } = db;
 
 // export async function verifyTransaction(details) {
@@ -80,8 +82,6 @@ const {
 //       reference_id,
 //       txHash,
 //     } = details;
-
-   
 
 //     // const expectedTrxAmount = 10
 //     //console.log(txHash)
@@ -99,8 +99,7 @@ const {
 //     });
 //     console.log(transaction);
 //     console.log(payoutTx);
-  
-  
+
 //     const transactionInfo = await tronWeb.trx
 //       .getTransaction(txHash)
 //       .catch((error) => {
@@ -364,19 +363,9 @@ const {
 //   }
 // }
 
-
-
 export async function verifyTransaction(request) {
   try {
-    const {
-      fromAmount,
-      reference_id,
-      txHash,
-      user,
-      depositAddress
-    } = request;
-
-   
+    const { fromAmount, reference_id, txHash, user, depositAddress } = request;
 
     // const expectedTrxAmount = 10
     //console.log(txHash)
@@ -400,29 +389,35 @@ export async function verifyTransaction(request) {
         transaction?.processed == "PENDING") &&
       transaction?.txHash &&
       transaction?.payout_id
-    ) {      
-      throw new Error("Transaction is already under process please check status from history")
+    ) {
+      throw new Error(
+        "Transaction is already under process please check status from history"
+      );
     }
     console.log(transaction?.processed);
     if (transaction && transaction?.processed === "SUCCESS") {
-      throw new Error("Transaction is already under process please check status from history")
+      throw new Error(
+        "Transaction is already under process please check status from history"
+      );
     }
 
     if (transaction.length == 0) {
-      throw new Error("Transaction doesnt belong to our system")
+      throw new Error("Transaction doesnt belong to our system");
     }
     if (transaction.fromAmount !== fromAmount) {
-      throw new Error("Invalid amount")
+      throw new Error("Invalid amount");
     }
     if (payoutHash && payoutHash?.status === "SUCCESS") {
-      throw new Error('Transaction has already been processed')
+      throw new Error("Transaction has already been processed");
     }
     if (payoutHash && payoutHash?.status === "PENDING") {
-      throw new Error('Transaction is under process currently')
+      throw new Error("Transaction is under process currently");
     }
 
     if (transaction.txHash && transaction.txHash !== txHash) {
-      throw new Error('transaction has already been processed with different hash')
+      throw new Error(
+        "transaction has already been processed with different hash"
+      );
     }
 
     if (
@@ -431,22 +426,22 @@ export async function verifyTransaction(request) {
       payoutTx.transaction_id
     ) {
       console.log("transaction has already been processed");
-      throw new Error('Transaction has already been processed')
+      throw new Error("Transaction has already been processed");
     }
     if (transaction && transaction.user_id !== request.user.id) {
       console.log("Transaction belongs to another user");
-      throw new Error('Transaction belongs to another user')
+      throw new Error("Transaction belongs to another user");
     }
 
     const transactionInfo = await tronWeb.trx
       .getTransaction(txHash)
       .catch((error) => {
-        throw new Error('Transaction not found.')
+        throw new Error("Transaction not found.");
       });
     console.log(transactionInfo);
     if (!transactionInfo || !transactionInfo.txID) {
       console.log("Transaction not found.");
-      throw new Error('Transaction not found.')
+      throw new Error("Transaction not found.");
     }
 
     if (transactionInfo) {
@@ -484,8 +479,15 @@ export async function verifyTransaction(request) {
         expectedAmountInSun.toString(),
         actualAmount.toString()
       );
-      if (expectedAmountInSun.toString() !== actualAmount.toString()) {
-        throw new Error('Invalid amount')
+      // if (expectedAmountInSun.toString() !== actualAmount.toString()) {
+      //   throw new Error('Invalid amount')
+      // }
+      const toleranceInSun = 5 * 1000000; // fault tolerance of 5 TRX in Sun units
+
+      if (
+        Math.abs(expectedAmountInSun - actualAmountInNumber) > toleranceInSun
+      ) {
+        throw new Error("Invalid amount");
       }
       // Check if the transaction was successful
       const transactionStatus = transactionInfo.ret[0].contractRet;
@@ -494,7 +496,7 @@ export async function verifyTransaction(request) {
       console.log("reciepent check", recipientAddress);
       // Verify that the amount matches the expected value in SUN and the transaction was successful
       if (
-        expectedAmountInSun.toString() == actualAmount.toString() &&
+        Math.abs(expectedAmountInSun - actualAmountInNumber) > toleranceInSun &&
         transactionStatus === "SUCCESS" &&
         recipientAddress == depositAddress
       ) {
@@ -509,7 +511,7 @@ export async function verifyTransaction(request) {
         let query = {
           reference_id: reference_id.toString(),
         };
-       
+
         const transaction = await findOneAndUpdate(
           OffRampTransaction,
           query,
@@ -588,8 +590,9 @@ export async function verifyTransaction(request) {
           // );
 
           //  //razorpay payouts
+          let amt = fromAmount !==transaction?.fromAmount? fromAmount * 87.75:transaction.toAmount
           let body = {
-            id:request.user.customerId,
+            id: request.user.customerId,
             emailId: request.user.email,
             amount: transaction.toAmount,
             customer_name: "tushant",
@@ -604,28 +607,28 @@ export async function verifyTransaction(request) {
             method: "bank",
             transaction_id: reference_id.toString(),
           };
-          const payoutRequest = await createRazorpayPayoutService(body)
+          const payoutRequest = await createRazorpayPayoutService(body);
           //   //razorpay payouts end
           console.log(payoutRequest);
           if (payoutRequest.code == 200 && payoutRequest.data.transaction_id) {
             await OffRampLiveTransactions.destroy({
               where: {
-                reference_id: reference_id
-              }
+                reference_id: reference_id,
+              },
             });
 
             await WalletPoolModel.update(
               {
                 inUse: false,
-                assignedToUserId: null
+                assignedToUserId: null,
               },
               {
                 where: {
-                  address: depositAddress
-                }
+                  address: depositAddress,
+                },
               }
             );
-            
+
             let updatedData = {
               name: fiatAccount.account_name,
               email: request.user.email,
@@ -647,34 +650,32 @@ export async function verifyTransaction(request) {
               payoutRequest.data.transaction_id.toString();
             transaction.save();
             console.log(payoutsData);
-            return true
+            return true;
           } else {
-            throw new Error("Unable to process")
+            throw new Error("Unable to process");
           }
           // console.log(transaction)
         } else {
           console.log("transaction doesnt belong to our system");
-          throw new Error("Transaction doesnt belong to our system")
+          throw new Error("Transaction doesnt belong to our system");
         }
         //const transaction = await OffRampTransaction.create(body)
         // Mark payment as successful in your system
       } else if (expectedAmountInSun.toString() !== actualAmount.toString()) {
         console.log("Transaction amount does not match the expected value.");
-        throw new Error("Transaction amount does not match the expected value.")
+        throw new Error(
+          "Transaction amount does not match the expected value."
+        );
       } else if (transactionStatus !== "SUCCESS") {
         console.log("Transaction was not successful.");
-        throw new Error("Transaction was not successful")
+        throw new Error("Transaction was not successful");
       }
     } else {
       console.log("Transaction not found.");
-      throw new Error("Transaction not successful")
- 
+      throw new Error("Transaction not successful");
     }
   } catch (error) {
     console.error("Error verifying transaction:", error);
-    throw error
-    
+    throw error;
   }
 }
-
-

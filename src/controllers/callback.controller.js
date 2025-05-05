@@ -626,8 +626,9 @@ export async function callbackUsdt(request, reply)
         if(!transactionData){
           return reply.status(400).send(responseMappingError(400, "Transaction not found"));
         }
+        let amt = transactionData?.fromAmount!==amount?amount:transactionData?.fromAmount
         const body ={
-          fromAmount:transactionData?.fromAmount,
+          fromAmount:amt,
           reference_id:transactionData?.reference_id,
           txHash:txId,
           user:user,
