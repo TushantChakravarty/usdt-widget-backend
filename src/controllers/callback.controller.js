@@ -451,6 +451,10 @@ export async function offrampCallbackRazorpay(request, reply) {
   const payoutTx = await findRecord(Payout, {
     transaction_id: transaction_id,
   });
+  if(payoutTx?.length==0)
+  {
+    return reply.status(200).send({ message: "Tx not found" });
+  }
   if(details?.status?.toLowerCase() === "queued")
   {
     return
