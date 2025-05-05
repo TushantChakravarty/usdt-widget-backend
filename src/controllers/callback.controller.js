@@ -1,12 +1,26 @@
 import { findOneAndUpdate, findRecord, findRecordNew } from "../Dao/dao.js";
 import db from "../models/index.js";
-import { sendMailForFailedPayment, sendMailForSuccessPayment } from "../utils/mail/sendMail.js";
-import { responseMapping, responseMappingError, responseMappingWithData } from "../utils/responseMapper.js";
+import {
+  sendMailForFailedPayment,
+  sendMailForSuccessPayment,
+} from "../utils/mail/sendMail.js";
+import {
+  responseMapping,
+  responseMappingError,
+  responseMappingWithData,
+} from "../utils/responseMapper.js";
 import { enqueueCallback } from "../utils/sqs/producer.js";
 import { verifyTransactionDetails } from "./onramp.controller.js";
-import { Op } from 'sequelize';
+import { Op } from "sequelize";
 
-const { User, OnRampTransaction, OffRampTransaction, Payout, Payin, OffRampLiveTransactions } = db;
+const {
+  User,
+  OnRampTransaction,
+  OffRampTransaction,
+  Payout,
+  Payin,
+  OffRampLiveTransactions,
+} = db;
 
 /**
  * get otp callback kyc.
@@ -302,10 +316,10 @@ export async function callbackHandler(request, reply) {
 
 export async function offrampCallbackGsx(request, reply) {
   console.log(request.body);
-  const details = request.body
-  const transaction_id = details.unique_system_order_id
-  const status = details.status
-  const utr = details.tranfer_rrn_number
+  const details = request.body;
+  const transaction_id = details.unique_system_order_id;
+  const status = details.status;
+  const utr = details.tranfer_rrn_number;
   // const {
   //   transaction_id,
   //   amount,
@@ -319,9 +333,8 @@ export async function offrampCallbackGsx(request, reply) {
   const payoutTx = await findRecord(Payout, {
     transaction_id: transaction_id,
   });
-//   console.log(payoutTx)
-  if(!payoutTx.transaction_id)
-  {
+  //   console.log(payoutTx)
+  if (!payoutTx.transaction_id) {
     reply.status(400).send({ message: "Tx not found" });
   }
   const transaction = await findRecord(OffRampTransaction, {
@@ -329,8 +342,8 @@ export async function offrampCallbackGsx(request, reply) {
   });
   if (payoutTx && transaction) {
     if (status?.toLowerCase() == "success") {
-    //   console.log("payout found", payoutTx);
-    //   console.log("offramp tx found", transaction);
+      //   console.log("payout found", payoutTx);
+      //   console.log("offramp tx found", transaction);
 
       transaction.processed = "SUCCESS";
       transaction.status = "SUCCESS";
@@ -338,7 +351,7 @@ export async function offrampCallbackGsx(request, reply) {
       payoutTx.utr = utr;
       const updatedOfframp = await transaction.save();
       const updatedPayout = await payoutTx.save();
-       console.log("updated tx", updatedOfframp);
+      console.log("updated tx", updatedOfframp);
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
         reply.status(200).send({ message: "success" });
@@ -349,26 +362,24 @@ export async function offrampCallbackGsx(request, reply) {
       payoutTx.utr = utr;
       const updatedOfframp = await transaction.save();
       const updatedPayout = await payoutTx.save();
-       console.log("updated tx", updatedOfframp);
+      console.log("updated tx", updatedOfframp);
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
         reply.status(200).send({ message: "success" });
       }
     }
   } else {
-   
-      reply.status(400).send({ message: "Tx not found" });
-    
+    reply.status(400).send({ message: "Tx not found" });
   }
 }
 
 export async function offrampCallbackGennpay(request, reply) {
   console.log(request.body);
   // return reply.status(200).send({ message: "success" });
-  const details = request.body
-  const transaction_id = details.merchant_reference_number
-  const status = details.status
-  const utr = details.bank_reference_number
+  const details = request.body;
+  const transaction_id = details.merchant_reference_number;
+  const status = details.status;
+  const utr = details.bank_reference_number;
   // const {
   //   transaction_id,
   //   amount,
@@ -382,9 +393,8 @@ export async function offrampCallbackGennpay(request, reply) {
   const payoutTx = await findRecord(Payout, {
     transaction_id: transaction_id,
   });
-//   console.log(payoutTx)
-  if(!payoutTx.transaction_id)
-  {
+  //   console.log(payoutTx)
+  if (!payoutTx.transaction_id) {
     reply.status(400).send({ message: "Tx not found" });
   }
   const transaction = await findRecord(OffRampTransaction, {
@@ -393,8 +403,8 @@ export async function offrampCallbackGennpay(request, reply) {
 
   if (payoutTx && transaction) {
     if (status?.toLowerCase() == "success") {
-    //   console.log("payout found", payoutTx);
-    //   console.log("offramp tx found", transaction);
+      //   console.log("payout found", payoutTx);
+      //   console.log("offramp tx found", transaction);
 
       transaction.processed = "SUCCESS";
       transaction.status = "SUCCESS";
@@ -402,10 +412,18 @@ export async function offrampCallbackGennpay(request, reply) {
       payoutTx.utr = utr;
       const updatedOfframp = await transaction.save();
       const updatedPayout = await payoutTx.save();
-       console.log("updated tx", updatedOfframp);
+      console.log("updated tx", updatedOfframp);
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
-        sendMailForSuccessPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.chain, transaction?.txHash, payoutTx?.email)
+        sendMailForSuccessPayment(
+          transaction?.transaction_id,
+          transaction?.toAmount,
+          transaction?.toCurrency,
+          transaction?.fromAmount,
+          transaction?.chain,
+          transaction?.txHash,
+          payoutTx?.email
+        );
         reply.status(200).send({ message: "success" });
       }
     } else {
@@ -414,110 +432,125 @@ export async function offrampCallbackGennpay(request, reply) {
       payoutTx.utr = utr;
       const updatedOfframp = await transaction.save();
       const updatedPayout = await payoutTx.save();
-       console.log("updated tx", updatedOfframp);
+      console.log("updated tx", updatedOfframp);
       console.log("updated payout", updatedPayout);
       if (updatedOfframp && updatedPayout) {
-        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount,  transaction?.chain, transaction?.txHash, payoutTx?.email)
+        sendMailForFailedPayment(
+          transaction?.transaction_id,
+          transaction?.toAmount,
+          transaction?.toCurrency,
+          transaction?.fromAmount,
+          transaction?.chain,
+          transaction?.txHash,
+          payoutTx?.email
+        );
         reply.status(200).send({ message: "success" });
       }
     }
   } else {
-   
-      reply.status(400).send({ message: "Tx not found" });
-    
+    reply.status(400).send({ message: "Tx not found" });
   }
 }
 
 export async function offrampCallbackRazorpay(request, reply) {
-  try{
+  try {
+    console.log(request.body);
+    // return reply.status(200).send({ message: "success" });
+    const details = request?.body?.payload?.payout?.entity;
+    //console.log(details)
+    const transaction_id = details?.id;
+    const status =
+      details?.status?.toLowerCase() === "processed" ? "success" : "failed";
+    const utr = details?.utr ? details?.utr : "";
+    // const {
+    //   transaction_id,
+    //   amount,
+    //   status,
+    //   transaction_date,
+    //   utr,
+    //   usdtRate,
+    //   customer_id,
+    //   usdtValue,
+    // } = request.body;
+    const payoutTx = await findRecord(Payout, {
+      transaction_id: transaction_id,
+    });
+    console.log("payout tx data", payoutTx);
+    if (payoutTx?.length == 0) {
+      return reply.status(200).send({ message: "Tx not found" });
+    }
+    if (details?.status?.toLowerCase() === "queued") {
+      return;
+    }
+    console.log(payoutTx);
+    if (!payoutTx?.transaction_id) {
+      return reply.status(200).send({ message: "Tx not found" });
+    }
+    const transaction = await findRecord(OffRampTransaction, {
+      reference_id: payoutTx?.reference_id,
+    });
 
-  
-  console.log(request.body);
-  // return reply.status(200).send({ message: "success" });
-  const details = request?.body?.payload?.payout?.entity
-  //console.log(details)
-  const transaction_id = details?.id
-  const status = details?.status?.toLowerCase() === "processed" ? "success" : "failed"
-  const utr = details?.utr?details?.utr:""
-  // const {
-  //   transaction_id,
-  //   amount,
-  //   status,
-  //   transaction_date,
-  //   utr,
-  //   usdtRate,
-  //   customer_id,
-  //   usdtValue,
-  // } = request.body;
-  const payoutTx = await findRecord(Payout, {
-    transaction_id: transaction_id,
-  });
-  console.log('payout tx data',payoutTx)
-  if(payoutTx?.length==0)
-  {
-    return reply.status(200).send({ message: "Tx not found" });
-  }
-  if(details?.status?.toLowerCase() === "queued")
-  {
-    return
-  }
-   console.log(payoutTx)
-  if(!payoutTx?.transaction_id)
-  {
-    return reply.status(200).send({ message: "Tx not found" });
-  }
-  const transaction = await findRecord(OffRampTransaction, {
-    reference_id: payoutTx?.reference_id,
-  });
+    if (payoutTx && transaction) {
+      if (status?.toLowerCase() == "success") {
+        //   console.log("payout found", payoutTx);
+        //   console.log("offramp tx found", transaction);
 
-  if (payoutTx && transaction) {
-    if (status?.toLowerCase() == "success") {
-    //   console.log("payout found", payoutTx);
-    //   console.log("offramp tx found", transaction);
-
-      transaction.processed = "SUCCESS";
-      transaction.status = "SUCCESS";
-      payoutTx.status = "SUCCESS";
-      payoutTx.utr = utr;
-      const updatedOfframp = await transaction.save();
-      const updatedPayout = await payoutTx.save();
-       console.log("updated tx", updatedOfframp);
-      console.log("updated payout", updatedPayout);
-      if (updatedOfframp && updatedPayout) {
-        sendMailForSuccessPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.chain, transaction?.txHash, payoutTx?.email)
-        return reply.status(200).send({ message: "success" });
+        transaction.processed = "SUCCESS";
+        transaction.status = "SUCCESS";
+        payoutTx.status = "SUCCESS";
+        payoutTx.utr = utr;
+        const updatedOfframp = await transaction.save();
+        const updatedPayout = await payoutTx.save();
+        console.log("updated tx", updatedOfframp);
+        console.log("updated payout", updatedPayout);
+        if (updatedOfframp && updatedPayout) {
+          sendMailForSuccessPayment(
+            transaction?.transaction_id,
+            transaction?.toAmount,
+            transaction?.toCurrency,
+            transaction?.fromAmount,
+            transaction?.chain,
+            transaction?.txHash,
+            payoutTx?.email
+          );
+          return reply.status(200).send({ message: "success" });
+        }
+      } else {
+        transaction.processed = "FAILED";
+        payoutTx.status = "FAILED";
+        payoutTx.utr = utr;
+        const updatedOfframp = await transaction.save();
+        const updatedPayout = await payoutTx.save();
+        console.log("updated tx", updatedOfframp);
+        console.log("updated payout", updatedPayout);
+        if (updatedOfframp && updatedPayout) {
+          sendMailForFailedPayment(
+            transaction?.transaction_id,
+            transaction?.toAmount,
+            transaction?.toCurrency,
+            transaction?.fromAmount,
+            transaction?.chain,
+            transaction?.txHash,
+            payoutTx?.email
+          );
+          return reply.status(200).send({ message: "success" });
+        }
       }
     } else {
-      transaction.processed = "FAILED";
-      payoutTx.status = "FAILED";
-      payoutTx.utr = utr;
-      const updatedOfframp = await transaction.save();
-      const updatedPayout = await payoutTx.save();
-       console.log("updated tx", updatedOfframp);
-      console.log("updated payout", updatedPayout);
-      if (updatedOfframp && updatedPayout) {
-        sendMailForFailedPayment(transaction?.transaction_id, transaction?.toAmount, transaction?.toCurrency, transaction?.fromAmount, transaction?.chain, transaction?.txHash, payoutTx?.email)
-        return reply.status(200).send({ message: "success" });
-      }
-    }
-  } else {
-   
       return reply.status(200).send({ message: "Tx not found" });
-    
+    }
+  } catch (error) {
+    return reply.status(200).send({ message: "Tx not found" });
   }
-}catch(error)
-{
-  return reply.status(200).send({ message: "Tx not found" });
-}
 }
 
 export async function onrampCallback(request, reply) {
-  console.log("onramp callback",request.body);
-  const data = request.body
-  const transaction_id =data?.order_data?.order_id.toString()
-  const amount = data.order_data?.purchase_details?.order_amount
-  const status = data?.order_data?.payment_data?.payment_status.toLowerCase()
-  const utr =data.order_data?.payment_data.bank_refrance_number
+  console.log("onramp callback", request.body);
+  const data = request.body;
+  const transaction_id = data?.order_data?.order_id.toString();
+  const amount = data.order_data?.purchase_details?.order_amount;
+  const status = data?.order_data?.payment_data?.payment_status.toLowerCase();
+  const utr = data.order_data?.payment_data.bank_refrance_number;
   // const {
   //   transaction_id,
   //   amount,
@@ -529,122 +562,134 @@ export async function onrampCallback(request, reply) {
   //   usdtValue,
   // } = request.body;
 
- 
   const transaction = await findRecord(OnRampTransaction, {
     reference_id: transaction_id,
   });
-  const payin = await findRecord(Payin,{
-    transaction_id:transaction_id
-  })
-  if(!transaction.reference_id)
-  {
+  const payin = await findRecord(Payin, {
+    transaction_id: transaction_id,
+  });
+  if (!transaction.reference_id) {
     reply.status(400).send({ message: "Tx not found" });
   }
   if (transaction) {
     if (status?.toLowerCase() == "success") {
-    //   console.log("payout found", payoutTx);
-    //   console.log("offramp tx found", transaction);
+      //   console.log("payout found", payoutTx);
+      //   console.log("offramp tx found", transaction);
 
       transaction.status = "SUCCESS";
-      transaction.utr = utr
-      transaction.amount = amount
-      payin.status ="SUCCESS",
-      payin.utr = utr
-      payin.amount = amount
-      payin.save()
+      transaction.utr = utr;
+      transaction.amount = amount;
+      (payin.status = "SUCCESS"), (payin.utr = utr);
+      payin.amount = amount;
+      payin.save();
       const updatedOnramp = await transaction.save();
 
       console.log("updated tx", updatedOnramp);
-    //   console.log("updated payout", updatedPayout);
+      //   console.log("updated payout", updatedPayout);
       if (updatedOnramp) {
-        const data = await verifyTransactionDetails({reference_id:transaction.reference_id})
-        console.log(data)
+        const data = await verifyTransactionDetails({
+          reference_id: transaction.reference_id,
+        });
+        console.log(data);
         reply.status(200).send({ message: "success" });
       }
     } else {
       transaction.status = "FAILED";
-      transaction.utr = utr
-      transaction.amount = amount
-      payin.status ="FAILED",
-      payin.utr = utr
-      payin.amount = amount
+      transaction.utr = utr;
+      transaction.amount = amount;
+      (payin.status = "FAILED"), (payin.utr = utr);
+      payin.amount = amount;
       const updatedOnramp = await transaction.save();
-    //   console.log("updated tx", updatedOfframp);
-    //   console.log("updated payout", updatedPayout);
+      //   console.log("updated tx", updatedOfframp);
+      //   console.log("updated payout", updatedPayout);
       if (updatedOnramp) {
         reply.status(200).send({ message: "success" });
       }
     }
   } else {
-   
-      reply.status(400).send({ message: "Tx not found" });
-    
+    reply.status(400).send({ message: "Tx not found" });
   }
 }
 
-export async function callbackMercuryo(request, reply)
-{
-console.log("hitt")
-console.log(request.body.payload.payment.entity)
-console.log(request.body.payload.qr_code.entity)
-
+export async function callbackMercuryo(request, reply) {
+  console.log("hitt");
+  console.log(request.body.payload.payment.entity);
+  console.log(request.body.payload.qr_code.entity);
 }
 
-export async function callbackUsdt(request, reply)
-{
-  try{
+export async function callbackUsdt(request, reply) {
+  try {
+    console.log(request.body);
+    const { address, counterAddress, asset, txId, chain, amount } =
+      request.body;
 
-    console.log(request.body)
-    const { address, counterAddress, asset, txId, chain, amount } =  request.body;
-    
-    if(asset === "USDT_TRON"&&chain==="tron-mainnet")
-      {
-        // const transactionData = await OffRampLiveTransactions.findOne({
-        //   where: {
-        //     depositAddress: address,
-        //     fromAmount: amount
-        //   },
-        //   order: [['date', 'DESC'], ['time', 'DESC']]
-        // });
-        const transactionData = await OffRampLiveTransactions.findOne({
-          where: {
-            depositAddress: address,
-            fromAmount: {
-              [Op.between]: [amount - 5, amount + 5]
-            }
-          },
-          order: [['date', 'DESC'], ['time', 'DESC']]
-        });
-        
-        const user = await findRecordNew(User,{
-          id:transactionData?.user_id
-        })
-        if(!user){
-          
-          return reply.status(400).send(responseMappingError(400, "User not found"));
-        }
-        if(!transactionData){
-          return reply.status(400).send(responseMappingError(400, "Transaction not found"));
-        }
-        let amt = transactionData?.fromAmount!==amount?amount:transactionData?.fromAmount
-        const body ={
-          fromAmount:amt,
-          reference_id:transactionData?.reference_id,
-          txHash:txId,
-          user:user,
-          depositAddress:address
-
-        }
-        const enqueue_data = await enqueueCallback(body,"verifyTransaction")
-        console.log(`✅ New USDT deposit detected! TxHash: ${txId}, From: ${counterAddress}, Amount: ${amount} USDT`);
-        return reply.status(200).send(responseMapping(200, "Your verify request is under process"));
-        
-        
+    if (asset === "USDT_TRON" && chain === "tron-mainnet") {
+      // const transactionData = await OffRampLiveTransactions.findOne({
+      //   where: {
+      //     depositAddress: address,
+      //     fromAmount: amount
+      //   },
+      //   order: [['date', 'DESC'], ['time', 'DESC']]
+      // });
+      const numericAmount = parseFloat(amount); // parse '10' to 10
+      if (isNaN(numericAmount)) {
+        throw new Error("Invalid amount format");
       }
-    }catch(error){
-      console.error("Error updating callback status:", error);
-      reply.status(500).send({ error: "Internal server error" });
+
+      const lower = numericAmount - 5;
+      const upper = numericAmount + 5;
+      
+      console.log(`→ typeof lower: ${typeof lower}, value: ${lower}`);
+      console.log(`→ typeof upper: ${typeof upper}, value: ${upper}`);
+      
+      const transactionData = await OffRampLiveTransactions.findOne({
+        where: {
+          depositAddress: address,
+          fromAmount: {
+            [Op.between]: [lower, upper] // must be native numbers
+          }
+        },
+        order: [['date', 'DESC'], ['time', 'DESC']]
+      });
+      
+      console.log("RESULT:", transactionData);
+      const user = await findRecordNew(User, {
+        id: transactionData?.user_id,
+      });
+      if (!user) {
+        return reply
+          .status(400)
+          .send(responseMappingError(400, "User not found"));
+      }
+      if (!transactionData) {
+        return reply
+          .status(400)
+          .send(responseMappingError(400, "Transaction not found"));
+      }
+      let amt =
+        transactionData?.fromAmount !== amount
+          ? amount
+          : transactionData?.fromAmount;
+          console.log('amt', amt)
+      const body = {
+        fromAmount: amt,
+        reference_id: transactionData?.reference_id,
+        txHash: txId,
+        user: user,
+        depositAddress: address,
+      };
+      const enqueue_data = await enqueueCallback(body, "verifyTransaction");
+      console.log(
+        `✅ New USDT deposit detected! TxHash: ${txId}, From: ${counterAddress}, Amount: ${amount} USDT`
+      );
+      return reply
+        .status(200)
+        .send(responseMapping(200, "Your verify request is under process"));
     }
+  } catch (error) {
+    console.error("Error updating callback status:", error);
+    reply.status(500).send({ error: "Internal server error" });
+  }
 }
 
 /**
@@ -676,7 +721,6 @@ export async function callbackUsdt(request, reply)
  * 
  * 
  */
-
 
 // /**
 //  * callback for onramp transactionsa=

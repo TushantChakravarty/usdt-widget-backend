@@ -366,7 +366,7 @@ const {
 export async function verifyTransaction(request) {
   try {
     const { fromAmount, reference_id, txHash, user, depositAddress } = request;
-
+    console.log("frommmm",fromAmount)
     // const expectedTrxAmount = 10
     //console.log(txHash)
     // Fetch the transaction info from Tron blockchain using the txHash

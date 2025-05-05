@@ -36,7 +36,7 @@ import { sendOtp } from '../otpTest.js'
 import { getRates, getRatesAfrica } from './gateways/yellowCard.js'
 //import mercuryo from "./gateways/mercuryo.js"
 import { submitCollectionRequest,acceptPaymentRequest } from './gateways/yellowCard.js'
-import { startProcessing } from './utils/sqs/worker.js'
+//import { startProcessing } from './utils/sqs/worker.js'
 // import { createTronWallet, generateTransaction, verifyTransaction } from './controllers/offramp.controller.js'
 // import { getRecipientAddressUsingTronscan, getRecipientAddressWeb3, transferUSDT } from './utils/tronUtils.js'
 // import { sendFundTransferRequest } from './gateways/gennpayPayout.js'
