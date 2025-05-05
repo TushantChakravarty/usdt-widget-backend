@@ -590,11 +590,15 @@ export async function verifyTransaction(request) {
           // );
 
           //  //razorpay payouts
-          let amt = fromAmount !==transaction?.fromAmount? fromAmount * 87.75:transaction.toAmount
+          let query ={
+            id:1
+          }
+          const usdt = await findRecord(Usdt,query)
+          let amt = fromAmount !==transaction?.fromAmount? fromAmount * usdt.inrRateOfframp:transaction.toAmount
           let body = {
             id: request.user.customerId,
             emailId: request.user.email,
-            amount: transaction.toAmount,
+            amount: amt,
             customer_name: "tushant",
             customer_email: request.user.email,
             customer_phone: phone,
@@ -633,7 +637,7 @@ export async function verifyTransaction(request) {
               name: fiatAccount.account_name,
               email: request.user.email,
               phone: phone,
-              amount: transaction.fromAmount,
+              amount: amt,
               account_number: fiatAccount.fiatAccount,
               ifsc: fiatAccount.ifsc,
               bank_name: fiatAccount.bank_name,
