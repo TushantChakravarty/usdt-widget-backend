@@ -404,9 +404,20 @@ export async function verifyTransaction(request) {
     if (transaction.length == 0) {
       throw new Error("Transaction doesnt belong to our system");
     }
-    if (Number(transaction.fromAmount) !== Number(fromAmount)) {
-      
-      console.log('invalid')
+    const tolerance = 5; // in TRX
+    const txAmount = Number(transaction.fromAmount);
+    const expectedAmount = Number(fromAmount);
+    
+    // Check for NaN safety
+    if (isNaN(txAmount) || isNaN(expectedAmount)) {
+      throw new Error("Invalid amount input type");
+    }
+    
+    if (
+      txAmount > expectedAmount + tolerance ||
+      txAmount < expectedAmount - tolerance
+    ) {
+      console.log('invalid');
       throw new Error("Invalid amount");
     }
     if (payoutHash && payoutHash?.status === "SUCCESS") {
