@@ -43,7 +43,8 @@ export const findRecord = async (Model, query) => {
       return []; // Handle the case where no record is found
     }
   } catch (error) {
-    throw error; // Handle errors as needed
+    console.log('error find record',error)
+    return [] // Handle errors as needed
   }
 };
 
