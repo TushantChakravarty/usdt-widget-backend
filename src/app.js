@@ -225,7 +225,7 @@ await server.get('/', async (request, reply) => {
 
 }) // root route
 
-startProcessing()
+//startProcessing()
 
 
 
